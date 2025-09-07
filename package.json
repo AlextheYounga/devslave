@@ -8,6 +8,7 @@
     "doc": "docs"
   },
   "scripts": {
+    "db:migrate": "prisma migrate dev",
     "test": "jest"
   },
   "author": "Alex Younger, Trey Goff",
