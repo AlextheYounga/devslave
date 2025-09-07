@@ -1,4 +1,4 @@
-import { JobQueue } from './jobs/index.js';
+import { JobQueue } from './queue';
 
 async function main() {
   const queue = new JobQueue();

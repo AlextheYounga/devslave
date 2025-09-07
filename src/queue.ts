@@ -1,7 +1,7 @@
-import { PrismaClient } from "./.generated/prisma/index.js";
-import type { JobData } from "./types.js";
+import { PrismaClient } from "@prisma/client";
+import type { JobData } from "./types";
 
-class JobQueue {
+export class JobQueue {
   private prisma: PrismaClient;
 
   constructor() {
@@ -15,7 +15,7 @@ class JobQueue {
   }
 
   async dequeue(): Promise<JobData | null> {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: PrismaClient) => {
       const job = await tx.job.findFirst({
         where: { status: "pending" },
         orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
