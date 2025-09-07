@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "jobs" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "type" TEXT NOT NULL,
     "payload" JSONB NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'pending',
@@ -12,7 +12,7 @@ CREATE TABLE "jobs" (
 
 -- CreateTable
 CREATE TABLE "codebases" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "path" TEXT NOT NULL,
     "data" JSONB,
@@ -22,10 +22,10 @@ CREATE TABLE "codebases" (
 
 -- CreateTable
 CREATE TABLE "events" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "jobId" INTEGER NOT NULL,
-    "codebaseId" INTEGER NOT NULL,
-    "parentId" INTEGER,
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "jobId" TEXT NOT NULL,
+    "codebaseId" TEXT NOT NULL,
+    "parentId" TEXT,
     "type" TEXT NOT NULL,
     "data" JSONB,
     "timestamp" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -35,8 +35,8 @@ CREATE TABLE "events" (
 
 -- CreateTable
 CREATE TABLE "tickets" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "codebaseId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "codebaseId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "status" TEXT NOT NULL DEFAULT 'open',
@@ -48,9 +48,9 @@ CREATE TABLE "tickets" (
 
 -- CreateTable
 CREATE TABLE "branches" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "codebaseId" INTEGER NOT NULL,
-    "ticketId" INTEGER NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "codebaseId" TEXT NOT NULL,
+    "ticketId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "branches_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "tickets" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,

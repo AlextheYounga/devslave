@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Job {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   type      String
   payload   Json
   status    String   @default("pending")
@@ -29,7 +29,7 @@ model Job {
 }
 
 model Codebase {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   name      String
   path      String
   data      Json?
@@ -44,10 +44,10 @@ model Codebase {
 }
 
 model Events {
-  id         Int      @id @default(autoincrement())
-  jobId      Int
-  codebaseId Int
-  parentId   Int?
+  id         String   @id @default(cuid())
+  jobId      String
+  codebaseId String
+  parentId   String?
   type       String
   data       Json?
   timestamp  DateTime @default(now())
@@ -59,8 +59,8 @@ model Events {
 }
 
 model Ticket {
-  id          Int      @id @default(autoincrement())
-  codebaseId  Int
+  id          String   @id @default(cuid())
+  codebaseId  String
   title       String
   description String?
   status      String   @default("open")
@@ -75,9 +75,9 @@ model Ticket {
 }
 
 model Branch {
-  id         Int      @id @default(autoincrement())
-  codebaseId Int
-  ticketId   Int
+  id         String   @id @default(cuid())
+  codebaseId String
+  ticketId   String
   name       String
   createdAt  DateTime @default(now())
 
