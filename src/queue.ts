@@ -1,5 +1,5 @@
-import { PrismaClient } from '../.generated/prisma/index.js';
-import type { JobData } from '../types.js';
+import { PrismaClient } from "./.generated/prisma/index.js";
+import type { JobData } from "./types.js";
 
 class JobQueue {
   private prisma: PrismaClient;
@@ -10,23 +10,20 @@ class JobQueue {
 
   async enqueue(type: string, payload: string, priority = 0): Promise<JobData> {
     return this.prisma.job.create({
-      data: { type, payload, priority }
+      data: { type, payload, priority },
     });
   }
 
   async dequeue(): Promise<JobData | null> {
     return this.prisma.$transaction(async (tx) => {
       const job = await tx.job.findFirst({
-        where: { status: 'pending' },
-        orderBy: [
-          { priority: 'desc' },
-          { createdAt: 'asc' }
-        ]
+        where: { status: "pending" },
+        orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
       });
       if (!job) return null;
       await tx.job.update({
         where: { id: job.id },
-        data: { status: 'processing' }
+        data: { status: "processing" },
       });
       return job;
     });
@@ -35,14 +32,14 @@ class JobQueue {
   async complete(jobId: number): Promise<JobData> {
     return this.prisma.job.update({
       where: { id: jobId },
-      data: { status: 'completed' }
+      data: { status: "completed" },
     });
   }
 
   async fail(jobId: number): Promise<JobData> {
     return this.prisma.job.update({
       where: { id: jobId },
-      data: { status: 'failed' }
+      data: { status: "failed" },
     });
   }
 
