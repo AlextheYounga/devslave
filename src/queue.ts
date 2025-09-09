@@ -42,9 +42,22 @@ export class JobQueue {
     });
   }
 
+  async getJobs(): Promise<Job[]> {
+    return this.prisma.job.findMany({
+      orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
+    });
+  }
+
+  async getJobById(jobId: string): Promise<Job | null> {
+    return this.prisma.job.findUnique({
+      where: { id: jobId },
+    });
+  }
+
   async close(): Promise<void> {
     await this.prisma.$disconnect();
   }
 }
 
 export default JobQueue;
+export const JOB_QUEUE = new JobQueue();
