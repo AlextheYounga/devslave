@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import { JOB_QUEUE } from '../queue';
+import { JobQueue } from '../queue';
+
+const queue = new JobQueue();
 
 async function createJobController(req: Request, res: Response) {
   try {
@@ -12,7 +14,7 @@ async function createJobController(req: Request, res: Response) {
       });
     }
     
-    const job = await JOB_QUEUE.enqueue(type, JSON.stringify(payload), priority);
+    const job = await queue.enqueue(type, JSON.stringify(payload), priority);
     res.status(201).json({ success: true, data: job });
   } catch (error) {
     console.error('Error creating job:', error);

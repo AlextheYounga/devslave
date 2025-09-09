@@ -1,10 +1,11 @@
-import { PrismaClient, Job } from "@prisma/client";
+import type { PrismaClient, Job } from "@prisma/client";
+import { prisma } from "./prisma";
 
 export class JobQueue {
   private prisma: PrismaClient;
 
   constructor() {
-    this.prisma = new PrismaClient();
+    this.prisma = prisma;
   }
 
   async enqueue(type: string, payload: string, priority = 0): Promise<Job> {
@@ -60,4 +61,3 @@ export class JobQueue {
 }
 
 export default JobQueue;
-export const JOB_QUEUE = new JobQueue();

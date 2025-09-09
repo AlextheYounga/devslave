@@ -1,10 +1,12 @@
 
 import { Request, Response } from 'express';
-import { JOB_QUEUE } from '../queue';
+import { JobQueue } from '../queue';
+
+const queue = new JobQueue();
 
 async function nextJobController(req: Request, res: Response) {
   try {
-    const job = await JOB_QUEUE.dequeue();
+    const job = await queue.dequeue();
     
     if (!job) {
       return res.json({ 

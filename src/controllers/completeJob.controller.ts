@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import { JOB_QUEUE } from "../queue";
+import { JobQueue } from "../queue";
+
+const queue = new JobQueue();
 
 async function completeJobController(req: Request, res: Response) {
   try {
@@ -12,7 +14,7 @@ async function completeJobController(req: Request, res: Response) {
       });
     }
 
-    const job = await JOB_QUEUE.complete(id);
+    const job = await queue.complete(id);
     res.json({ success: true, data: job });
   } catch (error) {
     console.error("Error completing job:", error);

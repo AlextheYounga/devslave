@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import { JOB_QUEUE } from '../queue';
+import { JobQueue } from '../queue';
+
+const queue = new JobQueue();
 
 async function getJobByIdController(req: Request, res: Response) {
   try {
@@ -12,7 +14,7 @@ async function getJobByIdController(req: Request, res: Response) {
       });
     }
     
-    const job = await JOB_QUEUE.getJobById(id);
+    const job = await queue.getJobById(id);
     
     if (!job) {
       return res.status(404).json({ 

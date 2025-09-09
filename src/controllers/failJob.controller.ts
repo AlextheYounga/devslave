@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import { JOB_QUEUE } from "../queue";
+import { JobQueue } from '../queue';
+
+const queue = new JobQueue();
 
 async function failJobController(req: Request, res: Response) {
   try {
@@ -12,7 +14,7 @@ async function failJobController(req: Request, res: Response) {
       });
     }
 
-    const job = await JOB_QUEUE.fail(id);
+    const job = await queue.fail(id);
     res.json({ success: true, data: job });
   } catch (error) {
     console.error("Error failing job:", error);
