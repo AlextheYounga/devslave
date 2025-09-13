@@ -2,14 +2,14 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-  "rootDir": "./src",
+  "rootDir": "./",
   "outDir": "./dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
   "module": "commonjs",
   "target": "es2020",
-  "types": ["node"],
+  "types": ["node", "jest"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -39,6 +39,6 @@
   "isolatedModules": false,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "src/controllers/.controller.ts"],
-  "exclude": ["node_modules", "test", "jest.config.ts", "prisma/**"]
+  "include": ["src/**/*", "test/**/*", "src/controllers/.controller.ts"],
+  "exclude": ["node_modules", "jest.config.ts", "prisma/**"]
 }

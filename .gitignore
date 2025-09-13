@@ -95,3 +95,6 @@ typings/
 *.db
 *.sqlite
 *.sqlite3
+
+!.env.test
+.github/instructions/copilot.instructions.md

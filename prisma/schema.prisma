@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./database.db"
+  url      = env("DATABASE_URL")
 }
 
 model Job {
@@ -80,6 +80,8 @@ model Branch {
   codebaseId String
   ticketId   String
   name       String
+  worktree   String
+  data       Json?
   createdAt  DateTime @default(now())
 
   ticket   Ticket   @relation(fields: [ticketId], references: [id])
