@@ -2,6 +2,8 @@ import { JobQueue } from "./queue";
 
 const jobQueue = new JobQueue();
 
+// TODO: Implement job processing logic
+
 export class Worker {
   async process() {
     while (true) {
