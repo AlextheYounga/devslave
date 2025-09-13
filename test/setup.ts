@@ -6,12 +6,11 @@ const noRefreshDB = process.argv[4] === "--no-refresh-db" || false;
 
 beforeAll(async () => {
   await prisma.$connect();
-  await refreshDatabase();
 });
 
 if (noRefreshDB === false) {
-  afterEach(async () => {
-    await refreshDatabase();
+  beforeEach(async () => {
+    refreshDatabase();
   });
 } else {
   console.log("Not refreshing database after each test.");

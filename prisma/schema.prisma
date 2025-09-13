@@ -53,8 +53,8 @@ model Events {
   data       Json?
   timestamp  DateTime @default(now())
 
-  codebase Codebase @relation(fields: [codebaseId], references: [id])
-  job      Job      @relation(fields: [jobId], references: [id])
+  codebase Codebase @relation(fields: [codebaseId], references: [id], onDelete: Cascade)
+  job      Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@map("events")
 }
@@ -69,7 +69,7 @@ model Ticket {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  codebase Codebase @relation(fields: [codebaseId], references: [id])
+  codebase Codebase @relation(fields: [codebaseId], references: [id], onDelete: Cascade)
   branches Branch[]
 
   @@map("tickets")
@@ -78,14 +78,14 @@ model Ticket {
 model Branch {
   id         String   @id @default(cuid())
   codebaseId String
-  ticketId   String
+  ticketId   String?
   name       String
   worktree   String
   data       Json?
   createdAt  DateTime @default(now())
 
-  ticket   Ticket   @relation(fields: [ticketId], references: [id])
-  codebase Codebase @relation(fields: [codebaseId], references: [id])
+  ticket   Ticket?   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  codebase Codebase @relation(fields: [codebaseId], references: [id], onDelete: Cascade)
 
   @@map("branches")
 }

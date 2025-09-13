@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import dd from "./dd"
 
-dotenv.config({ path: ".env.test", override: true });
+dotenv.config({ path: ".env.test", override: true, quiet: true });
 
 const databaseName = () => {
   const DB_URL = process.env.DATABASE_URL;
