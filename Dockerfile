@@ -21,6 +21,18 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+# Install nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install PHP & Composer
+RUN /bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.4)"
+
+# Install Laravel CLI
+RUN composer global require laravel/installer
+
 # Install Codex
 RUN npm install -g @openai/codex
 
