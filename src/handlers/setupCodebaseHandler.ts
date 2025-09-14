@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { prisma } from "../prisma";
 
-export class SetupDevFolderHandler {
+export class SetupCodebaseHandler {
   public projectPath: string;
   public name: string;
 
@@ -14,7 +14,7 @@ export class SetupDevFolderHandler {
   async handle() {
     this.handleGitignore();
     this.createDevFolder();
-    await this.saveCodebase();
+    return await this.saveCodebase();
   }
 
   createDevFolder() {
@@ -47,13 +47,15 @@ export class SetupDevFolderHandler {
     const existing = await prisma.codebase.findFirst({
       where: { path: this.projectPath },
     });
-    if (!existing) {
-      await prisma.codebase.create({
-        data: {
-          name: this.name,
-          path: this.projectPath,
-        },
-      });
-    }
+    if (existing) return existing.id;
+
+    const codebase = await prisma.codebase.create({
+      data: {
+        name: this.name,
+        path: this.projectPath,
+      },
+    });
+
+    return codebase.id;
   }
 }
