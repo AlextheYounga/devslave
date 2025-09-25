@@ -39,7 +39,11 @@ services:
       - db_storage:/var/lib/postgresql/data
       - ./docker/pg/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -50,7 +54,7 @@ services:
     volumes:
       - redis_storage:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -73,10 +77,15 @@ services:
         - INSTALL_OLLAMA=${INSTALL_OLLAMA}
     restart: unless-stopped
     volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/dist
-    working_dir: /app
+      # Bind-mount source repo into isolated agent directory to avoid clobbering /app/dev
+      - .:/app/agent
+      # Named volumes for deps/build artifacts (scoped to agent dir)
+      - app_node_modules:/app/agent/node_modules
+      # Dedicated persistent dev workspace (agent output, generated code, temp repos, etc.)
+      - dev_data:/app/dev
+      # Mount Codex config from host (run 'codex login' on host first)
+      - ~/.codex:/root/.codex:ro
+    working_dir: /app/agent
     environment:
       - NODE_ENV=development
     depends_on:
@@ -93,3 +102,5 @@ volumes:
   db_storage:
   n8n_storage:
   redis_storage:
+  app_node_modules:
+  dev_data:

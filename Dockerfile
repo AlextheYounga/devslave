@@ -12,11 +12,17 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
-WORKDIR /app
-
 # Install favorite apt packages
-RUN apt-get update && apt-get install -y git zip unzip nano tree rsync sqlite3 tmux htop
+RUN apt-get update && apt-get install -y git zip unzip nano tree rsync sqlite3 tmux htop openssh-server
+
+# Configure SSH for simple access
+RUN mkdir /var/run/sshd \
+    && echo 'root:dev' | chpasswd \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+    && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
+    && echo 'ListenAddress 0.0.0.0' >> /etc/ssh/sshd_config \
+    && echo 'Port 2222' >> /etc/ssh/sshd_config
 
 # Copy package files first for better Docker layer caching
 COPY package*.json ./
@@ -50,6 +56,24 @@ RUN if [ "$INSTALL_OLLAMA" = "true" ]; then curl -fsSL https://ollama.com/instal
 # Install duckduckgo-mcp-server in uv venv
 RUN if [ "$INSTALL_OLLAMA" = "true" ]; then uv pip install duckduckgo-mcp-server; fi
 
+############################################################
+# Layout:
+#   /app/agent  -> this project's source (bind-mounted)
+#   /app/dev    -> writable workspace (named volume)
+############################################################
+
+# Prepare directory structure before copying
+RUN mkdir -p /app/agent /app/dev \
+    && chmod 775 /app/dev
+
+WORKDIR /app/agent
+
+# Copy package files first for better Docker layer caching
+COPY package*.json ./
+
+# Copy source code (overridden by bind mount during development)
+COPY . /app/agent
+
 # Install Codex
 RUN npm install -g @openai/codex
 
@@ -63,4 +87,4 @@ RUN npx prisma generate
 EXPOSE 3000 2222
 
 # Command to run the application in development mode with live reload
-CMD ["npm", "run", "server"]
+CMD service ssh start && npm run server
