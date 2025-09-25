@@ -57,59 +57,30 @@ services:
 
   n8n:
     <<: *shared
-    build: ./docker/n8n
-    image: n8n-ssh:local
-    depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      app:
-        condition: service_started
     ports:
       - 127.0.0.1:5678:5678
-    volumes:
-      - n8n_storage:/home/node/.n8n
-      - ssh_shared:/ssh:ro
 
   n8n-worker:
     <<: *shared
-    build: ./docker/n8n
-    image: n8n-ssh:local
     command: worker
     depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      n8n:
-        condition: service_started
-      app:
-        condition: service_started
-    volumes:
-      - n8n_storage:/home/node/.n8n
-      - ssh_shared:/ssh:ro
+      - n8n
 
   app:
     build: .
     restart: unless-stopped
     volumes:
-      # Bind-mount source repo into isolated agent directory to avoid clobbering /app/dev
-      - .:/app/agent
-      # Named volumes for deps/build artifacts (scoped to agent dir)
-      - app_node_modules:/app/agent/node_modules
-      - app_dist:/app/agent/dist
-      # Dedicated persistent dev workspace (agent output, generated code, temp repos, etc.)
-      - dev_data:/app/dev
-      # Mount Codex config from host (run 'codex login' on host first)
-      - ~/.codex:/root/.codex:ro
-      # Shared SSH key volume for n8n<->app communication
-      - ssh_shared:/ssh
-    working_dir: /app/agent
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
     environment:
       - NODE_ENV=development
-      - AGENT_ROOT=/app/agent
-      - DEV_ROOT=/app/dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "127.0.0.1:3000:3000"
     expose:
@@ -119,7 +90,3 @@ volumes:
   db_storage:
   n8n_storage:
   redis_storage:
-  app_node_modules:
-  app_dist:
-  dev_data:
-  ssh_shared:
