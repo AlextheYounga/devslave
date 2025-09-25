@@ -5,31 +5,24 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     gnupg \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
     && apt-get update \
-    && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
-WORKDIR /app
-
 # Install favorite apt packages
-RUN apt-get update && apt-get install -y git zip unzip nano tree rsync sqlite3 tmux htop
-
-# Copy package files first for better Docker layer caching
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
+RUN apt-get update && apt-get install -y git zip unzip nano tree rsync sqlite3 tmux htop openssh-server
 
 # Install nvm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+RUN bash -lc 'export NVM_DIR="/root/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm install 22; nvm alias default 22; nvm use 22; node_path="$(nvm which node)"; bin_dir="$(dirname "$node_path")"; ln -sf "$node_path" /usr/local/bin/node; for b in npm npx corepack; do if [ -f "$bin_dir/$b" ]; then ln -sf "$bin_dir/$b" /usr/local/bin/$b; fi; done'
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-RUN uv venv /.venv
+# Install uv and create virtual environment
+ENV UV_HOME=/root/.local/bin
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && ln -sf $UV_HOME/uv /usr/local/bin/uv \
+    && uv --version \
+    && uv venv /.venv
+ENV PATH="/.venv/bin:${PATH}"
 
 # Install PHP & Composer (herd-lite)
 ENV TERM=xterm
@@ -51,14 +44,35 @@ RUN npm install -g @openai/codex
 # Install duckduckgo-mcp-server in uv venv
 RUN uv pip install duckduckgo-mcp-server
 
-# Copy source code (this will be overridden by volume mount in development)
-COPY . .
+############################################################
+# Layout:
+#   /app/agent  -> this project's source (bind-mounted)
+#   /app/dev    -> writable workspace (named volume)
+############################################################
 
-# Generate Prisma client
+# Prepare directory structure before copying
+RUN mkdir -p /app/agent /app/dev \
+    && chmod 775 /app/dev
+
+WORKDIR /app/agent
+
+# Copy package files first for better Docker layer caching
+COPY package*.json ./
+
+# Copy source code (overridden by bind mount during development)
+COPY . /app/agent
+
+# Install dependencies (cached layer prior to dev bind mount)
+RUN npm install
+
+# Generate Prisma client (schema resides inside /app/agent/prisma)
 RUN npx prisma generate
 
 # Expose port (if your app uses one)
-EXPOSE 3000 
+EXPOSE 3000 2222
 
-# Command to run the application in development mode with live reload
+# App entrypoint: start sshd then app cmd
+COPY docker/app/entrypoint.sh /usr/local/bin/app-entrypoint.sh
+RUN chmod +x /usr/local/bin/app-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/app-entrypoint.sh"]
 CMD ["npm", "run", "server"]
