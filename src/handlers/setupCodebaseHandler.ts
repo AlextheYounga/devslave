@@ -1,45 +1,25 @@
-import * as fs from "fs";
-import * as path from "path";
+import { PrismaClient } from "@prisma/client";
 import { prisma } from "../prisma";
+import { execSync } from "child_process";
+import path from "path";
 
 export class SetupCodebaseHandler {
+  private db: PrismaClient;
   public projectPath: string;
   public name: string;
 
   constructor(name: string, projectPath: string) {
+    this.db = prisma;
     this.name = name;
     this.projectPath = projectPath;
   }
 
   async handle() {
-    this.handleGitignore();
-    this.createDevFolder();
-    return await this.saveCodebase();
-  }
-
-  createDevFolder() {
-    // Create .dev folder if it doesn't exist
-    const devFolderPath = path.join(this.projectPath, ".dev");
-    if (!fs.existsSync(devFolderPath)) {
-      fs.mkdirSync(devFolderPath);
-    }
-  }
-
-  handleGitignore() {
-    const gitignorePath = path.join(this.projectPath, ".gitignore");
-
-    // Check if .gitignore exists, create if not
-    if (!fs.existsSync(gitignorePath)) {
-      fs.writeFileSync(gitignorePath, "");
-    }
-
-    // Read .gitignore content
-    const gitignoreContent = fs.readFileSync(gitignorePath, "utf-8");
-
-    // Add .dev line if not already present
-    if (!gitignoreContent.includes(".dev")) {
-      fs.appendFileSync(gitignorePath, "\n.dev");
-    }
+    const scriptFile = path.resolve(__dirname, "../scripts/setup-blank.sh");
+    execSync(scriptFile, { cwd: this.projectPath });
+    
+    const codebaseId = await this.saveCodebase();
+    const branchRecord = await this.createMasterBranch(codebaseId);
   }
 
   async saveCodebase() {
@@ -57,5 +37,16 @@ export class SetupCodebaseHandler {
     });
 
     return codebase.id;
+  }
+
+  async createMasterBranch(codebaseId: string) {
+    return await this.db.branch.create({
+      data: {
+        name: "master",
+        codebaseId: codebaseId,
+        worktree: this.projectPath,
+        ticketId: null,
+      },
+    });
   }
 }
