@@ -5,6 +5,8 @@ import getJobByIdController from './controllers/getJobById.controller';
 import completeJobController from './controllers/completeJob.controller';
 import failJobController from './controllers/failJob.controller';
 import nextJobController from './controllers/nextJob.controller';
+import getAllPromptsController from './controllers/getAllPrompts.controller';
+import getPromptByIdController from './controllers/getPromptById.controller';
 import healthController from './controllers/health.controller';
 
 const router = Router();
@@ -12,6 +14,15 @@ const router = Router();
 // Health check
 router.get('/health', async (req: Request, res: Response) => {
     return healthController(req, res);
+});
+
+// Prompt endpoints
+router.get('/api/prompts', async (req: Request, res: Response) => {
+    return getAllPromptsController(res);
+});
+
+router.get('/api/prompts/:id', async (req: Request, res: Response) => {
+    return getPromptByIdController(req, res);
 });
 
 // Job endpoints
