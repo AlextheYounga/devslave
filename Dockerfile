@@ -29,7 +29,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | b
 
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
 RUN uv venv /.venv
+ENV PATH="/.venv/bin:${PATH}"
 
 # Install PHP & Composer (herd-lite)
 ENV TERM=xterm
@@ -42,14 +44,14 @@ ENV PATH="/root/.config/herd-lite/bin:${PATH}"
 # Install Laravel CLI
 RUN composer global require laravel/installer
 
-# Install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# Install Ollama (optional, pass --build-arg INSTALL_OLLAMA=true to install)
+ARG INSTALL_OLLAMA=false
+RUN if [ "$INSTALL_OLLAMA" = "true" ]; then curl -fsSL https://ollama.com/install.sh | sh; fi
+# Install duckduckgo-mcp-server in uv venv
+RUN if [ "$INSTALL_OLLAMA" = "true" ]; then uv pip install duckduckgo-mcp-server; fi
 
 # Install Codex
 RUN npm install -g @openai/codex
-
-# Install duckduckgo-mcp-server in uv venv
-RUN uv pip install duckduckgo-mcp-server
 
 # Copy source code (this will be overridden by volume mount in development)
 COPY . .
@@ -57,8 +59,8 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
-# Expose port (if your app uses one)
-EXPOSE 3000 
+# Expose ports
+EXPOSE 3000 2222
 
 # Command to run the application in development mode with live reload
 CMD ["npm", "run", "server"]

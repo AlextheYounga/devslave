@@ -37,7 +37,7 @@ services:
       - POSTGRES_NON_ROOT_PASSWORD
     volumes:
       - db_storage:/var/lib/postgresql/data
-      - ./docker/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+      - ./docker/pg/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
@@ -67,7 +67,10 @@ services:
       - n8n
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        - INSTALL_OLLAMA=${INSTALL_OLLAMA}
     restart: unless-stopped
     volumes:
       - .:/app
