@@ -1,5 +1,5 @@
 # Run basic setup
-sh setup-project.sh
+sh setup-default.sh
 
 # Setup nvm
 touch .nvmrc

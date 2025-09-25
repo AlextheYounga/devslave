@@ -1,5 +1,5 @@
 # Run basic setup
-sh setup-project.sh
+sh setup-default.sh
 
 uv init
 uv python install 3.13
