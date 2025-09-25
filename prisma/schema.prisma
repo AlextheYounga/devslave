@@ -24,8 +24,6 @@ model Job {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  events Events[]
-
   @@map("jobs")
 }
 
@@ -37,7 +35,6 @@ model Codebase {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  events   Events[]
   tickets  Ticket[]
   branches Branch[]
 
@@ -46,15 +43,10 @@ model Codebase {
 
 model Events {
   id         String   @id @default(cuid())
-  jobId      String
-  codebaseId String
   parentId   String?
   type       String
   data       Json?
   timestamp  DateTime @default(now())
-
-  codebase Codebase @relation(fields: [codebaseId], references: [id], onDelete: Cascade)
-  job      Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@map("events")
 }

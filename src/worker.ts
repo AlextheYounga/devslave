@@ -1,6 +1,5 @@
 import { JobQueue } from "./queue";
 import { JobRegistry } from "./registry";
-import { prisma } from "./prisma";
 import type { Job } from "@prisma/client";
 
 const jobQueue = new JobQueue();
@@ -47,7 +46,10 @@ export class Worker {
   }
 
   private async processJob(job: Job) {
-    const jobData = JSON.parse(job.payload as string);
+    const jobData = {
+      id: job.id,
+      payload: JSON.parse(job.payload as string)
+    };
 
     // Get the job class dynamically
     const JobClass = await JobRegistry.getJobClass(job.type);
@@ -59,24 +61,5 @@ export class Worker {
     // Instantiate and execute the job
     const jobInstance = new JobClass(jobData);
     await jobInstance.perform();
-
-    // Save an event for successful job completion
-    await this.saveJobEvent(job.id, "job_completed", { message: `Job ${job.type} completed successfully` });
-  }
-
-  private async saveJobEvent(jobId: string, type: string, data?: any) {
-    // Find the codebase associated with this job if any
-    // For now, we'll use a default codebase or make it optional
-    const codebase = await prisma.codebase.findFirst();
-    if (codebase) {
-      await prisma.events.create({
-        data: {
-          jobId,
-          codebaseId: codebase.id,
-          type,
-          data,
-        },
-      });
-    }
   }
 }
