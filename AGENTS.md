@@ -36,3 +36,4 @@ Before committing changes:
 - We use Playwright only.
 - Default to faker library if available, otherwise write fixture files for test data.
 - Prefer broad functional tests over micro unit tests. 
+- Never add production code just for testing.
