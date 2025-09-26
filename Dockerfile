@@ -1,19 +1,11 @@
 FROM debian:bookworm-slim
 
-# Install Node.js 18 and other dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    ca-certificates \
-    gnupg \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+# Install dependencies
+RUN apt-get update && apt-get install -y curl ca-certificates gnupg \
+    git zip unzip nano tree rsync sqlite3 tmux htop openssh-server \
     && apt-get update \
-    && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Install favorite apt packages
-RUN apt-get update && apt-get install -y git zip unzip nano tree rsync sqlite3 tmux htop openssh-server
 
 # Configure SSH for simple access
 RUN mkdir /var/run/sshd \
@@ -24,14 +16,9 @@ RUN mkdir /var/run/sshd \
     && echo 'ListenAddress 0.0.0.0' >> /etc/ssh/sshd_config \
     && echo 'Port 2222' >> /etc/ssh/sshd_config
 
-# Copy package files first for better Docker layer caching
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
 # Install nvm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+RUN bash -lc 'export NVM_DIR="/root/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm install 22; nvm alias default 22; nvm use 22; node_path="$(nvm which node)"; bin_dir="$(dirname "$node_path")"; ln -sf "$node_path" /usr/local/bin/node; for b in npm npx corepack; do if [ -f "$bin_dir/$b" ]; then ln -sf "$bin_dir/$b" /usr/local/bin/$b; fi; done'
 
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -56,6 +43,25 @@ RUN if [ "$INSTALL_OLLAMA" = "true" ]; then curl -fsSL https://ollama.com/instal
 # Install duckduckgo-mcp-server in uv venv
 RUN if [ "$INSTALL_OLLAMA" = "true" ]; then uv pip install duckduckgo-mcp-server; fi
 
+# Install Go 
+RUN curl -sSfL https://golang.org/dl/go1.21.5.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+ENV PATH=$PATH:/usr/local/go/bin
+
+# Install Gitleaks from source
+RUN git clone https://github.com/gitleaks/gitleaks.git /tmp/gitleaks && \
+    cd /tmp/gitleaks && \
+    go build -o /usr/local/bin/gitleaks && \
+    rm -rf /tmp/gitleaks
+
+# Install pre-commit
+RUN uv pip install pre-commit
+
+# Install Prisma CLI
+RUN npm install -g prisma
+
 ############################################################
 # Layout:
 #   /app/agent  -> this project's source (bind-mounted)
@@ -70,6 +76,9 @@ WORKDIR /app/agent
 
 # Copy package files first for better Docker layer caching
 COPY package*.json ./
+
+# Install dependencies
+RUN npm install
 
 # Copy source code (overridden by bind mount during development)
 COPY . /app/agent
