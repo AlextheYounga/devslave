@@ -1,5 +1,7 @@
+#!/bin/bash
+
 # Run basic setup
-sh setup-default.sh
+./setup-default.sh
 
 # Setup nvm
 touch .nvmrc
@@ -12,7 +14,6 @@ npm init -y
 # Create project structure
 mkdir -p src
 mkdir -p tests
-mkdir -p docs
 
 # Create gitignore
 touch .gitignore
@@ -106,3 +107,6 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 EOF
+
+git add .
+git commit -m "chore: add node setup"

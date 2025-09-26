@@ -1,5 +1,7 @@
+#!/bin/bash
+
 # Run basic setup
-sh setup-default.sh
+./setup-default.sh
 
 uv init
 uv python install 3.13
@@ -151,3 +153,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 EOF
+
+git add .
+git commit -m "chore: add python setup"
