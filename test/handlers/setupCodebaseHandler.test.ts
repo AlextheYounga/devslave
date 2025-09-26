@@ -20,8 +20,8 @@ describe("SetupCodebaseHandler", () => {
     const handler = new SetupCodebaseHandler("test-project", tempDir, {});
     await handler.handle();
     
-    // Verify .dev folder was created by setup script
-    expect(fs.existsSync(path.join(tempDir, ".dev"))).toBe(true);
+    // Verify codex folder was created by setup script
+    expect(fs.existsSync(path.join(tempDir, "codex"))).toBe(true);
     
     // Verify git was initialized
     expect(fs.existsSync(path.join(tempDir, ".git"))).toBe(true);
@@ -31,8 +31,8 @@ describe("SetupCodebaseHandler", () => {
     const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "default" });
     await handler.handle();
     
-    // Verify .dev folder was created by setup script
-    expect(fs.existsSync(path.join(tempDir, ".dev"))).toBe(true);
+    // Verify codex folder was created by setup script
+    expect(fs.existsSync(path.join(tempDir, "codex"))).toBe(true);
     
     // Verify git was initialized
     expect(fs.existsSync(path.join(tempDir, ".git"))).toBe(true);

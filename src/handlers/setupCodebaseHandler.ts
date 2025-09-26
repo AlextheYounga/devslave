@@ -19,7 +19,7 @@ export class SetupCodebaseHandler {
   async handle() {
     let setupScript: string = this.params?.setup ?? 'default';
     const scriptFile = path.resolve(__dirname, `../scripts/setup/setup-${setupScript}.sh`);
-    execSync(scriptFile, { cwd: this.projectPath });
+    execSync(`${scriptFile} ${this.projectPath}`);
     
     const codebaseRecord = await this.saveCodebase();
     const branchRecord = await this.createMasterBranch(codebaseRecord.id);
