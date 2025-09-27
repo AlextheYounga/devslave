@@ -1,17 +1,11 @@
 import StartProjectJob from "../../src/jobs/startProject.job";
-import {
-  CodebaseSetupStartedEvent,
-  CodebaseSetupCompletedEvent,
-} from "../../src/events";
 import { SetupCodebaseHandler } from "../../src/handlers/setupCodebaseHandler";
+import { prisma } from "../../src/prisma";
 
-// Mock the events module
-jest.mock("../../src/events");
+// Only mock the handler to avoid shell scripts; use real events so they persist to DB
 jest.mock("../../src/handlers/setupCodebaseHandler");
-
-const MockedCodebaseSetupStartedEvent = CodebaseSetupStartedEvent as jest.MockedClass<typeof CodebaseSetupStartedEvent>;
-const MockedCodebaseSetupCompletedEvent = CodebaseSetupCompletedEvent as jest.MockedClass<typeof CodebaseSetupCompletedEvent>;
-const MockedSetupCodebaseHandler = SetupCodebaseHandler as jest.MockedClass<typeof SetupCodebaseHandler>;
+const MockedSetupCodebaseHandler =
+  SetupCodebaseHandler as jest.MockedClass<typeof SetupCodebaseHandler>;
 
 describe("StartProjectJob", () => {
   const mockJobData = {
@@ -27,8 +21,6 @@ describe("StartProjectJob", () => {
     jest.clearAllMocks();
     
     // Setup mocks
-    const mockStartedEventInstance = { publish: jest.fn().mockReturnValue(undefined) };
-    const mockCompletedEventInstance = { publish: jest.fn().mockReturnValue(undefined) };
     const mockHandlerInstance = { 
       handle: jest.fn().mockResolvedValue({
         codebaseId: "mockCodebaseId",
@@ -36,23 +28,47 @@ describe("StartProjectJob", () => {
         stdout: "Mock setup output\nProject setup completed successfully",
       })
     };
-
-    MockedCodebaseSetupStartedEvent.mockImplementation(() => mockStartedEventInstance as any);
-    MockedCodebaseSetupCompletedEvent.mockImplementation(() => mockCompletedEventInstance as any);
     MockedSetupCodebaseHandler.mockImplementation(() => mockHandlerInstance as any);
   });
 
-  it("should publish CodebaseSetupStartedEvent and CodebaseSetupCompletedEvent", async () => {
+  // Helper to wait for events to be written since publish() is fire-and-forget
+  async function waitForEventCount(expected: number, timeoutMs = 1000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      const count = await prisma.events.count();
+      if (count >= expected) return;
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    throw new Error(`Timed out waiting for ${expected} events`);
+  }
+
+  it("should persist the job and publish CodebaseSetupStarted and CodebaseSetupCompleted events to the DB", async () => {
+    // Seed a Job record like the worker would do
+    await prisma.job.create({
+      data: {
+        id: mockJobData.id,
+        type: "StartProjectJob",
+        payload: mockJobData.payload as any,
+        status: "pending",
+        blocking: true,
+        retries: 0,
+      },
+    });
+
     const job = new StartProjectJob(mockJobData);
     await job.perform();
 
-    // Verify CodebaseSetupStartedEvent was created with correct parameters
-    expect(MockedCodebaseSetupStartedEvent).toHaveBeenCalledWith({
-      jobId: mockJobData.id,
-      name: mockJobData.payload.name,
-      projectPath: mockJobData.payload.projectPath,
-      params: mockJobData.payload.params,
-    });
+    // Wait for async event publishes to hit the DB
+    await waitForEventCount(2);
+
+    // Verify the Job exists in the DB
+    const dbJob = await prisma.job.findUnique({ where: { id: mockJobData.id } });
+    expect(dbJob).toBeTruthy();
+    expect(dbJob?.type).toBe("StartProjectJob");
+    expect((dbJob?.payload as any)?.name).toBe(mockJobData.payload.name);
+    expect((dbJob?.payload as any)?.projectPath).toBe(
+      mockJobData.payload.projectPath
+    );
 
     // Verify SetupCodebaseHandler was created and called with correct parameters
     expect(MockedSetupCodebaseHandler).toHaveBeenCalledWith(
@@ -61,8 +77,32 @@ describe("StartProjectJob", () => {
       mockJobData.payload.params
     );
 
-    // Verify CodebaseSetupCompletedEvent was created with correct parameters
-    expect(MockedCodebaseSetupCompletedEvent).toHaveBeenCalledWith({
+    // Fetch and verify events from the DB
+    const startedEvents = await prisma.events.findMany({
+      where: { type: "CodebaseSetupStarted" },
+    });
+    const completedEvents = await prisma.events.findMany({
+      where: { type: "CodebaseSetupCompleted" },
+    });
+
+    expect(startedEvents.length).toBe(1);
+    expect(completedEvents.length).toBe(1);
+
+    const started = startedEvents[0]!;
+    const completed = completedEvents[0]!;
+
+    // Events store payload as { data: <payload> }
+    const startedData = (started.data as any)?.data;
+    const completedData = (completed.data as any)?.data;
+
+    expect(startedData).toMatchObject({
+      jobId: mockJobData.id,
+      name: mockJobData.payload.name,
+      projectPath: mockJobData.payload.projectPath,
+      params: mockJobData.payload.params,
+    });
+
+    expect(completedData).toMatchObject({
       jobId: mockJobData.id,
       codebaseId: "mockCodebaseId",
       branchId: "mockBranchId",
@@ -71,14 +111,5 @@ describe("StartProjectJob", () => {
       params: mockJobData.payload.params,
       stdout: "Mock setup output\nProject setup completed successfully",
     });
-
-    // Verify publish methods were called
-    const startedEventInstance = MockedCodebaseSetupStartedEvent.mock.results[0]?.value;
-    const completedEventInstance = MockedCodebaseSetupCompletedEvent.mock.results[0]?.value;
-    const handlerInstance = MockedSetupCodebaseHandler.mock.results[0]?.value;
-
-    expect(startedEventInstance?.publish).toHaveBeenCalled();
-    expect(handlerInstance?.handle).toHaveBeenCalled();
-    expect(completedEventInstance?.publish).toHaveBeenCalled();
   });
 });

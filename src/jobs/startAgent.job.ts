@@ -1,7 +1,7 @@
 import { SetupCodebaseHandler } from "../handlers/setupCodebaseHandler";
 import {
-  CodebaseSetupStartedEvent,
-  CodebaseSetupCompletedEvent,
+  CodebaseSetupStarted,
+  CodebaseSetupCompleted,
 } from "../events";
 
 type StartProjectJobData = {
@@ -14,7 +14,7 @@ type StartProjectJobData = {
 };
 
 interface Job {
-  perform(): Promise<CodebaseSetupCompletedEvent>;
+  perform(): Promise<CodebaseSetupCompleted>;
 }
 
 export default class StartAgentJob implements Job {
@@ -29,12 +29,12 @@ export default class StartAgentJob implements Job {
   async perform() {
     const { name, projectPath, params } = this.payload;
 
-    new CodebaseSetupStartedEvent({ jobId: this.id, name, projectPath, params }).publish();
+    new CodebaseSetupStarted({ jobId: this.id, name, projectPath, params }).publish();
 
     const codebaseHandler = new SetupCodebaseHandler(name, projectPath, params);
     const result = await codebaseHandler.handle();
 
-    return new CodebaseSetupCompletedEvent({
+    return new CodebaseSetupCompleted({
       jobId: this.id,
       codebaseId: result.codebaseId,
       branchId: result.branchId,

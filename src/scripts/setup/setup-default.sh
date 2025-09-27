@@ -9,20 +9,17 @@ if [[ -z "${project_path}" ]]; then
 fi
 
 # Resolve repo root (this script lives in src/scripts/setup)
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+repo_root="$(cd "${script_dir}/../../.." && pwd)"
 
 mkdir -p "${project_path}"
 
 # Set up agent folder
 mkdir -p "${project_path}/docs"
 mkdir -p "${project_path}/codex/tickets"
-mkdir -p "${project_path}/codex/templates"
 
-PROMPTS_DIR="${REPO_ROOT}/src/prompts"
-cp "${PROMPTS_DIR}/philosophy.md" "${project_path}/AGENTS.md" || true
-cp -R "${PROMPTS_DIR}/templates/" "${project_path}/codex/templates" || true
-touch "${project_path}/codex/PROJECT.md"
+prompts_dir="${repo_root}/src/prompts"
+cp -R "${prompts_dir}/prompts/" "${project_path}/codex/" || true
 
 # Move to project folder
 cd "${project_path}"

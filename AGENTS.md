@@ -18,7 +18,7 @@ This repository implements an AI agentic workflow system that combines:
 - **Events** → `src/events.ts` records structured events asynchronously.  
 - **Database (Prisma)** → `prisma/schema.prisma` with migrations and a default SQLite DB.  
 - **Docker (optional)** → `docker-compose.yml` for Postgres/Redis/n8n orchestration.  
-- **Tests** → Jest only, under `test/**`.
+- **Tests** → Jest only, under `test/**`. Tests use a dedicated SQLite test database. 
 
 At a glance: jobs are submitted via HTTP, the Worker picks them up, dispatches via the registry, handlers/scripts execute domain logic, and events are recorded for observability.
 
@@ -44,6 +44,7 @@ Agents should reference this before making any design or implementation decision
 - **Comments are code:** Do not write excessive comments in the same way you would not write excessive code. 
 - **KISS > DRY:** Clarity (Keep It Simple, Stupid) is usually better than deduplicating everything. DRY should not create indirection.
 - **Clarity is king:** Clean Code principles are non-negotiable. “Clear code is clear thinking.”  
+- **Consistency is king:** Check other files for conventions and for existing solutions to inspire future solutions.
 - **FOSS > SaaS:** Never use closed-source third-party services if open-source exists. We are self-hosting maximalists.
 - **Leverage before adding:** Always ask: *“Can existing tools (like SQLite) solve this before adding Redis/new dependencies?”*  
 - **Idempotency:** We like idempotent setups.

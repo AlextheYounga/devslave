@@ -48,39 +48,45 @@ export abstract class BaseEvent {
 }
 
 // Codebase-related events
-export class CodebaseSetupStartedEvent extends BaseEvent {
+export class CodebaseSetupStarted extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
-export class CodebaseSetupCompletedEvent extends BaseEvent {
+export class CodebaseSetupFailed extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
+export class CodebaseSetupCompleted extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
 // Branch-related events
-export class BranchCreatedEvent extends BaseEvent {
+export class BranchCreated extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
-export class BranchSwitchedEvent extends BaseEvent {
+export class BranchSwitched extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
 // Ticket-related events
-export class TicketCreatedEvent extends BaseEvent {
+export class TicketCreated extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
-export class TicketStatusChangedEvent extends BaseEvent {
+export class TicketStatusChanged extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }

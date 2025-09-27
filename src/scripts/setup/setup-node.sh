@@ -1,9 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Args
+project_path="${1:-}"
+if [[ -z "${project_path}" ]]; then
+  echo "Usage: $0 <project_path>" >&2
+  exit 1
+fi
+
+# Resolve repo root (this script lives in src/scripts/setup)
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+repo_root="$(cd "${script_dir}/../../.." && pwd)"
 
 # Run basic setup
-./setup-default.sh
+source "$repo_root/src/scripts/setup/setup-default.sh"
 
 # Setup nvm
+source ~/.nvm/nvm.sh
 touch .nvmrc
 echo "lts/*" > .nvmrc
 nvm install

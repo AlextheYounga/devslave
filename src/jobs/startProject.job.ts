@@ -1,9 +1,9 @@
 import { SetupCodebaseHandler } from "../handlers/setupCodebaseHandler";
 import {
-  CodebaseSetupStartedEvent,
-  CodebaseSetupCompletedEvent,
+  CodebaseSetupStarted,
+  CodebaseSetupCompleted,
+  CodebaseSetupFailed,
 } from "../events";
-import { stdout } from "process";
 
 type StartProjectJobData = {
   id: string;
@@ -15,7 +15,7 @@ type StartProjectJobData = {
 };
 
 interface Job {
-  perform(): Promise<CodebaseSetupCompletedEvent>;
+  perform(): Promise<CodebaseSetupCompleted | CodebaseSetupFailed>;
 }
 
 export default class StartProjectJob implements Job {
@@ -30,19 +30,39 @@ export default class StartProjectJob implements Job {
   async perform() {
     const { name, projectPath, params } = this.payload;
 
-    new CodebaseSetupStartedEvent({ jobId: this.id, name, projectPath, params }).publish();
-
-    const codebaseHandler = new SetupCodebaseHandler(name, projectPath, params);
-    const result = await codebaseHandler.handle();
-
-    return new CodebaseSetupCompletedEvent({
+    new CodebaseSetupStarted({
       jobId: this.id,
-      codebaseId: result.codebaseId,
-      branchId: result.branchId,
       name,
       projectPath,
       params,
-      stdout: result.stdout,
     }).publish();
+
+    try {
+      const codebaseHandler = new SetupCodebaseHandler(
+        name,
+        projectPath,
+        params
+      );
+      const result = await codebaseHandler.handle();
+
+      return new CodebaseSetupCompleted({
+        jobId: this.id,
+        codebaseId: result.codebaseId,
+        branchId: result.branchId,
+        name,
+        projectPath,
+        params,
+        stdout: result.stdout,
+      }).publish();
+    } catch (error: any) {
+      console.error(error.message);
+      return new CodebaseSetupFailed({
+        jobId: this.id,
+        name,
+        projectPath,
+        params,
+        error: error.message,
+      }).publish();
+    }
   }
 }

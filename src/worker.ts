@@ -4,7 +4,8 @@ import type { Job } from "@prisma/client";
 
 const jobQueue = new JobQueue();
 
-// TODO: Implement retry system
+// TODO: Remove Job System and just use controllers/handlers directly.
+// n8n will be the job queue
 
 export class Worker {
   private stopOnEmpty: boolean = false;
@@ -14,11 +15,11 @@ export class Worker {
   }
 
   async process() {
+    console.log("Worker checking for jobs...");
     while (true) {
       const nextJob = await jobQueue.dequeue();
 
       if (!nextJob || nextJob === null) {
-        console.log("No jobs to process, waiting...");
         if (this.stopOnEmpty) break;
         await new Promise((resolve) => setTimeout(resolve, 1000));
         continue;
