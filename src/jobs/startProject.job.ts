@@ -3,6 +3,7 @@ import {
   CodebaseSetupStartedEvent,
   CodebaseSetupCompletedEvent,
 } from "../events";
+import { stdout } from "process";
 
 type StartProjectJobData = {
   id: string;
@@ -41,6 +42,7 @@ export default class StartProjectJob implements Job {
       name,
       projectPath,
       params,
+      stdout: result.stdout,
     }).fire();
   }
 }

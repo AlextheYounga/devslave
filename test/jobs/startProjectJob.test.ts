@@ -33,6 +33,7 @@ describe("StartProjectJob", () => {
       handle: jest.fn().mockResolvedValue({
         codebaseId: "mockCodebaseId",
         branchId: "mockBranchId",
+        stdout: "Mock setup output\nProject setup completed successfully",
       })
     };
 
@@ -68,6 +69,7 @@ describe("StartProjectJob", () => {
       name: mockJobData.payload.name,
       projectPath: mockJobData.payload.projectPath,
       params: mockJobData.payload.params,
+      stdout: "Mock setup output\nProject setup completed successfully",
     });
 
     // Verify fire methods were called

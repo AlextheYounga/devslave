@@ -7,8 +7,7 @@ if [[ -z "${project_path}" ]]; then
   exit 1
 fi
 
-# Silence all subsequent output in this script (including child git commands)
-exec >/dev/null 2>&1
+echo "Setting up test project at: ${project_path}"
 
 mkdir -p "${project_path}/codex/tickets"
 mkdir -p "${project_path}/codex/templates"
@@ -20,3 +19,5 @@ git config user.name "Alex Younger Agent"
 git config user.email "thealexyounger@proton.me"
 git add -A
 git commit -q -m "initial commit" --no-gpg-sign || true
+
+echo "Project setup completed successfully"

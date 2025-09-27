@@ -18,7 +18,10 @@ describe("SetupCodebaseHandler", () => {
   });
 
   it("should execute default setup script when no params provided", async () => {
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     await handler.handle();
     
     // Verify codex folder was created by setup script
@@ -29,7 +32,10 @@ describe("SetupCodebaseHandler", () => {
   });
 
   it("should execute custom setup script when params.setup is provided", async () => {
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     await handler.handle();
     
     // Verify codex folder was created by setup script
@@ -40,34 +46,49 @@ describe("SetupCodebaseHandler", () => {
   });
 
   it("should initialize a git repository", async () => {
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     await handler.handle();
     expect(fs.existsSync(path.join(tempDir, ".git"))).toBe(true);
   });
 
   it("should set the main branch to master", async () => {
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     await handler.handle();
     const headContent = fs.readFileSync(path.join(tempDir, ".git", "HEAD"), "utf-8");
     expect(headContent.trim()).toBe("ref: refs/heads/master");
   });
 
   it("should set the author name to 'Alex Younger Agent'", async () => {
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     await handler.handle();
     const authorName = execSync("git config user.name", { cwd: tempDir, encoding: "utf-8" }).trim();
     expect(authorName).toBe("Alex Younger Agent");
   });
 
   it("should set the author email to a default value", async () => {
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     await handler.handle();
     const authorEmail = execSync("git config user.email", { cwd: tempDir, encoding: "utf-8" }).trim();
     expect(authorEmail).toBe("thealexyounger@proton.me");
   });
 
   it("should save codebase to database", async () => {
-  const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     const result = await handler.handle();
     const codebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
     expect(codebase).toBeTruthy();
@@ -76,7 +97,10 @@ describe("SetupCodebaseHandler", () => {
   });
 
   it("should create a master branch record in the database", async () => {
-  const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     const result = await handler.handle();
     const branch = await prisma.branch.findFirst({
       where: { codebaseId: result.codebaseId, name: "master" },
@@ -95,7 +119,10 @@ describe("SetupCodebaseHandler", () => {
         path: tempDir,
       },
     });
-  const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     const result = await handler.handle();
     const codebases = await prisma.codebase.findMany({ where: { path: tempDir } });
     expect(codebases.length).toBe(1);
@@ -120,7 +147,10 @@ describe("SetupCodebaseHandler", () => {
       },
     });
 
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     const result = await handler.handle();
     
     const branches = await prisma.branch.findMany({ 
@@ -131,12 +161,62 @@ describe("SetupCodebaseHandler", () => {
   });
 
   it("should return both codebaseId and branchId after handling", async () => {
-    const handler = new SetupCodebaseHandler("test-project", tempDir, { setup: "test" });
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
     const result = await handler.handle();
     expect(result).toBeDefined();
     expect(result.codebaseId).toBeDefined();
     expect(result.branchId).toBeDefined();
     expect(typeof result.codebaseId).toBe("string"); // CUID is a string
     expect(typeof result.branchId).toBe("string"); // CUID is a string
+  });
+
+  it("should throw error when setup script fails", async () => {
+    const failingScriptPath = path.join(__dirname, "../fixtures/scripts/setup-failing.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: failingScriptPath 
+    });
+    
+    await expect(handler.handle()).rejects.toThrow("Setup script failed:");
+  });
+
+  it("should not create database records when setup script fails", async () => {
+    const failingScriptPath = path.join(__dirname, "../fixtures/scripts/setup-failing.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: failingScriptPath 
+    });
+    
+    await expect(handler.handle()).rejects.toThrow();
+    
+    // Verify no database records were created
+    const codebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
+    expect(codebase).toBeNull();
+  });
+
+  it("should not initialize git when setup script fails", async () => {
+    const failingScriptPath = path.join(__dirname, "../fixtures/scripts/setup-failing.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: failingScriptPath 
+    });
+    
+    await expect(handler.handle()).rejects.toThrow();
+    
+    // Verify git was not initialized
+    expect(fs.existsSync(path.join(tempDir, ".git"))).toBe(false);
+  });
+
+  it("should capture and return stdout from setup script", async () => {
+    const testScriptPath = path.join(__dirname, "../fixtures/scripts/setup-test.sh");
+    const handler = new SetupCodebaseHandler("test-project", tempDir, { 
+      scriptPath: testScriptPath 
+    });
+    
+    const result = await handler.handle();
+    
+    expect(result.stdout).toContain("Setting up test project at:");
+    expect(result.stdout).toContain("Project setup completed successfully");
+    expect(result.stdout).toContain(tempDir);
   });
 });

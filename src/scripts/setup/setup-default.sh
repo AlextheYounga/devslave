@@ -19,15 +19,9 @@ mkdir -p "${project_path}/docs"
 mkdir -p "${project_path}/codex/tickets"
 mkdir -p "${project_path}/codex/templates"
 
-# Optionally copy prompts if available (best-effort)
 PROMPTS_DIR="${REPO_ROOT}/src/prompts"
-if [[ -f "${PROMPTS_DIR}/philosophy.md" ]]; then
-  cp "${PROMPTS_DIR}/philosophy.md" "${project_path}/AGENTS.md" || true
-fi
-if [[ -d "${PROMPTS_DIR}/templates" ]]; then
-  cp -R "${PROMPTS_DIR}/templates/" "${project_path}/codex/templates" || true
-fi
-
+cp "${PROMPTS_DIR}/philosophy.md" "${project_path}/AGENTS.md" || true
+cp -R "${PROMPTS_DIR}/templates/" "${project_path}/codex/templates" || true
 touch "${project_path}/codex/PROJECT.md"
 
 # Move to project folder

@@ -18,15 +18,28 @@ export class SetupCodebaseHandler {
 
   async handle() {
     let setupScript: string = this.params?.setup ?? "default";
-    const scriptFile = path.resolve(
+    const scriptFile = this.params?.scriptPath ?? path.resolve(
       __dirname,
       `../scripts/setup/setup-${setupScript}.sh`
     );
 
-    // Execute via bash for portability and proper error codes; quote the project path
-    execSync(`bash "${scriptFile}" "${this.projectPath}"`, {
-      stdio: "inherit",
-    });
+    let scriptOutput = "";
+    try {
+      // Execute via bash for portability and proper error codes; quote the project path
+      scriptOutput = execSync(`bash "${scriptFile}" "${this.projectPath}"`, {
+        stdio: "pipe", // Capture output instead of inheriting
+        encoding: "utf-8",
+      });
+    } catch (error: any) {
+      const errorMessage = `Setup script failed: ${error.message}`;
+      if (error.stdout) {
+        console.error("Script stdout:", error.stdout);
+      }
+      if (error.stderr) {
+        console.error("Script stderr:", error.stderr);
+      }
+      throw new Error(errorMessage);
+    }
 
     const codebaseRecord = await this.saveCodebase();
     const branchRecord = await this.createMasterBranch(codebaseRecord.id);
@@ -34,6 +47,7 @@ export class SetupCodebaseHandler {
     return {
       codebaseId: codebaseRecord.id,
       branchId: branchRecord.id,
+      stdout: scriptOutput.trim()
     };
   }
 
