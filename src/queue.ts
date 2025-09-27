@@ -8,10 +8,10 @@ export class JobQueue {
     this.prisma = prisma;
   }
 
-  async enqueue(type: string, payload: any, priority = 0): Promise<Job> {
+  async enqueue(type: string, payload: any): Promise<Job> {
     // Store payload as JSON in the DB (schema uses Json type)
     return this.prisma.job.create({
-      data: { type, payload, priority },
+      data: { type, payload },
     });
   }
 
@@ -19,7 +19,6 @@ export class JobQueue {
     return this.prisma.$transaction(async (tx) => {
       const job = await tx.job.findFirst({
         where: { status: "pending" },
-        orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
       });
       if (!job) return null;
       await tx.job.update({
@@ -46,7 +45,7 @@ export class JobQueue {
 
   async getJobs(): Promise<Job[]> {
     return this.prisma.job.findMany({
-      orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
+      orderBy: { createdAt: "desc" },
     });
   }
 

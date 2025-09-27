@@ -21,13 +21,12 @@ describe('POST /api/jobs', () => {
 
     const res = await request(app)
       .post('/api/jobs')
-      .send({ type: 'testJob', payload, priority: 2 })
+      .send({ type: 'testJob', payload })
       .expect(201);
 
     expect(res.body?.success).toBe(true);
     expect(res.body?.data?.id).toBeDefined();
     expect(res.body?.data?.type).toBe('testJob');
-    expect(res.body?.data?.priority).toBe(2);
 
     // Verify DB state
     const job = await prisma.job.findUnique({ where: { id: res.body.data.id } });
@@ -54,8 +53,8 @@ describe('POST /api/jobs', () => {
     };
 
     const res = await request(app)
-      .post('/api/jobs')
-      .send({ type: 'StartProjectJob', payload, priority: 1 })
+      .post('/api/jobs') 
+      .send({ type: 'StartProjectJob', payload })
       .expect(201);
 
     expect(res.body?.success).toBe(true);
