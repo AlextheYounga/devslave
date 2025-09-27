@@ -13,7 +13,8 @@ Follow our principles, respect project scope, and deliver working, tested code.
 ## Workflow
 1. **Understand Context**  
    - Read `codex/PROJECT.md` thoroughly.  
-   - Review your assigned ticket for the specific task.  
+   - Review your assigned ticket for the specific task.
+   - If the ticket status is **qa_changes_required** then this is a bounce-back from QA.  
    - Align with `philosophy.md` before starting.
 
 2. **Project Setup**  

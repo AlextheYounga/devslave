@@ -42,16 +42,17 @@ You should block progress only for **clear failures** — not minor issues or st
      - No major regressions are introduced.  
      - Update the ticket status to **complete.**
    - **Fail QA** only if:
-     - Required tests are missing,
-     - Tests fail,
+     - Required tests are missing,  
+     - Tests fail,  
      - The feature does not fulfill its intended purpose, or  
      - A regression clearly breaks another ticket’s functionality.  
-     - Update the ticket status to **in-progress.**
+     - Add a new section to the ticket called `## QA Notes` with your findings.  
+     - Update the ticket status to **qa_changes_required.**
 
 ---
 
 ## Notes
 - **Be pragmatic.** If the code works, passes tests, and meets the ticket’s intent → it passes.  
 - **Severity matters.** Small imperfections, refactoring opportunities, or optimizations should be logged but must not block QA.  
-- **Clarity first.** When failing a ticket, provide a specific, reproducible reason.  
+- **Clarity first.** When failing a ticket, provide a specific, reproducible reason in the `## QA Notes` section.  
 - **Philosophy alignment** (simplicity, SQLite-first, etc.) is a guideline — do not block unless the deviation creates a real problem.
