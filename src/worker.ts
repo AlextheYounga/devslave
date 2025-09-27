@@ -86,5 +86,6 @@ export class Worker {
         normalized = normalized;
       }
     }
+    return normalized;
   }
 }

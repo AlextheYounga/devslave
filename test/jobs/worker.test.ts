@@ -184,5 +184,48 @@ describe("Worker", () => {
       performSpy.mockRestore();
       getJobClassSpy.mockRestore();
     });
+
+    it("should properly parse JSON payloads and pass them to job handlers", async () => {
+      // Arrange - test that parsePayload correctly returns normalized payload
+      const jobData = { message: "This should work with proper payload parsing" };
+      const job = await jobQueue.enqueue("TestJob", JSON.stringify(jobData));
+
+      // Mock JobRegistry to return our TestJob
+      const getJobClassSpy = jest.spyOn(JobRegistry, "getJobClass");
+      getJobClassSpy.mockResolvedValue(TestJob);
+
+      // Create a TestJob that validates the payload is properly parsed
+      class StrictTestJob implements Job {
+        public id: string;
+        public payload: any;
+
+        constructor(data: TestJobData) {
+          this.id = data.id;
+          this.payload = data.payload;
+        }
+
+        async perform(): Promise<void> {
+          // This should now work because parsePayload returns the normalized payload
+          if (!this.payload || !this.payload.message) {
+            throw new Error("Payload is undefined or missing message property");
+          }
+          console.log(this.payload.message);
+        }
+      }
+
+      getJobClassSpy.mockResolvedValue(StrictTestJob);
+
+      // Act
+      await worker.process();
+
+      // Assert - job should succeed because parsePayload now returns the normalized payload
+      const processedJob = await prisma.job.findUnique({
+        where: { id: job.id },
+      });
+      expect(processedJob?.status).toBe("completed");
+
+      // Cleanup
+      getJobClassSpy.mockRestore();
+    });
   });
 });
