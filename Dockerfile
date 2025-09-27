@@ -89,11 +89,14 @@ RUN npm install -g @openai/codex
 # Copy source code (this will be overridden by volume mount in development)
 COPY . .
 
-# Generate Prisma client
-RUN npx prisma generate
+# Generate Prisma client at runtime (avoid build-time generate to prevent staleness with bind mounts)
 
 # Expose ports
 EXPOSE 3000 2222
 
+# Entrypoint script runs migrations, generates Prisma client, and starts server
+COPY docker/app/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Command to run the application in development mode with live reload
-CMD service ssh start && npm run server
+CMD ["/usr/local/bin/entrypoint.sh"]
