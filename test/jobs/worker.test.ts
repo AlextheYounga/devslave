@@ -44,7 +44,7 @@ describe("Worker", () => {
         message: "I love you",
       };
 
-      const job = await jobQueue.enqueue("testJob", JSON.stringify(jobData));
+      const job = await jobQueue.enqueue("TestJob", JSON.stringify(jobData));
 
       // Mock JobRegistry to return our TestJob
       const getJobClassSpy = jest.spyOn(JobRegistry, "getJobClass");
@@ -63,7 +63,7 @@ describe("Worker", () => {
       });
       expect(processedJob?.status).toBe("completed");
       expect(performSpy).toHaveBeenCalled();
-      expect(getJobClassSpy).toHaveBeenCalledWith("testJob");
+      expect(getJobClassSpy).toHaveBeenCalledWith("TestJob");
 
       // Cleanup
       performSpy.mockRestore();
@@ -76,7 +76,7 @@ describe("Worker", () => {
         message: "This will fail",
       };
 
-      const job = await jobQueue.enqueue("testJob", JSON.stringify(jobData));
+      const job = await jobQueue.enqueue("TestJob", JSON.stringify(jobData));
 
       // Mock JobRegistry to return our TestJob
       const getJobClassSpy = jest.spyOn(JobRegistry, "getJobClass");
@@ -134,7 +134,7 @@ describe("Worker", () => {
     it("should fail jobs that have exceeded max retries", async () => {
       // Arrange
       const jobData = { message: "This job will exceed retries" };
-      const job = await jobQueue.enqueue("testJob", JSON.stringify(jobData));
+      const job = await jobQueue.enqueue("TestJob", JSON.stringify(jobData));
 
       // Manually set the job to have exceeded retries
       await prisma.job.update({
@@ -155,7 +155,7 @@ describe("Worker", () => {
     it("should handle blocking jobs synchronously", async () => {
       // Arrange
       const jobData = { message: "Blocking job message" };
-      const job = await jobQueue.enqueue("testJob", JSON.stringify(jobData));
+      const job = await jobQueue.enqueue("TestJob", JSON.stringify(jobData));
 
       // Set job as blocking
       await prisma.job.update({

@@ -27,7 +27,9 @@ export class Worker {
       console.log(`Processing job ${nextJob.id} of type ${nextJob.type}`);
 
       if (nextJob.retries >= 3) {
-        console.log(`Job ${nextJob.id} has exceeded max retries, marking as failed.`);
+        console.log(
+          `Job ${nextJob.id} has exceeded max retries, marking as failed.`
+        );
         await jobQueue.fail(nextJob.id);
         continue;
       }
@@ -44,9 +46,11 @@ export class Worker {
 
   private async processJob(job: Job) {
     try {
+      const normalizedPayload = await this.parsePayload(job);
+
       const jobData = {
         id: job.id,
-        payload: JSON.parse(job.payload as string),
+        payload: normalizedPayload,
       };
 
       // Get the job class dynamically
@@ -64,6 +68,23 @@ export class Worker {
       console.error(`Failed to process job ${job.id}:`, error);
       await jobQueue.fail(job.id);
       console.log(`Failed job ${job.id}`);
+    }
+  }
+
+  private async parsePayload(job: Job): Promise<any> {
+    // Normalize payload to object; older records may have stringified JSON
+    let normalized: any = job.payload as any;
+    if (typeof normalized === "string") {
+      try {
+        normalized = JSON.parse(normalized);
+      } catch (parseError) {
+        console.warn(
+          `Failed to parse job ${job.id} payload as JSON, using string value directly:`,
+          parseError
+        );
+        // Keep as string - let the job handler decide how to process it
+        normalized = normalized;
+      }
     }
   }
 }

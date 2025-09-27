@@ -8,7 +8,8 @@ export class JobQueue {
     this.prisma = prisma;
   }
 
-  async enqueue(type: string, payload: string, priority = 0): Promise<Job> {
+  async enqueue(type: string, payload: any, priority = 0): Promise<Job> {
+    // Store payload as JSON in the DB (schema uses Json type)
     return this.prisma.job.create({
       data: { type, payload, priority },
     });

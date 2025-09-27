@@ -3,9 +3,16 @@ import { JobQueue } from '../queue';
 
 const queue = new JobQueue();
 
+type JobRequestBody = {
+  type: string;
+  payload: Record<string, any>;
+  priority?: number;
+};  
+
 async function createJobController(req: Request, res: Response) {
   try {
-    const { type, payload, priority = 0 } = req.body;
+    const requestBody: JobRequestBody = req.body;
+    const { type, payload, priority = 0 } = requestBody;
     
     if (!type) {
       return res.status(400).json({ 
@@ -14,7 +21,7 @@ async function createJobController(req: Request, res: Response) {
       });
     }
     
-    const job = await queue.enqueue(type, JSON.stringify(payload), priority);
+  const job = await queue.enqueue(type, payload, priority);
     res.status(201).json({ success: true, data: job });
   } catch (error) {
     console.error('Error creating job:', error);

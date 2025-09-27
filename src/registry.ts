@@ -32,5 +32,6 @@ export class JobRegistry {
   }
 }
 
-// Register known jobs
-JobRegistry.register("startProject", "./jobs/startProject.job");
+// Register known jobs using class names
+JobRegistry.register("StartProjectJob", "./jobs/startProject.job");
+JobRegistry.register("StartAgentJob", "./jobs/startAgent.job");

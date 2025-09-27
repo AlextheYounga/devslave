@@ -14,31 +14,38 @@ export class SetupCodebaseHandler {
     this.name = name;
     this.params = params;
     this.projectPath = projectPath;
-  } 
+  }
 
   async handle() {
-    let setupScript: string = this.params?.setup ?? 'default';
-    const scriptFile = path.resolve(__dirname, `../scripts/setup/setup-${setupScript}.sh`);
-    execSync(`${scriptFile} ${this.projectPath}`);
-    
+    let setupScript: string = this.params?.setup ?? "default";
+    const scriptFile = path.resolve(
+      __dirname,
+      `../scripts/setup/setup-${setupScript}.sh`
+    );
+
+    // Execute via bash for portability and proper error codes; quote the project path
+    execSync(`bash "${scriptFile}" "${this.projectPath}"`, {
+      stdio: "inherit",
+    });
+
     const codebaseRecord = await this.saveCodebase();
     const branchRecord = await this.createMasterBranch(codebaseRecord.id);
 
     return {
       codebaseId: codebaseRecord.id,
       branchId: branchRecord.id,
-    }
+    };
   }
 
   async saveCodebase() {
     // Check if codebase already exists
-    const existing = await prisma.codebase.findFirst({
+    const existing = await this.db.codebase.findFirst({
       where: { path: this.projectPath },
     });
 
     if (existing) return existing;
 
-    return await prisma.codebase.create({
+    return await this.db.codebase.create({
       data: {
         name: this.name,
         path: this.projectPath,
@@ -48,12 +55,12 @@ export class SetupCodebaseHandler {
 
   async createMasterBranch(codebaseId: string) {
     // Check if branch already exists
-    const existing = await prisma.branch.findFirst({
+    const existing = await this.db.branch.findFirst({
       where: { codebaseId: codebaseId, name: "master" },
     });
 
     if (existing) return existing;
-    
+
     return await this.db.branch.create({
       data: {
         name: "master",
