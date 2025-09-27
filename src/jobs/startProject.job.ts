@@ -30,7 +30,7 @@ export default class StartProjectJob implements Job {
   async perform() {
     const { name, projectPath, params } = this.payload;
 
-    new CodebaseSetupStartedEvent({ jobId: this.id, name, projectPath, params }).fire();
+    new CodebaseSetupStartedEvent({ jobId: this.id, name, projectPath, params }).publish();
 
     const codebaseHandler = new SetupCodebaseHandler(name, projectPath, params);
     const result = await codebaseHandler.handle();
@@ -43,6 +43,6 @@ export default class StartProjectJob implements Job {
       projectPath,
       params,
       stdout: result.stdout,
-    }).fire();
+    }).publish();
   }
 }

@@ -27,8 +27,8 @@ describe("StartProjectJob", () => {
     jest.clearAllMocks();
     
     // Setup mocks
-    const mockStartedEventInstance = { fire: jest.fn().mockReturnValue(undefined) };
-    const mockCompletedEventInstance = { fire: jest.fn().mockReturnValue(undefined) };
+    const mockStartedEventInstance = { publish: jest.fn().mockReturnValue(undefined) };
+    const mockCompletedEventInstance = { publish: jest.fn().mockReturnValue(undefined) };
     const mockHandlerInstance = { 
       handle: jest.fn().mockResolvedValue({
         codebaseId: "mockCodebaseId",
@@ -42,7 +42,7 @@ describe("StartProjectJob", () => {
     MockedSetupCodebaseHandler.mockImplementation(() => mockHandlerInstance as any);
   });
 
-  it("should fire CodebaseSetupStartedEvent and CodebaseSetupCompletedEvent", async () => {
+  it("should publish CodebaseSetupStartedEvent and CodebaseSetupCompletedEvent", async () => {
     const job = new StartProjectJob(mockJobData);
     await job.perform();
 
@@ -72,13 +72,13 @@ describe("StartProjectJob", () => {
       stdout: "Mock setup output\nProject setup completed successfully",
     });
 
-    // Verify fire methods were called
+    // Verify publish methods were called
     const startedEventInstance = MockedCodebaseSetupStartedEvent.mock.results[0]?.value;
     const completedEventInstance = MockedCodebaseSetupCompletedEvent.mock.results[0]?.value;
     const handlerInstance = MockedSetupCodebaseHandler.mock.results[0]?.value;
 
-    expect(startedEventInstance?.fire).toHaveBeenCalled();
+    expect(startedEventInstance?.publish).toHaveBeenCalled();
     expect(handlerInstance?.handle).toHaveBeenCalled();
-    expect(completedEventInstance?.fire).toHaveBeenCalled();
+    expect(completedEventInstance?.publish).toHaveBeenCalled();
   });
 });

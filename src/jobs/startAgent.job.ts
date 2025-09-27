@@ -29,7 +29,7 @@ export default class StartAgentJob implements Job {
   async perform() {
     const { name, projectPath, params } = this.payload;
 
-    new CodebaseSetupStartedEvent({ jobId: this.id, name, projectPath, params }).fire();
+    new CodebaseSetupStartedEvent({ jobId: this.id, name, projectPath, params }).publish();
 
     const codebaseHandler = new SetupCodebaseHandler(name, projectPath, params);
     const result = await codebaseHandler.handle();
@@ -41,6 +41,6 @@ export default class StartAgentJob implements Job {
       name,
       projectPath,
       params,
-    }).fire();
+    }).publish();
   }
 }

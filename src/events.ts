@@ -16,7 +16,7 @@ export abstract class BaseEvent {
   }
 
   // Method to save the event to the database. Do not block.
-  fire(): this {
+  publish(): this {
     try {
       prisma.events.create({
         data: {
