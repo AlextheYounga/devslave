@@ -4,8 +4,11 @@ $project_path=$1
 mkdir -p $project_path
 
 # Set up agent folder
-mkdir -p $project_path/codex/tickets
 mkdir -p $project_path/docs
+mkdir -p $project_path/codex/tickets
+mkdir -p $project_path/codex/tickets/backlog
+mkdir -p $project_path/codex/tickets/qa
+mkdir -p $project_path/codex/tickets/in-progress
 
 cp ../../prompts/onboarding.md $project_path/AGENTS.md
 cp ../../prompts/roles $project_path/codex/roles
