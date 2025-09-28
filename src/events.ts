@@ -16,24 +16,16 @@ export abstract class BaseEvent {
   }
 
   // Method to save the event to the database. Do not block.
-  publish(): this {
-    try {
-      prisma.events.create({
-        data: {
-          parentId: this.parentId,
-          type: this.getEventType(),
-          data: this.data as any, // Prisma handles JSON serialization
-        },
-      });
+  async publish(): Promise<this> {
+    await prisma.events.create({
+      data: {
+        parentId: this.parentId,
+        type: this.getEventType(),
+        data: this.data as any, // Prisma handles JSON serialization
+      },
+    });
 
-      return this;
-    } catch (error) {
-      throw new Error(
-        `Failed to save event: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    }
+    return this;
   }
 
   // Helper method to get event data
@@ -66,18 +58,31 @@ export class CodebaseSetupCompleted extends BaseEvent {
   }
 }
 
-// Branch-related events
-export class BranchCreated extends BaseEvent {
+// Agent-related events
+export class AgentRunStarted extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
-export class BranchSwitched extends BaseEvent {
+export class AgentRunFailed extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
+
+export class AgentRunCompleted extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
+export class WatchdogStarted extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
 
 // Ticket-related events
 export class TicketCreated extends BaseEvent {
