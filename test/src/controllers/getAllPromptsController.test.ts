@@ -8,10 +8,10 @@ import {
   jest,
 } from "@jest/globals";
 import { Request, Response } from "express";
-import GetAllPromptsController from "../../src/controllers/getAllPrompts.controller";
+import GetAllPromptsController from "../../../src/controllers/getAllPrompts.controller";
 import path from "path";
 
-const fixturesPromptsDir = path.join(__dirname, "../fixtures/prompts");
+const fixturesPromptsDir = path.join(__dirname, "../../fixtures/prompts");
 const originalResolve = path.resolve;
 let resolveSpy: jest.SpiedFunction<typeof path.resolve>;
 

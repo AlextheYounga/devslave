@@ -5,8 +5,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { execSync } from 'child_process';
-import routes from '../../src/routes';
-import prisma from '../client';
+import routes from '../../../src/routes';
+import prisma from '../../client';
 
 // Build an in-memory Express app that mirrors server.ts
 function buildApp() {
@@ -31,7 +31,7 @@ describe('POST /api/codebase/setup (SetupCodebaseController)', () => {
 	});
 
 	it('executes the setup script and returns 200 with IDs and stdout', async () => {
-		const testScriptPath = path.join(__dirname, '../fixtures/scripts/setup-test.sh');
+		const testScriptPath = path.join(__dirname, '../../fixtures/scripts/setup-test.sh');
 
 		const res = await request(app)
 			.post('/api/codebase/setup')
@@ -53,7 +53,7 @@ describe('POST /api/codebase/setup (SetupCodebaseController)', () => {
 	});
 
 	it('saves codebase and branch records to the database', async () => {
-		const testScriptPath = path.join(__dirname, '../fixtures/scripts/setup-test.sh');
+		const testScriptPath = path.join(__dirname, '../../fixtures/scripts/setup-test.sh');
 
 		const res = await request(app)
 			.post('/api/codebase/setup')
@@ -81,7 +81,7 @@ describe('POST /api/codebase/setup (SetupCodebaseController)', () => {
 			data: { name: 'existing-project', path: tempDir },
 		});
 
-		const testScriptPath = path.join(__dirname, '../fixtures/scripts/setup-test.sh');
+		const testScriptPath = path.join(__dirname, '../../fixtures/scripts/setup-test.sh');
 		const res = await request(app)
 			.post('/api/codebase/setup')
 			.send({ name: 'test-project', projectPath: tempDir, params: { scriptPath: testScriptPath } })
@@ -101,7 +101,7 @@ describe('POST /api/codebase/setup (SetupCodebaseController)', () => {
 			data: { name: 'master', codebaseId: codebase.id, worktree: tempDir, ticketId: null },
 		});
 
-		const testScriptPath = path.join(__dirname, '../fixtures/scripts/setup-test.sh');
+		const testScriptPath = path.join(__dirname, '../../fixtures/scripts/setup-test.sh');
 		const res = await request(app)
 			.post('/api/codebase/setup')
 			.send({ name: 'test-project', projectPath: tempDir, params: { scriptPath: testScriptPath } })
@@ -113,7 +113,7 @@ describe('POST /api/codebase/setup (SetupCodebaseController)', () => {
 	});
 
 	it('initializes git with master as the main branch and author info', async () => {
-		const testScriptPath = path.join(__dirname, '../fixtures/scripts/setup-test.sh');
+		const testScriptPath = path.join(__dirname, '../../fixtures/scripts/setup-test.sh');
 		await request(app)
 			.post('/api/codebase/setup')
 			.send({ name: 'test-project', projectPath: tempDir, params: { scriptPath: testScriptPath } })
@@ -130,7 +130,7 @@ describe('POST /api/codebase/setup (SetupCodebaseController)', () => {
 	});
 
 	it('returns 500 and does not create records when setup script fails', async () => {
-		const failingScriptPath = path.join(__dirname, '../fixtures/scripts/setup-failing.sh');
+		const failingScriptPath = path.join(__dirname, '../../fixtures/scripts/setup-failing.sh');
 
 		const res = await request(app)
 			.post('/api/codebase/setup')
@@ -138,7 +138,7 @@ describe('POST /api/codebase/setup (SetupCodebaseController)', () => {
 			.expect(500);
 
 		expect(res.body?.success).toBe(false);
-		expect(res.body?.error).toBe('Setup failed');
+		expect(res.body?.error).toContain('Command failed:');
 
 		const codebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
 		expect(codebase).toBeNull();

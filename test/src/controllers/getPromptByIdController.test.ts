@@ -9,10 +9,10 @@ import {
 } from "@jest/globals";
 import { Request, Response } from "express";
 import path from "path";
-import GetPromptByIdController from "../../src/controllers/getPromptById.controller";
+import GetPromptByIdController from "../../../src/controllers/getPromptById.controller";
 
 const actualPath = jest.requireActual("path") as typeof path;
-const fixturesPromptsDir = actualPath.join(__dirname, "../fixtures/prompts");
+const fixturesPromptsDir = actualPath.join(__dirname, "../../fixtures/prompts");
 const originalResolve = path.resolve.bind(path);
 
 describe("getPromptByIdController", () => {

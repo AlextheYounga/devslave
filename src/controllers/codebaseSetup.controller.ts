@@ -19,16 +19,19 @@ export default class CodebaseSetupController {
   private db: PrismaClient;
   private req: Request;
   private res: Response;
+  private eventData: any;
 
   constructor(req: Request, res: Response) {
     this.db = prisma;
     this.req = req;
     this.res = res;
+    this.eventData = {};
   }
 
   async handleRequest() {
     try {
       const { name, projectPath, params } = this.req.body as SetupBody;
+      this.eventData = { name, projectPath, params };
 
       if (!name || !projectPath) {
         return this.res.status(400).json({
@@ -37,61 +40,54 @@ export default class CodebaseSetupController {
         });
       }
 
-      new CodebaseSetupStarted({ name, projectPath, params }).publish();
+      new CodebaseSetupStarted(this.eventData).publish();
 
-      try {
-        const setupScript: string = params?.setup ?? "default";
-        const scriptFile =
-          params?.scriptPath ??
-          path.resolve(__dirname, `../scripts/setup/setup-${setupScript}.sh`);
+      const setupScript: string = params?.setup ?? "default";
+      const scriptFile =
+        params?.scriptPath ??
+        path.resolve(__dirname, `../scripts/setup/setup-${setupScript}.sh`);
 
-        // Execute via bash for portability and proper error codes; quote args
-        const scriptOutput = execSync(`bash "${scriptFile}" "${projectPath}"`, {
-          stdio: "pipe",
-          encoding: "utf-8",
-        });
+      // Execute via bash for portability and proper error codes; quote args
+      const scriptOutput = execSync(`bash "${scriptFile}" "${projectPath}"`, {
+        stdio: "pipe",
+        encoding: "utf-8",
+      });
 
-        const codebaseRecord = await this.saveCodebase(name, projectPath);
-        const branchRecord = await this.createMasterBranch(
-          codebaseRecord.id,
-          projectPath
-        );
+      const codebaseRecord = await this.saveCodebase(name, projectPath);
+      const branchRecord = await this.createMasterBranch(
+        codebaseRecord.id,
+        projectPath
+      );
 
-        new CodebaseSetupCompleted({
-          name,
-          projectPath,
-          params,
+      this.eventData = {
+        ...this.eventData,
+        codebaseId: codebaseRecord.id,
+        branchId: branchRecord.id,
+        stdout: scriptOutput,
+      };
+
+      new CodebaseSetupCompleted(this.eventData).publish();
+
+      return this.res.status(200).json({
+        success: true,
+        data: {
           codebaseId: codebaseRecord.id,
           branchId: branchRecord.id,
           stdout: scriptOutput,
-        }).publish();
-
-        return this.res.status(200).json({
-          success: true,
-          data: {
-            codebaseId: codebaseRecord.id,
-            branchId: branchRecord.id,
-            stdout: scriptOutput,
-          },
-        });
-      } catch (err: any) {
-        new CodebaseSetupFailed({
-          name,
-          projectPath,
-          params,
-          error: err?.message ?? String(err),
-        }).publish();
-        return this.res.status(500).json({
-          success: false,
-          error: "Setup failed",
-          details: err?.message ?? String(err),
-        });
-      }
-    } catch (error) {
+        },
+      });
+    } catch (error: any) {
       console.error("Error in CodebaseSetupController:", error);
-      return this.res
-        .status(500)
-        .json({ success: false, error: "Internal Server Error" });
+
+      new CodebaseSetupFailed({
+        ...this.eventData,
+        error: error?.message ?? String(error),
+      }).publish();
+
+      return this.res.status(500).json({
+        success: false,
+        error: error?.message ?? String(error),
+      });
     }
   }
 
