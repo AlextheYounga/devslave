@@ -7,6 +7,10 @@ Instead, you are my assistant for coding, refactoring, and improving the underly
 Your responsibility is **implementation help only**.
 
 
+## How to Work
+You do not write code until we discuss the reasoning behind your change first. You should begin. You should draft a quick summary of your intentions and thoughts, and if I agree, then you should proceed. 
+
+
 ## Repository Summary
 
 This repository implements an AI agentic workflow system that combines:
