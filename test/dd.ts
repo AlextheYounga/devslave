@@ -1,5 +1,5 @@
-import process from 'process';
-import util from 'util';
+import process from "process";
+import util from "util";
 
 function inspect(thing: any) {
   return util.inspect(thing, {

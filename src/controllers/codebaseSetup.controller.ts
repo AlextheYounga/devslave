@@ -1,37 +1,40 @@
 import { Request, Response } from "express";
+import { REPO_ROOT } from "../constants";
 import { execSync } from "child_process";
-import path from "path";
 import { prisma } from "../prisma";
+import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv";
 import {
   CodebaseSetupStarted,
   CodebaseSetupCompleted,
   CodebaseSetupFailed,
 } from "../events";
-import { PrismaClient } from "@prisma/client";
 
-type SetupBody = {
+dotenv.config();
+
+type RequestBody = {
+  executionId: string;
   name: string;
   projectPath: string;
-  params?: any;
+  setup?: string;
 };
 
 export default class CodebaseSetupController {
   private db: PrismaClient;
   private req: Request;
   private res: Response;
-  private eventData: any;
+  private data: any;
 
   constructor(req: Request, res: Response) {
     this.db = prisma;
     this.req = req;
     this.res = res;
-    this.eventData = {};
+    this.data = this.req.body;
   }
 
   async handleRequest() {
     try {
-      const { name, projectPath, params } = this.req.body as SetupBody;
-      this.eventData = { name, projectPath, params };
+      const { name, projectPath } = this.data as RequestBody;
 
       if (!name || !projectPath) {
         return this.res.status(400).json({
@@ -40,33 +43,21 @@ export default class CodebaseSetupController {
         });
       }
 
-      new CodebaseSetupStarted(this.eventData).publish();
+      new CodebaseSetupStarted(this.data).publish();
 
-      const setupScript: string = params?.setup ?? "default";
-      const scriptFile =
-        params?.scriptPath ??
-        path.resolve(__dirname, `../scripts/setup/setup-${setupScript}.sh`);
-
-      // Execute via bash for portability and proper error codes; quote args
-      const scriptOutput = execSync(`bash "${scriptFile}" "${projectPath}"`, {
-        stdio: "pipe",
-        encoding: "utf-8",
-      });
-
+      // Run the setup script
+      const scriptOutput = await this.runSetupScript(projectPath);
       const codebaseRecord = await this.saveCodebase(name, projectPath);
-      const branchRecord = await this.createMasterBranch(
-        codebaseRecord.id,
-        projectPath
-      );
+      const branchRecord = await this.createMasterBranch(codebaseRecord.id, projectPath);
 
-      this.eventData = {
-        ...this.eventData,
+      this.data = {
+        ...this.data,
         codebaseId: codebaseRecord.id,
         branchId: branchRecord.id,
         stdout: scriptOutput,
       };
 
-      new CodebaseSetupCompleted(this.eventData).publish();
+      new CodebaseSetupCompleted(this.data).publish();
 
       return this.res.status(200).json({
         success: true,
@@ -78,9 +69,8 @@ export default class CodebaseSetupController {
       });
     } catch (error: any) {
       console.error("Error in CodebaseSetupController:", error);
-
       new CodebaseSetupFailed({
-        ...this.eventData,
+        ...this.data,
         error: error?.message ?? String(error),
       }).publish();
 
@@ -89,6 +79,19 @@ export default class CodebaseSetupController {
         error: error?.message ?? String(error),
       });
     }
+  }
+
+  private async runSetupScript(projectPath: string) {
+    const { setup = "default" } = this.data as RequestBody;
+    const scriptFolder = process.env.SCRIPT_PATH || "src/scripts";
+    const scriptFile = `${REPO_ROOT}/${scriptFolder}/setup/setup-${setup}.sh`;
+
+    // Execute via bash for portability and proper error codes; quote args
+    const scriptOutput = execSync(`bash "${scriptFile}" "${projectPath}"`, {
+      stdio: "pipe",
+      encoding: "utf-8",
+    });
+    return scriptOutput;
   }
 
   private async saveCodebase(name: string, projectPath: string) {

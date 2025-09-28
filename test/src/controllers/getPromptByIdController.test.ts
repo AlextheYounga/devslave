@@ -26,10 +26,7 @@ describe("getPromptByIdController", () => {
     resolveSpy = jest
       .spyOn(path, "resolve")
       .mockImplementation((...segments: string[]) => {
-        if (
-          segments.length >= 1 &&
-          segments[segments.length - 1] === "../prompts"
-        ) {
+        if (segments.length >= 1 && segments[segments.length - 1] === "../prompts") {
           return fixturesPromptsDir;
         }
 

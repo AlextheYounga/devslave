@@ -16,8 +16,8 @@ if (databaseName() !== "test.db") {
 const prisma = new PrismaClient();
 
 prisma.$executeRawUnsafe(`PRAGMA journal_mode=WAL`);
-prisma.$executeRawUnsafe(`PRAGMA synchronous=FULL`);   // FULL for max durability
-prisma.$executeRawUnsafe(`PRAGMA busy_timeout=5000`);    // ms; lets brief lock conflicts wait instead of error
+prisma.$executeRawUnsafe(`PRAGMA synchronous=FULL`); // FULL for max durability
+prisma.$executeRawUnsafe(`PRAGMA busy_timeout=5000`); // ms; lets brief lock conflicts wait instead of error
 prisma.$executeRawUnsafe(`PRAGMA wal_autocheckpoint=1000`); // pages; tune to your write rate
 
 export default prisma;

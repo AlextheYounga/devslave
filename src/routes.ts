@@ -26,4 +26,27 @@ router.post('/api/codebase/setup', async (req: Request, res: Response) => {
     return new CodebaseSetupController(req, res).handleRequest();
 });
 
+// // Launch Agent endpoints
+// router.post('/api/agent/planning', async (req: Request, res: Response) => {
+//     return new CodebaseSetupController(req, res).handleRequest();
+// });
+
+// router.post('/api/agent/qa', async (req: Request, res: Response) => {
+//     return new CodebaseSetupController(req, res).handleRequest();
+// });
+
+// router.post('/api/agent/dev', async (req: Request, res: Response) => {
+//     return new CodebaseSetupController(req, res).handleRequest();
+// });
+
+// router.post('/api/agent/manager', async (req: Request, res: Response) => {
+//     return new CodebaseSetupController(req, res).handleRequest();
+// });
+
+
+// // Tickets endpoints
+// router.post('/api/tickets/scan', async (req: Request, res: Response) => {
+//     return new CodebaseSetupController(req, res).handleRequest();
+// });
+
 export default router;

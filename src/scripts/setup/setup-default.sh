@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Args
-project_path="${1:-}"
+project_path=$1
 if [[ -z "${project_path}" ]]; then
   echo "Usage: $0 <project_path>" >&2
   exit 1
@@ -19,7 +19,7 @@ mkdir -p "${project_path}/docs"
 mkdir -p "${project_path}/codex/tickets"
 
 prompts_dir="${repo_root}/src/prompts"
-cp -R "${prompts_dir}/prompts/" "${project_path}/codex/" || true
+cp -R "${prompts_dir}/." "${project_path}/codex/" || true
 
 # Move to project folder
 cd "${project_path}"

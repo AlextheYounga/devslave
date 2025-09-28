@@ -46,7 +46,7 @@ describe("getAllPromptsController", () => {
       json: jsonSpy as any,
       status: statusSpy as any,
     };
-    mockRequest = { };
+    mockRequest = {};
   });
 
   describe("successful retrieval", () => {

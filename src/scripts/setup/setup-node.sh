@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Args
-project_path="${1:-}"
+project_path=$1
 if [[ -z "${project_path}" ]]; then
   echo "Usage: $0 <project_path>" >&2
   exit 1
