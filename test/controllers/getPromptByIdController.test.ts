@@ -9,7 +9,7 @@ import {
 } from "@jest/globals";
 import { Request, Response } from "express";
 import path from "path";
-import getPromptByIdController from "../../src/controllers/getPromptById.controller";
+import GetPromptByIdController from "../../src/controllers/getPromptById.controller";
 
 const actualPath = jest.requireActual("path") as typeof path;
 const fixturesPromptsDir = actualPath.join(__dirname, "../fixtures/prompts");
@@ -56,10 +56,10 @@ describe("getPromptByIdController", () => {
   it("returns prompt data when the id exists", async () => {
     mockRequest.params = { id: "sample-prompt" };
 
-    await getPromptByIdController(
+    await new GetPromptByIdController(
       mockRequest as Request,
       mockResponse as Response
-    );
+    ).handleRequest();
 
     expect(statusSpy).not.toHaveBeenCalled();
     expect(jsonSpy).toHaveBeenCalledWith({
@@ -75,10 +75,10 @@ describe("getPromptByIdController", () => {
   it("derives the filename from the id", async () => {
     mockRequest.params = { id: "simple" };
 
-    await getPromptByIdController(
+    await new GetPromptByIdController(
       mockRequest as Request,
       mockResponse as Response
-    );
+    ).handleRequest();
 
     const payload = jsonSpy.mock.calls[0]?.[0];
 
@@ -95,10 +95,10 @@ describe("getPromptByIdController", () => {
   it("returns a 500 when the prompt is missing", async () => {
     mockRequest.params = { id: "does-not-exist" };
 
-    await getPromptByIdController(
+    await new GetPromptByIdController(
       mockRequest as Request,
       mockResponse as Response
-    );
+    ).handleRequest();
 
     expect(statusSpy).toHaveBeenCalledWith(500);
     expect(jsonSpy).toHaveBeenCalledWith({
@@ -110,10 +110,10 @@ describe("getPromptByIdController", () => {
   it("returns a 500 when the id param is empty", async () => {
     mockRequest.params = {};
 
-    await getPromptByIdController(
+    await new GetPromptByIdController(
       mockRequest as Request,
       mockResponse as Response
-    );
+    ).handleRequest();
 
     expect(statusSpy).toHaveBeenCalledWith(500);
     expect(jsonSpy).toHaveBeenCalledWith({

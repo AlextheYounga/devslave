@@ -7,6 +7,5 @@ export function refreshDatabase() {
     prisma.branch.deleteMany();
     prisma.ticket.deleteMany();
     prisma.codebase.deleteMany();
-    prisma.job.deleteMany();
   }
 }

@@ -7,8 +7,8 @@ import {
   beforeEach,
   jest,
 } from "@jest/globals";
-import { Response } from "express";
-import getAllPromptsController from "../../src/controllers/getAllPrompts.controller";
+import { Request, Response } from "express";
+import GetAllPromptsController from "../../src/controllers/getAllPrompts.controller";
 import path from "path";
 
 const fixturesPromptsDir = path.join(__dirname, "../fixtures/prompts");
@@ -17,6 +17,7 @@ let resolveSpy: jest.SpiedFunction<typeof path.resolve>;
 
 describe("getAllPromptsController", () => {
   let mockResponse: Partial<Response>;
+  let mockRequest: Partial<Request>;
   let jsonSpy: jest.MockedFunction<any>;
   let statusSpy: jest.MockedFunction<any>;
 
@@ -45,11 +46,15 @@ describe("getAllPromptsController", () => {
       json: jsonSpy as any,
       status: statusSpy as any,
     };
+    mockRequest = { };
   });
 
   describe("successful retrieval", () => {
     it("should return all prompt files with correct structure", async () => {
-      await getAllPromptsController(mockResponse as Response);
+      await new GetAllPromptsController(
+        mockRequest as Request,
+        mockResponse as Response
+      ).handleRequest();
 
       const callArgs = jsonSpy.mock.calls[0]?.[0] as any;
       expect(callArgs.success).toBe(true);
@@ -66,7 +71,10 @@ describe("getAllPromptsController", () => {
     });
 
     it("should extract correct id from filename", async () => {
-      await getAllPromptsController(mockResponse as Response);
+      await new GetAllPromptsController(
+        mockRequest as Request,
+        mockResponse as Response
+      ).handleRequest();
 
       const callArgs = jsonSpy.mock.calls[0]?.[0] as any;
       const prompts = callArgs?.data;
@@ -80,21 +88,30 @@ describe("getAllPromptsController", () => {
 
   describe("response format validation", () => {
     it("should always return success boolean", async () => {
-      await getAllPromptsController(mockResponse as Response);
+      await new GetAllPromptsController(
+        mockRequest as Request,
+        mockResponse as Response
+      ).handleRequest();
 
       const callArgs = jsonSpy.mock.calls[0]?.[0] as any;
       expect(typeof callArgs?.success).toBe("boolean");
     });
 
     it("should return data array on success", async () => {
-      await getAllPromptsController(mockResponse as Response);
+      await new GetAllPromptsController(
+        mockRequest as Request,
+        mockResponse as Response
+      ).handleRequest();
 
       const callArgs = jsonSpy.mock.calls[0]?.[0] as any;
       expect(Array.isArray(callArgs?.data)).toBe(true);
     });
 
     it("should have proper nested structure for each prompt", async () => {
-      await getAllPromptsController(mockResponse as Response);
+      await new GetAllPromptsController(
+        mockRequest as Request,
+        mockResponse as Response
+      ).handleRequest();
 
       const callArgs = jsonSpy.mock.calls[0]?.[0] as any;
       const prompts = callArgs?.data;

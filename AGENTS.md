@@ -11,16 +11,14 @@ Your responsibility is **implementation help only**.
 
 This repository implements an AI agentic workflow system that combines:
 
-- **Express (TypeScript) API** → `src/server.ts` with routes, middleware, and job endpoints.  
-- **SQLite-backed job queue + worker** → `src/queue.ts` and `src/worker.ts`.  
-- **Registry** → `src/registry.ts` maps job `type` strings to handlers.  
-- **Handlers and jobs** → `src/handlers/**` and `src/jobs/**`.  
+- **Express (TypeScript) API** → `src/server.ts` with routes and middleware.  
+- **Direct controllers + handlers** → endpoints call `src/controllers/**` which orchestrate domain logic in `src/handlers/**`.  
 - **Events** → `src/events.ts` records structured events asynchronously.  
 - **Database (Prisma)** → `prisma/schema.prisma` with migrations and a default SQLite DB.  
 - **Docker (optional)** → `docker-compose.yml` for Postgres/Redis/n8n orchestration.  
 - **Tests** → Jest only, under `test/**`. Tests use a dedicated SQLite test database. 
 
-At a glance: jobs are submitted via HTTP, the Worker picks them up, dispatches via the registry, handlers/scripts execute domain logic, and events are recorded for observability.
+At a glance: endpoints call handlers directly (n8n orchestrates workflows externally); handlers/scripts execute domain logic, and events are recorded for observability.
 
 ## Engineering Philosophy
 
