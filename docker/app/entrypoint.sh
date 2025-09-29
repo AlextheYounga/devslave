@@ -14,6 +14,10 @@ if [ -d "/seed/.codex" ]; then
     mkdir -p /root/.codex
     # Preserve perms and attributes
     cp -a /seed/.codex/. /root/.codex/
+
+    # Reset codex history
+    rm -rf /root/.codex/sessions/**
+    truncate -s 0 /root/.codex/history.jsonl
   else
     echo "[entrypoint] /root/.codex already initialized; skipping seed"
   fi
@@ -33,7 +37,8 @@ npx prisma migrate deploy
 echo "[entrypoint] prisma generate"
 npx prisma generate
 
+echo "[entrypoint] giving codex script -x permission"
+chmod +x /app/agent/src/scripts/launch-agent.sh
+
 echo "[entrypoint] starting app"
 exec npm run server
-
-# Reset 

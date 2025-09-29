@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-// Job queue routes removed in favor of direct handler endpoints
 import GetAllPromptsController from './controllers/getAllPrompts.controller';
 import GetPromptByIdController from './controllers/getPromptById.controller';
 import HealthController from './controllers/health.controller';
 import CodebaseSetupController from './controllers/codebaseSetup.controller';
+import AgentLaunchController from './controllers/agentLaunch.controller';
 
 const router = Router();
 
@@ -26,27 +26,9 @@ router.post('/api/codebase/setup', async (req: Request, res: Response) => {
     return new CodebaseSetupController(req, res).handleRequest();
 });
 
-// // Launch Agent endpoints
-// router.post('/api/agent/planning', async (req: Request, res: Response) => {
-//     return new CodebaseSetupController(req, res).handleRequest();
-// });
-
-// router.post('/api/agent/qa', async (req: Request, res: Response) => {
-//     return new CodebaseSetupController(req, res).handleRequest();
-// });
-
-// router.post('/api/agent/dev', async (req: Request, res: Response) => {
-//     return new CodebaseSetupController(req, res).handleRequest();
-// });
-
-// router.post('/api/agent/manager', async (req: Request, res: Response) => {
-//     return new CodebaseSetupController(req, res).handleRequest();
-// });
-
-
-// // Tickets endpoints
-// router.post('/api/tickets/scan', async (req: Request, res: Response) => {
-//     return new CodebaseSetupController(req, res).handleRequest();
-// });
+// Launch Codex Agent endpoint
+router.post('/api/agent/launch', async (req: Request, res: Response) => {
+    return new AgentLaunchController(req, res).handleRequest();
+});
 
 export default router;

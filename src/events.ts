@@ -59,13 +59,20 @@ export class CodebaseSetupCompleted extends BaseEvent {
 }
 
 // Agent-related events
-export class AgentRunStarted extends BaseEvent {
+
+export class AgentPreparing extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
-export class AgentRunFailed extends BaseEvent {
+export class AgentLaunched extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
+export class AgentFailed extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }

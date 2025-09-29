@@ -13,6 +13,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AgentStatus {
+  PREPARING
+  LAUNCHED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model Agent {
+  id          String      @id @default(cuid())
+  executionId String
+  sessionId   String?
+  tmuxSession String?
+  role        String?
+  pid         Int?
+  logFile     String?
+  status      AgentStatus @default(PREPARING)
+  inputs      Json?
+  context     Json?
+  createdAt   DateTime    @default(now())
+
+  @@map("agents")
+}
+
 model Codebase {
   id        String   @id @default(cuid())
   name      String
@@ -37,15 +61,23 @@ model Events {
   @@map("events")
 }
 
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  IN_REVIEW
+  CLOSED
+  REOPENED
+}
+
 model Ticket {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   codebaseId  String
   ticketId    String
   title       String
   description String?
-  status      String   @default("open")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      TicketStatus @default(OPEN)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   codebase Codebase @relation(fields: [codebaseId], references: [id], onDelete: Cascade)
   branches Branch[]
