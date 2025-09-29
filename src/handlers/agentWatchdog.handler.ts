@@ -1,5 +1,5 @@
 import { prisma } from "../prisma";
-import { promises, statSync } from "fs";
+import { promises as fs } from "fs";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
 import { SENTINEL } from "../constants";
 import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
@@ -16,9 +16,19 @@ export default class AgentWatchdogHandler {
     this.db = prisma;
     this.executionId = executionId;
     this.agent = agent;
+    // Initialize from current DB state so we don't re-emit old states
+    if (agent.status) {
+      this.status = agent.status as AgentStatus;
+      this.lastPublishedStatus = agent.status as AgentStatus;
+    }
   }
 
   async ping() {
+    // Early exit on terminal states
+    if (this.status === AgentStatus.COMPLETED || this.status === AgentStatus.FAILED) {
+      return this.agent;
+    }
+
     let sessionContext: string | null = null;
     let nextStatus: AgentStatus = this.status;
 
@@ -29,8 +39,8 @@ export default class AgentWatchdogHandler {
         : AgentStatus.RUNNING;
 
       // Check for idleness
-      const { idle, lastModified, timeIdle } = this.checkSessionIdleness();
-      if (idle && this.status === AgentStatus.RUNNING) {
+      const { idle, lastModified, timeIdle } = await this.checkSessionIdleness();
+      if (idle && nextStatus !== AgentStatus.COMPLETED) {
         const displaySeconds = Math.floor(timeIdle / 1000);
         console.log(
           `Agent ${this.agent.id} idling since ${lastModified} (${displaySeconds} seconds). Marking as COMPLETED.`
@@ -76,20 +86,28 @@ export default class AgentWatchdogHandler {
     if (!logFile) {
       throw new Error("Agent log file not found");
     }
-    await promises.access(logFile);
-    const sessionContext = await promises.readFile(logFile, "utf-8");
+    await fs.access(logFile);
+    const sessionContext = await fs.readFile(logFile, "utf-8");
     return sessionContext;
   }
 
-  private checkSessionIdleness() {
-    const stats = statSync("path/to/your/file.txt");
-    const lastModified = stats.mtime; // This is a Date object
-    const now = new Date();
-    const timeIdle = now.getTime() - lastModified.getTime();
-    if (now.getTime() - lastModified.getTime() > this.maxIdleTime) {
-      return { idle: true, lastModified, timeIdle };
+  private async checkSessionIdleness() {
+    const logFile = this.agent.logFile;
+    try {
+      if (!logFile) throw new Error("Agent log file not found");
+      const stats = await fs.stat(logFile);
+      const lastModified = stats.mtime;
+      const now = new Date();
+      const timeIdle = now.getTime() - lastModified.getTime();
+      if (timeIdle > this.maxIdleTime) {
+        return { idle: true, lastModified, timeIdle };
+      }
+      return { idle: false, lastModified, timeIdle };
+    } catch {
+      // If we cannot stat the file (rotation/transient), treat as not idle
+      const lastModified = new Date(0);
+      return { idle: false, lastModified, timeIdle: 0 };
     }
-    return { idle: false, lastModified, timeIdle };
   }
 
   private async updateAgentRecord(context: string | null) {
