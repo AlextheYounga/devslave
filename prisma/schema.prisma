@@ -33,6 +33,7 @@ model Agent {
   inputs      Json?
   context     Json?
   createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@map("agents")
 }

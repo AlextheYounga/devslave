@@ -72,13 +72,19 @@ export class AgentLaunched extends BaseEvent {
   }
 }
 
-export class AgentFailed extends BaseEvent {
+export class AgentRunning extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }
 }
 
-export class AgentRunCompleted extends BaseEvent {
+export class AgentCompleted extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
+export class AgentFailed extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }

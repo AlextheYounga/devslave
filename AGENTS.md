@@ -21,8 +21,7 @@ This repository implements an AI agentic workflow system that combines:
 - **Database (Prisma)** → `prisma/schema.prisma` with migrations and a default SQLite DB.  
 - **Docker (optional)** → `docker-compose.yml` for Postgres/Redis/n8n orchestration.  
 - **Tests** → Jest only, under `test/**`. Tests use a dedicated SQLite test database. 
-
-At a glance: endpoints call handlers directly (n8n orchestrates workflows externally); handlers/scripts execute domain logic, and events are recorded for observability.
+- **Agent runtime (tmux-based)** → Codex agents are launched via `tmux` using `src/scripts/launch-agent.sh`. We create a named tmux session per run, capture the foreground PID and session log path, and track state in the DB. A watchdog handler reads the session log (JSONL) to determine progress/completion.
 
 ## Engineering Philosophy
 

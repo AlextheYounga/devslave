@@ -2,8 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
 import { AgentFailed } from "../events";
-import AgentProcessHandler from "../handlers/agentProcess.handler";
-import { ok } from "assert";
+import AgentWatchdogHandler from "../handlers/agentWatchdog.handler";
 
 type RequestBody = {
   executionId: string;
@@ -38,11 +37,22 @@ export default class AgentWatchdogController {
         });
       }
 
+      const watchdogHandler = new AgentWatchdogHandler(
+        this.data.executionId, 
+        agent
+      );
+
+      const currentAgent = await watchdogHandler.ping();
+
       // Fire-and-forget: do not await watchdog completion; respond immediately
       return this.res.status(202).json({
         success: true,
-        message: "Agent started",
-        data: this.data,
+        message: `Agent status: ${currentAgent.status}`,
+        data: {
+          ...this.data,
+          status: currentAgent.status,
+          lastUpdated: currentAgent.updatedAt,
+        },
       });
     } catch (error: any) {
       console.error("Error in AgentLaunchController:", error);
