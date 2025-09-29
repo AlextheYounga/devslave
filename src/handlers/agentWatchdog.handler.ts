@@ -1,5 +1,5 @@
 import { prisma } from "../prisma";
-import { promises as fs } from "fs";
+import { promises, statSync } from "fs";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
 import { SENTINEL } from "../constants";
 import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
@@ -10,6 +10,7 @@ export default class AgentWatchdogHandler {
   public agent: Agent;
   public status: AgentStatus = AgentStatus.LAUNCHED;
   private lastPublishedStatus: AgentStatus | null = null;
+  private maxIdleTime = 10 * 60 * 1000; // 10 minutes
 
   constructor(executionId: string, agent: Agent) {
     this.db = prisma;
@@ -26,6 +27,16 @@ export default class AgentWatchdogHandler {
       nextStatus = sessionContext.includes(SENTINEL)
         ? AgentStatus.COMPLETED
         : AgentStatus.RUNNING;
+
+      // Check for idleness
+      const { idle, lastModified, timeIdle } = this.checkSessionIdleness();
+      if (idle && this.status === AgentStatus.RUNNING) {
+        const displaySeconds = Math.floor(timeIdle / 1000);
+        console.log(
+          `Agent ${this.agent.id} idling since ${lastModified} (${displaySeconds} seconds). Marking as COMPLETED.`
+        );
+        nextStatus = AgentStatus.COMPLETED;
+      }
     } catch (error) {
       console.error("Error reading session log file:", error);
       nextStatus = AgentStatus.FAILED;
@@ -65,9 +76,20 @@ export default class AgentWatchdogHandler {
     if (!logFile) {
       throw new Error("Agent log file not found");
     }
-    await fs.access(logFile);
-    const sessionContext = await fs.readFile(logFile, "utf-8");
+    await promises.access(logFile);
+    const sessionContext = await promises.readFile(logFile, "utf-8");
     return sessionContext;
+  }
+
+  private checkSessionIdleness() {
+    const stats = statSync("path/to/your/file.txt");
+    const lastModified = stats.mtime; // This is a Date object
+    const now = new Date();
+    const timeIdle = now.getTime() - lastModified.getTime();
+    if (now.getTime() - lastModified.getTime() > this.maxIdleTime) {
+      return { idle: true, lastModified, timeIdle };
+    }
+    return { idle: false, lastModified, timeIdle };
   }
 
   private async updateAgentRecord(context: string | null) {
@@ -81,7 +103,7 @@ export default class AgentWatchdogHandler {
     });
   }
 
-  readJsonl(context: string | null): Record<string, any>[] {
+  private readJsonl(context: string | null): Record<string, any>[] {
     if (!context) return [];
     const lines = context.split(/\r?\n/).filter(Boolean);
     const entries: Record<string, any>[] = [];
