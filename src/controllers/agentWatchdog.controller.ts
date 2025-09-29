@@ -26,14 +26,22 @@ export default class AgentWatchdogController {
     try {
       const { agentId, executionId } = this.data as RequestBody;
 
+      // Validate inputs before DB lookup
+      if (!agentId || !executionId) {
+        return this.res.status(400).json({
+          success: false,
+          error: "agentId and executionId are required",
+        });
+      }
+
       const agent = await this.db.agent.findUnique({
         where: { id: agentId },
       });
 
-      if (!agentId || !executionId || !agent) {
+      if (!agent) {
         return this.res.status(400).json({
           success: false,
-          error: "agentId, executionId, and valid agent are required",
+          error: "Valid agent is required",
         });
       }
 
@@ -42,7 +50,18 @@ export default class AgentWatchdogController {
         agent
       );
 
-      const currentAgent = await watchdogHandler.ping();
+      const agentStatus = await watchdogHandler.ping();
+      const currentAgent = await this.db.agent.findUnique({
+        where: { id: agentId },
+      });
+
+      if (!currentAgent) {
+        return this.res.status(500).json({
+          success: false,
+          error: "Agent disappeared from database",
+        });
+      }
+      
 
       // Fire-and-forget: do not await watchdog completion; respond immediately
       return this.res.status(202).json({
@@ -50,12 +69,11 @@ export default class AgentWatchdogController {
         message: `Agent status: ${currentAgent.status}`,
         data: {
           ...this.data,
-          status: currentAgent.status,
-          lastUpdated: currentAgent.updatedAt,
+          ...agentStatus.data
         },
       });
     } catch (error: any) {
-      console.error("Error in AgentLaunchController:", error);
+      console.error("Error in AgentWatchdogController:", error);
       new AgentFailed({
         ...this.data,
         error: error?.message ?? String(error),

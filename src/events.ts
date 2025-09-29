@@ -2,8 +2,8 @@ import { prisma } from "./prisma";
 
 // Base Event class that all events inherit from
 export abstract class BaseEvent {
-  protected parentId: string | null;
-  protected data: Record<string, any> | null;
+  public parentId: string | null;
+  public data: Record<string, any> | null;
 
   constructor(data?: Record<string, any>, parentId?: string) {
     this.parentId = parentId ?? null;
@@ -26,16 +26,6 @@ export abstract class BaseEvent {
     });
 
     return this;
-  }
-
-  // Helper method to get event data
-  getData(): Record<string, any> | null {
-    return this.data;
-  }
-
-  // Helper method to set additional data
-  setData(data: Record<string, any>): void {
-    this.data = this.data ? { ...this.data, ...data } : data;
   }
 }
 

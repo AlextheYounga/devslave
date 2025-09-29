@@ -1,5 +1,6 @@
 import { prisma } from "../prisma";
 import { promises as fs } from "fs";
+import { exec, execSync } from "child_process";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
 import { SENTINEL } from "../constants";
 import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
@@ -9,28 +10,21 @@ export default class AgentWatchdogHandler {
   public executionId: string;
   public agent: Agent;
   public status: AgentStatus = AgentStatus.LAUNCHED;
-  private lastPublishedStatus: AgentStatus | null = null;
-  private maxIdleTime = 10 * 60 * 1000; // 10 minutes
+  private maxIdleTime = 6 * 60 * 1000; // 6 minutes
+  private eventData: any;
 
   constructor(executionId: string, agent: Agent) {
     this.db = prisma;
     this.executionId = executionId;
     this.agent = agent;
-    // Initialize from current DB state so we don't re-emit old states
-    if (agent.status) {
-      this.status = agent.status as AgentStatus;
-      this.lastPublishedStatus = agent.status as AgentStatus;
-    }
+    this.status = agent.status as AgentStatus;
+    this.eventData = { executionId, agentId: agent.id };
   }
 
-  async ping() {
-    // Early exit on terminal states
-    if (this.status === AgentStatus.COMPLETED || this.status === AgentStatus.FAILED) {
-      return this.agent;
-    }
-
-    let sessionContext: string | null = null;
+  async ping(): Promise<AgentRunning | AgentCompleted | AgentFailed> {
+    const prevStatus = this.status;
     let nextStatus: AgentStatus = this.status;
+    let sessionContext: string | null = null;
 
     try {
       sessionContext = await this.readSessionLog();
@@ -43,42 +37,54 @@ export default class AgentWatchdogHandler {
       if (idle && nextStatus !== AgentStatus.COMPLETED) {
         const displaySeconds = Math.floor(timeIdle / 1000);
         console.log(
-          `Agent ${this.agent.id} idling since ${lastModified} (${displaySeconds} seconds). Marking as COMPLETED.`
+          `Agent ${this.agent.id} idling for ${displaySeconds} seconds. Marking as COMPLETED.`
         );
         nextStatus = AgentStatus.COMPLETED;
       }
+
+      this.eventData = {
+        ...this.eventData,
+        lastModified,
+        timeIdle,
+        idle,
+      };
     } catch (error) {
       console.error("Error reading session log file:", error);
       nextStatus = AgentStatus.FAILED;
     }
 
-    // Publish event only on transition
-    if (this.lastPublishedStatus !== nextStatus) {
-      this.lastPublishedStatus = nextStatus;
-      switch (nextStatus) {
-        case AgentStatus.RUNNING:
-          new AgentRunning({
-            agentId: this.agent.id,
-            executionId: this.executionId,
-          }).publish();
-          break;
-        case AgentStatus.COMPLETED:
-          new AgentCompleted({
-            agentId: this.agent.id,
-            executionId: this.executionId,
-          }).publish();
-          break;
-        case AgentStatus.FAILED:
-          new AgentFailed({
-            agentId: this.agent.id,
-            executionId: this.executionId,
-          }).publish();
-          break;
-      }
+    // Persist current status and context for this single agent observation
+    this.status = nextStatus;
+    await this.updateAgentRecord(sessionContext);
+
+    // Always include status context in the event payload
+    this.eventData = {
+      ...this.eventData,
+      status: nextStatus,
+      previousStatus: prevStatus ?? null,
+    };
+
+    // Build the event for the current status
+    let publishableEvent = new AgentRunning(this.eventData);
+    switch (nextStatus) {
+      case AgentStatus.RUNNING:
+        publishableEvent = new AgentRunning(this.eventData);
+        break;
+      case AgentStatus.COMPLETED:
+        publishableEvent = new AgentCompleted(this.eventData);
+        this.killAgent();
+        break;
+      case AgentStatus.FAILED:
+        this.killAgent();
+        publishableEvent = new AgentFailed(this.eventData);
+        break;
     }
 
-    this.status = nextStatus;
-    return await this.updateAgentRecord(sessionContext);
+    // Publish event only on transition
+    if (prevStatus !== nextStatus) {
+      publishableEvent.publish();
+    }
+    return publishableEvent;
   }
 
   private async readSessionLog() {
@@ -110,9 +116,9 @@ export default class AgentWatchdogHandler {
     }
   }
 
-  private async updateAgentRecord(context: string | null) {
+  private async updateAgentRecord(context: string | null): Promise<void> {
     const parsedContext = this.readJsonl(context);
-    return await this.db.agent.update({
+    await this.db.agent.update({
       where: { id: this.agent.id },
       data: {
         status: this.status,
@@ -133,5 +139,17 @@ export default class AgentWatchdogHandler {
       }
     }
     return entries;
+  }
+
+  private killAgent() {
+    if (this.agent.pid) {
+      try {
+        exec(`tmux kill-session -t ${this.agent.tmuxSession}`);
+        process.kill(this.agent.pid, "SIGKILL");
+        console.log(`Killed agent process ${this.agent.pid}`);
+      } catch (error) {
+        console.error(`Failed to kill agent process ${this.agent.pid}:`, error);
+      }
+    }
   }
 }
