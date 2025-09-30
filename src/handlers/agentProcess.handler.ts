@@ -38,7 +38,8 @@ export default class AgentProcessHandler {
 
     this.tmuxSession = `agent_${agentRecord.id}`;
 
-    execSync(`bash ${scriptFile} ${projectPath} "${prompt}" ${this.tmuxSession}`);
+  // Quote args for safety and reliability across shells/paths with spaces
+  execSync(`bash "${scriptFile}" "${projectPath}" "${prompt}" "${this.tmuxSession}"`);
 
     this.pid = this.getAgentPid();
     const logFile = this.getAgentLogFile();
@@ -57,11 +58,12 @@ export default class AgentProcessHandler {
 
   getAgentPid() {
     const panePid = this.getTmuxPanePid();
-    return this.waitForChildPidByPattern(panePid, "tail", 5000, 100);
+    // Use default timeouts for stability in production
+    return this.waitForChildPidByPattern(panePid, "tail");
   }
 
   getAgentLogFile() {
-    const out = this.waitForProcessOpenFile(this.pid!, "sessions", 5000, 100);
+    const out = this.waitForProcessOpenFile(this.pid!, "sessions");
     return this.parseLogFilePathFromLsofOutput(out);
   }
 

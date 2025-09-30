@@ -24,17 +24,6 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
 
   beforeAll(() => {
     jest.setTimeout(30000);
-    originalScriptPath = process.env.SCRIPT_PATH;
-    // Point to test fixture scripts directory so handler picks up our test launcher
-    process.env.SCRIPT_PATH = "test/fixtures/scripts";
-  });
-
-  afterAll(() => {
-    if (originalScriptPath === undefined) {
-      delete (process.env as any).SCRIPT_PATH;
-    } else {
-      process.env.SCRIPT_PATH = originalScriptPath;
-    }
   });
 
   beforeEach(() => {
@@ -98,7 +87,7 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
     } catch (e) {
       // Best-effort cleanup; ignore if already gone
     }
-  });
+  }, 20000);
 
   it("returns 400 when codebase is missing or invalid (agent-launch-negative)", async () => {
     const res = await request(app)

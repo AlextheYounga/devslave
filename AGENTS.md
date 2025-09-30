@@ -61,6 +61,7 @@ Agents should reference this before making any design or implementation decision
 - Cover both positive and negative cases.  
 - Write descriptive, context-rich test names.  
 - Minimize duplication across test cases.  
+- Never write test code in production files. Test code must be confined to tests. 
 - **Data:** Prefer Faker; otherwise use fixture files.  
 - **Scope:** Favor broad functional tests over micro-unit tests.  
 - **No external calls.** Tests must not depend on network connectivity.  
