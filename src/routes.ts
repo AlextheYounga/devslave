@@ -4,6 +4,7 @@ import GetPromptByIdController from './controllers/getPromptById.controller';
 import HealthController from './controllers/health.controller';
 import CodebaseSetupController from './controllers/codebaseSetup.controller';
 import AgentLaunchController from './controllers/agentLaunch.controller';
+import AgentWatchdogController from './controllers/agentWatchdog.controller';
 
 const router = Router();
 
@@ -29,6 +30,11 @@ router.post('/api/codebase/setup', async (req: Request, res: Response) => {
 // Launch Codex Agent endpoint
 router.post('/api/agent/launch', async (req: Request, res: Response) => {
     return new AgentLaunchController(req, res).handleRequest();
+});
+
+// Get Agent Status / Watchdog endpoint
+router.post('/api/agent/status', async (req: Request, res: Response) => {
+    return new AgentWatchdogController(req, res).handleRequest();
 });
 
 export default router;
