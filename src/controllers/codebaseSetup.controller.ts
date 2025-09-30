@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { REPO_ROOT } from "../constants";
 import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
 import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
@@ -8,6 +10,7 @@ import {
   CodebaseSetupStarted,
   CodebaseSetupCompleted,
   CodebaseSetupFailed,
+  CodebaseAlreadySetup,
 } from "../events";
 
 dotenv.config();
@@ -45,15 +48,32 @@ export default class CodebaseSetupController {
 
       new CodebaseSetupStarted(this.data).publish();
 
-      // Run the setup script
+      // Idempotency: use DB flag to determine if setup already completed
+      const codebase = await this.saveCodebase(name, projectPath);
+      if (codebase.setup) {
+        new CodebaseAlreadySetup(this.data).publish();
+        return this.res.status(200).json({
+          success: true,
+          data: {
+            ...this.data,
+            stdout: "codebase already set up, skipping initialization",
+          },
+        });
+      }
+
       const scriptOutput = await this.runSetupScript(projectPath);
-      const codebaseRecord = await this.saveCodebase(name, projectPath);
-      const branchRecord = await this.createMasterBranch(codebaseRecord.id, projectPath);
+      const branch = await this.createMasterBranch(codebase.id, projectPath);
+
+      // Update codebase to mark setup as completed
+      await this.db.codebase.update({
+        where: { id: codebase.id },
+        data: { setup: true },
+      });
 
       this.data = {
         ...this.data,
-        codebaseId: codebaseRecord.id,
-        branchId: branchRecord.id,
+        codebaseId: codebase.id,
+        branchId: branch.id,
         stdout: scriptOutput,
       };
 
@@ -62,8 +82,7 @@ export default class CodebaseSetupController {
       return this.res.status(200).json({
         success: true,
         data: {
-          codebaseId: codebaseRecord.id,
-          branchId: branchRecord.id,
+          ...this.data,
           stdout: scriptOutput,
         },
       });
@@ -95,18 +114,9 @@ export default class CodebaseSetupController {
   }
 
   private async saveCodebase(name: string, projectPath: string) {
-    const existing = await this.db.codebase.findFirst({
-      where: { path: projectPath },
-    });
-
+    const existing = await this.db.codebase.findFirst({ where: { path: projectPath } });
     if (existing) return existing;
-
-    return await this.db.codebase.create({
-      data: {
-        name,
-        path: projectPath,
-      },
-    });
+    return await this.db.codebase.create({ data: { name, path: projectPath } });
   }
 
   private async createMasterBranch(codebaseId: string, projectPath: string) {

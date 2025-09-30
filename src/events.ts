@@ -36,6 +36,12 @@ export class CodebaseSetupStarted extends BaseEvent {
   }
 }
 
+export class CodebaseAlreadySetup extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
 export class CodebaseSetupFailed extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);

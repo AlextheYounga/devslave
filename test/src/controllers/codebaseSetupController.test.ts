@@ -31,8 +31,6 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
   });
 
   it("executes the setup script and returns 200 with IDs and stdout", async () => {
-    const testScriptPath = path.join(__dirname, "../../fixtures/scripts/setup-test.sh");
-
     const res = await request(app)
       .post("/api/codebase/setup")
       .send({
@@ -53,7 +51,6 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
   });
 
   it("saves codebase and branch records to the database", async () => {
-    const testScriptPath = path.join(__dirname, "../../fixtures/scripts/setup-test.sh");
     const res = await request(app)
       .post("/api/codebase/setup")
       .send({ name: "test-project", projectPath: tempDir, setup: "test" })
@@ -146,7 +143,35 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(authorEmail).toBe("thealexyounger@proton.me");
   });
 
-  it("returns 500 and does not create records when setup script fails", async () => {
+  it("does not re-run setup script when project already initialized (idempotent)", async () => {
+    // First run should execute the script and mark setup=true in DB
+    const first = await request(app)
+      .post("/api/codebase/setup")
+      .send({ name: "test-project", projectPath: tempDir, setup: "test" })
+      .expect(200);
+
+    expect(first.body.success).toBe(true);
+    expect(first.body.data.stdout).toContain("Project setup completed successfully");
+
+    const codebase1 = await prisma.codebase.findFirst({ where: { path: tempDir } });
+    expect(codebase1?.setup).toBe(true);
+
+    // Second run should skip script based on DB flag
+    const second = await request(app)
+      .post("/api/codebase/setup")
+      .send({ name: "test-project", projectPath: tempDir, setup: "test" })
+      .expect(200);
+
+    expect(second.body.success).toBe(true);
+    expect(second.body.data.stdout).toContain(
+      "codebase already set up, skipping initialization"
+    );
+
+    const codebase2 = await prisma.codebase.findFirst({ where: { path: tempDir } });
+    expect(codebase2?.setup).toBe(true);
+  });
+
+  it("returns 500 and does not complete setup when setup script fails", async () => {
     const res = await request(app)
       .post("/api/codebase/setup")
       .send({ name: "test-project", projectPath: tempDir, setup: "failing" })
@@ -155,8 +180,10 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(res.body?.success).toBe(false);
     expect(res.body?.error).toContain("Command failed:");
 
+    // With the new flow, the codebase record may exist but setup must remain false
     const codebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
-    expect(codebase).toBeNull();
+    expect(codebase).toBeTruthy();
+    expect(codebase?.setup).toBe(false);
 
     expect(fs.existsSync(path.join(tempDir, ".git"))).toBe(false);
   });

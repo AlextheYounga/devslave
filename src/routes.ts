@@ -37,4 +37,9 @@ router.post('/api/agent/status', async (req: Request, res: Response) => {
     return new AgentWatchdogController(req, res).handleRequest();
 });
 
+// Scan tickets
+router.post('/api/tickets/scan', async (req: Request, res: Response) => {
+    return new AgentWatchdogController(req, res).handleRequest();
+});
+
 export default router;
