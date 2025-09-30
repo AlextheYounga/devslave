@@ -1,0 +1,1535 @@
+{
+  "name": "Build Todo CLI",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        -752
+      ],
+      "id": "31c4b57a-7928-4c7d-ae2c-4db746e10a58",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -928,
+        -752
+      ],
+      "id": "6cd7cc16-4fed-4797-b5c6-d2c836dbedef",
+      "name": "Check App is Running"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        32,
+        16
+      ],
+      "id": "f4ae5d6d-db29-4f71-b560-3028046a5e49",
+      "name": "Scan Tickets"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "366aa9b6-41ce-426c-a5be-5dec7316cb65",
+              "leftValue": "blocking",
+              "rightValue": "false",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        -208
+      ],
+      "id": "d1da098f-e46e-4bb0-898a-1a7eef948737",
+      "name": "Async Ticket?"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        592,
+        224
+      ],
+      "id": "c7378a84-13d5-4d5c-b3e0-fa0b1bf2e649",
+      "name": "Cleanup Job"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1121ca2-dddc-4144-8b50-66a61d597f2d",
+              "leftValue": "tickets",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        16
+      ],
+      "id": "28747963-a08f-4471-b5ec-7529d63d755a",
+      "name": "Tickets Remaining?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "26f3e133-1042-4c34-9a9c-5abbd21e8e2f",
+              "name": "project_prompt",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        -752
+      ],
+      "id": "04c26bdc-5872-4072-9adf-433c42932be8",
+      "name": "Project Goal Prompt"
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -112
+      ],
+      "id": "cec7c26f-2d80-45f1-869a-718bb9d0fe42",
+      "name": "Setup Git Branch",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -304
+      ],
+      "id": "69e142b5-c6d6-4b5d-9ae7-7434847add82",
+      "name": "Setup Git Worktree",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "echo \"QA Reviewing\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        768,
+        224
+      ],
+      "id": "1b131ec3-81aa-40fa-8d56-4902cbb09c3e",
+      "name": "Compress Project",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        944,
+        224
+      ],
+      "id": "de443197-ecf0-44f3-bfc4-7573296faa82",
+      "name": "Download Project",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1344,
+        -192
+      ],
+      "id": "c1abee89-38dd-4c63-9274-e58a64811a0c",
+      "name": "Launch Developer Agent"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1744,
+        432
+      ],
+      "id": "60202cfc-1291-4f70-9466-e9ae94837515",
+      "name": "Launch QA Agent"
+    },
+    {
+      "parameters": {
+        "command": "echo \"QA Reviewing\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -624
+      ],
+      "id": "f20355b8-78ee-4b5f-92e1-e7b7618741be",
+      "name": "PM Git Commit",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -544,
+        -752
+      ],
+      "id": "1b4565e2-70ee-4617-86d9-fa23d59aea47",
+      "name": "Start Project Job"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "path": "/app/agent/src/prompts/templates/outline.md",
+        "binaryPropertyName": "fileData",
+        "options": {
+          "fileName": "outline.md"
+        }
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        624,
+        -624
+      ],
+      "id": "25ebfe4d-032f-48f1-90c8-acb52c4ce981",
+      "name": "Get Outline",
+      "alwaysOutputData": false,
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Outline Confirmation",
+        "formDescription": "Upload the corrected outline",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Outline File",
+              "fieldType": "file",
+              "acceptFileTypes": ".md",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -848,
+        16
+      ],
+      "id": "63c26a2c-7177-4d76-8b18-3f278ad70393",
+      "name": "On form submission",
+      "webhookId": "d939ea0e-0c06-4ab6-a691-5adf6a299b14"
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.outlineData }}",
+        "destinationKey": "outlineHtml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        -624
+      ],
+      "id": "76f2ef47-862a-448b-bca6-83a9a8463557",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "fileData",
+        "destinationKey": "outlineData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -624
+      ],
+      "id": "82cc2b6c-d70e-4427-a2b3-0f43b7e33d9c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        16
+      ],
+      "id": "818c5884-a166-4b22-bc10-698c5aa26e91",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Outline Created Confirmation",
+        "formDescription": "The outline has been created.",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "html",
+              "elementName": "Outline ",
+              "html": "<div style=\"border: 1px solid #ccc; padding: 10px; background: #f9f9f9;\">\n    {{ $json.outlineHtml }} \n</div>"
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "limitWaitTime": true,
+        "resumeAmount": 3,
+        "resumeUnit": "seconds",
+        "options": {
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "redirect",
+              "redirectUrl": "http://localhost:5678/form-test/d939ea0e-0c06-4ab6-a691-5adf6a299b14"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1216,
+        -624
+      ],
+      "id": "4c57be2e-5a1d-4a9c-8a24-6026c0d2ac9c",
+      "name": "Form Popup",
+      "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        -224
+      ],
+      "id": "46e25227-6135-4f00-b555-9bb2c7c24c54",
+      "name": "Commit Dev Work",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -144,
+        -752
+      ],
+      "id": "ef87ab64-cf88-449d-9751-3d112fa87628",
+      "name": "Launch Sprint Planning"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -656,
+        16
+      ],
+      "id": "a5a714f2-b3d5-46ff-aa89-8bf81e94cc36",
+      "name": "Launch Project Manager"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "366aa9b6-41ce-426c-a5be-5dec7316cb65",
+              "leftValue": "blocking",
+              "rightValue": "false",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        752
+      ],
+      "id": "0a863b67-a693-471b-b805-f529c3863b37",
+      "name": "Check Async Ticket"
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        432
+      ],
+      "id": "ec50b570-60ef-49d1-9908-f19e2a925167",
+      "name": "Commit QA Work",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        832
+      ],
+      "id": "7ad344fc-1262-4457-a70f-242f62bda749",
+      "name": "Merge Branch to Develop",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        656
+      ],
+      "id": "9eb1a89f-3102-4263-8ce0-86fdc81a0a54",
+      "name": "Finish Worktree",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        592,
+        -208
+      ],
+      "id": "fe7beb53-543f-4f01-95aa-b5923e601425",
+      "name": "Get Ticket Details"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        736
+      ],
+      "id": "c1e62dde-3dd9-43e3-8bdd-4bc02d80fad9",
+      "name": "Next Ticket"
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        432
+      ],
+      "id": "f7e0389f-57d2-47ac-a91c-23c258b8c33f",
+      "name": "Check Passes QA?",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c4ccc88-9c8b-4336-8858-403210fd3ab2",
+              "leftValue": "qa",
+              "rightValue": "passed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2576,
+        432
+      ],
+      "id": "304ac997-fac9-4198-a5db-6b8000f5f920",
+      "name": "Fails QA?"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"type\": \"StartProjectJob\",\n  \"payload\": {\n    \"name\": \"Always Forward CLI\",\n    \"projectPath\": \"/app/dev/alwaysforward-cli\",\n    \"params\": {\n      \"setup\": \"node\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -736,
+        -752
+      ],
+      "id": "bd333540-8807-4365-bf19-c83c98c5356e",
+      "name": "Project Start Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        -672
+      ],
+      "id": "c31c705a-6674-4d0c-bd98-81bb37f9164c",
+      "name": "Planning Agent Finished"
+    },
+    {
+      "parameters": {
+        "content": "# Sprint Planning Agent",
+        "height": 80,
+        "width": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        -1008
+      ],
+      "typeVersion": 1,
+      "id": "ff278ed4-4109-4dcc-8dc1-8c2ee7dcbb8a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Human Confirmation of Proposed Outline\n",
+        "height": 80,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        -736
+      ],
+      "typeVersion": 1,
+      "id": "eb08833a-8ff0-451f-b5db-d97abd496d26",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        -896
+      ],
+      "id": "9e6d796b-dce4-4d10-9d14-f375c424ad91",
+      "name": "Planning Agent Delay",
+      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        -896
+      ],
+      "id": "8669cf76-6598-4d7b-b493-d6f8e6b0afb4",
+      "name": "Ping Planning Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -176,
+        -192
+      ],
+      "id": "9a429ace-d57c-4289-b19d-c116b97a7ecd",
+      "name": "Ping PM Agent"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        -192
+      ],
+      "id": "71ceed55-ec44-4c96-8df2-e8e2d077715a",
+      "name": "PM Delay",
+      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        32
+      ],
+      "id": "2feacff0-328b-40bb-9c3f-e48054a1a644",
+      "name": "PM Agent Finished?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        -448
+      ],
+      "id": "b431cf2d-c970-4c30-8eca-4dd4ef86b977",
+      "name": "Dev Delay",
+      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1936,
+        -448
+      ],
+      "id": "d1484563-8598-4494-b7c2-9b36bf273279",
+      "name": "Ping Dev Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1776,
+        -256
+      ],
+      "id": "fa6f4392-3426-4363-adc7-88484bca7dcc",
+      "name": "Dev Agent Finished?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1984,
+        160
+      ],
+      "id": "533f1ad7-e207-4177-95d0-c57d4d99c356",
+      "name": "QA Delay",
+      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2144,
+        160
+      ],
+      "id": "83f14823-ba51-4cc4-93da-41f442d358ce",
+      "name": "Ping QA Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        384
+      ],
+      "id": "e776882a-140f-43ab-95bd-a6962731962c",
+      "name": "QA Agent Finished?"
+    },
+    {
+      "parameters": {
+        "content": "# Project Manager Agent",
+        "height": 80,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "f421df73-5388-4f2d-886c-3e9a86a7821c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Dev Agent\n",
+        "height": 80,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1776,
+        -544
+      ],
+      "typeVersion": 1,
+      "id": "fcafdc26-7b23-4237-ba1d-8d6266a16349",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# QA Agent",
+        "height": 80,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "a9612620-d3ee-4621-bad4-e31e785a320b",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Check App is Running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check App is Running": {
+      "main": [
+        [
+          {
+            "node": "Project Start Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Tickets": {
+      "main": [
+        [
+          {
+            "node": "Tickets Remaining?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Async Ticket?": {
+      "main": [
+        [
+          {
+            "node": "Scan Tickets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Setup Git Worktree",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Setup Git Branch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup Job": {
+      "main": [
+        [
+          {
+            "node": "Compress Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tickets Remaining?": {
+      "main": [
+        [
+          {
+            "node": "Get Ticket Details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cleanup Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Goal Prompt": {
+      "main": [
+        [
+          {
+            "node": "Launch Sprint Planning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Git Branch": {
+      "main": [
+        [
+          {
+            "node": "Launch Developer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Git Worktree": {
+      "main": [
+        [
+          {
+            "node": "Launch Developer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compress Project": {
+      "main": [
+        [
+          {
+            "node": "Download Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Developer Agent": {
+      "main": [
+        [
+          {
+            "node": "Dev Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch QA Agent": {
+      "main": [
+        [
+          {
+            "node": "QA Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PM Git Commit": {
+      "main": [
+        [
+          {
+            "node": "Get Outline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Outline": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Launch Project Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Form Popup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form Popup": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Dev Work": {
+      "main": [
+        [
+          {
+            "node": "Launch QA Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Sprint Planning": {
+      "main": [
+        [
+          {
+            "node": "Planning Agent Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Project Manager": {
+      "main": [
+        [
+          {
+            "node": "PM Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit QA Work": {
+      "main": [
+        [
+          {
+            "node": "Check Passes QA?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Async Ticket": {
+      "main": [
+        [
+          {
+            "node": "Finish Worktree",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Branch to Develop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Branch to Develop": {
+      "main": [
+        [
+          {
+            "node": "Next Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finish Worktree": {
+      "main": [
+        [
+          {
+            "node": "Next Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Ticket Details": {
+      "main": [
+        [
+          {
+            "node": "Async Ticket?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next Ticket": {
+      "main": [
+        [
+          {
+            "node": "Scan Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Passes QA?": {
+      "main": [
+        [
+          {
+            "node": "Fails QA?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fails QA?": {
+      "main": [
+        [
+          {
+            "node": "Launch Developer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Async Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Start Data": {
+      "main": [
+        [
+          {
+            "node": "Start Project Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Project Job": {
+      "main": [
+        []
+      ]
+    },
+    "Planning Agent Finished": {
+      "main": [
+        [
+          {
+            "node": "PM Git Commit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Planning Agent Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planning Agent Delay": {
+      "main": [
+        [
+          {
+            "node": "Ping Planning Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ping Planning Agent": {
+      "main": [
+        [
+          {
+            "node": "Planning Agent Finished",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ping PM Agent": {
+      "main": [
+        [
+          {
+            "node": "PM Agent Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PM Delay": {
+      "main": [
+        [
+          {
+            "node": "Ping PM Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PM Agent Finished?": {
+      "main": [
+        [
+          {
+            "node": "Scan Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PM Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev Delay": {
+      "main": [
+        [
+          {
+            "node": "Ping Dev Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ping Dev Agent": {
+      "main": [
+        [
+          {
+            "node": "Dev Agent Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev Agent Finished?": {
+      "main": [
+        [
+          {
+            "node": "Commit Dev Work",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dev Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA Delay": {
+      "main": [
+        [
+          {
+            "node": "Ping QA Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ping QA Agent": {
+      "main": [
+        [
+          {
+            "node": "QA Agent Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA Agent Finished?": {
+      "main": [
+        [
+          {
+            "node": "Commit QA Work",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "QA Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "89e87f99-17d0-4c9a-95cd-cb382d34c246",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
+  },
+  "id": "pTDm0kMJmZWbzo1d",
+  "tags": []
+}
