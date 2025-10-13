@@ -45,10 +45,7 @@ export default class AgentWatchdogController {
         });
       }
 
-      const watchdogHandler = new AgentWatchdogHandler(
-        this.data.executionId, 
-        agent
-      );
+      const watchdogHandler = new AgentWatchdogHandler(this.data.executionId, agent);
 
       const agentStatus = await watchdogHandler.ping();
       const currentAgent = await this.db.agent.findUnique({
@@ -61,7 +58,6 @@ export default class AgentWatchdogController {
           error: "Agent disappeared from database",
         });
       }
-      
 
       // Fire-and-forget: do not await watchdog completion; respond immediately
       return this.res.status(202).json({
@@ -69,7 +65,7 @@ export default class AgentWatchdogController {
         message: `Agent status: ${currentAgent.status}`,
         data: {
           ...this.data,
-          ...agentStatus.data
+          ...agentStatus.data,
         },
       });
     } catch (error: any) {

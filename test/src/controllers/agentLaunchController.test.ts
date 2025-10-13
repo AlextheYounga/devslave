@@ -7,6 +7,7 @@ import * as os from "os";
 import { execSync } from "child_process";
 import routes from "../../../src/routes";
 import prisma from "../../client";
+import dd from "../../dd"
 
 // Build an in-memory Express app that mirrors server.ts
 function buildApp() {
@@ -20,18 +21,57 @@ function buildApp() {
 describe("POST /api/agent/launch (AgentLaunchController)", () => {
   const app = buildApp();
   let tempDir: string;
-  let originalScriptPath: string | undefined;
+  let baselineTmuxSessions: Set<string>;
+  let lastAgentInfo: { tmuxSession?: string; pid?: number } | null = null;
+
+  const listTmuxSessions = (): string[] => {
+    try {
+      const out = execSync("tmux list-sessions -F \"#{session_name}\"", {
+        stdio: ["ignore", "pipe", "ignore"],
+      })
+        .toString()
+        .trim();
+      if (!out) return [];
+      return out.split("\n").map((s) => s.trim()).filter(Boolean);
+    } catch {
+      return [];
+    }
+  };
 
   beforeAll(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(5000);
   });
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "test-agent-dev-"));
+    // Capture baseline tmux sessions to clean up any newly created ones after the test
+    baselineTmuxSessions = new Set(listTmuxSessions());
+    lastAgentInfo = null;
   });
 
   afterEach(async () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
+    // Best-effort cleanup: kill any tmux sessions created during this test run
+    const current = new Set(listTmuxSessions());
+    const created = [...current].filter((s) => !baselineTmuxSessions.has(s));
+
+    // Prefer targeted cleanup of agent_* sessions created by the test
+    for (const sess of created) {
+      if (/^agent_/.test(sess)) {
+        try {
+          execSync(`tmux kill-session -t ${sess}`, { stdio: "ignore" });
+        } catch {}
+      }
+    }
+
+    // If we recorded explicit agent info, try to kill again (idempotent)
+    if (lastAgentInfo?.tmuxSession) {
+      try {
+        execSync(`tmux kill-session -t ${lastAgentInfo.tmuxSession}`, {
+          stdio: "ignore",
+        });
+      } catch {}
+    }
   });
 
   it("returns 202 and agent info when launch succeeds (skips if tmux unavailable)", async () => {
@@ -40,7 +80,7 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       execSync("tmux -V", { stdio: "ignore" });
     } catch {
       console.warn("Skipping agent launch test: tmux not available");
-      return; // effectively skip
+      return; // effectively skip test 
     }
 
     // Seed a codebase for the controller to find
@@ -57,11 +97,12 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
         role: "engineer",
       })
       .expect(202);
-
     expect(res.body?.success).toBe(true);
     expect(res.body?.message).toBe("Agent started");
 
     const data = res.body?.data;
+    // Record for afterEach cleanup, in case assertions fail later
+    lastAgentInfo = { tmuxSession: data?.tmuxSession, pid: data?.pid };
     expect(data?.agentId).toBeDefined();
     expect(typeof data?.pid).toBe("number");
     expect(data?.tmuxSession).toMatch(/^agent_/);
@@ -82,6 +123,7 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
     expect(fs.existsSync(data.logFile)).toBe(true);
 
     // Cleanup: kill the tmux session started by the agent to avoid hanging tail -f
+    // Cleanup here as well (afterEach will also attempt cleanup if needed)
     try {
       execSync(`tmux kill-session -t ${data.tmuxSession}`, { stdio: "ignore" });
     } catch (e) {

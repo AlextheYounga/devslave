@@ -19,6 +19,7 @@ type RequestBody = {
   executionId: string;
   name: string;
   projectPath: string;
+  prompt: string;
   setup?: string;
 };
 
@@ -37,7 +38,7 @@ export default class CodebaseSetupController {
 
   async handleRequest() {
     try {
-      const { name, projectPath } = this.data as RequestBody;
+      const { name, projectPath, prompt } = this.data as RequestBody;
 
       if (!name || !projectPath) {
         return this.res.status(400).json({
@@ -63,6 +64,10 @@ export default class CodebaseSetupController {
 
       const scriptOutput = await this.runSetupScript(projectPath);
       const branch = await this.createMasterBranch(codebase.id, projectPath);
+
+      // Create PROJECT.md file from prompt
+      const projectMdPath = path.join(projectPath, "/agent/PROJECT.md");
+      fs.writeFileSync(projectMdPath, prompt, { encoding: "utf-8" });
 
       // Update codebase to mark setup as completed
       await this.db.codebase.update({

@@ -3,6 +3,8 @@ set -euo pipefail
 
 # Args
 project_path=$1
+agent_folder="agent"
+
 if [[ -z "${project_path}" ]]; then
   echo "Usage: $0 <project_path>" >&2
   exit 1
@@ -16,10 +18,12 @@ mkdir -p "${project_path}"
 
 # Set up agent folder
 mkdir -p "${project_path}/docs"
-mkdir -p "${project_path}/codex/tickets"
+mkdir -p "${project_path}/${agent_folder}/tickets"
+mkdir -p "${project_path}/${agent_folder}/scripts"
 
 prompts_dir="${repo_root}/src/prompts"
-cp -R "${prompts_dir}/." "${project_path}/codex/" || true
+cp -R "${prompts_dir}/." "${project_path}/${agent_folder}/" || true
+cp "${repo_root}/src/scripts/git_commit.sh" "${project_path}/${agent_folder}/scripts/git_commit.sh"
 
 # Move to project folder
 cd "${project_path}"

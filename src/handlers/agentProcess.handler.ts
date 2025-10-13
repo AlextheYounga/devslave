@@ -33,13 +33,11 @@ export default class AgentProcessHandler {
     const prompt = this.params.prompt;
     const scriptFolder = process.env.SCRIPT_PATH || "src/scripts";
     const scriptFile = `${REPO_ROOT}/${scriptFolder}/launch-agent.sh`;
-
     const agentRecord = await this.createAgentRecord();
-
     this.tmuxSession = `agent_${agentRecord.id}`;
 
-  // Quote args for safety and reliability across shells/paths with spaces
-  execSync(`bash "${scriptFile}" "${projectPath}" "${prompt}" "${this.tmuxSession}"`);
+    // Quote args for safety and reliability across shells/paths with spaces
+    execSync(`bash "${scriptFile}" "${projectPath}" "${prompt}" "${this.tmuxSession}"`);
 
     this.pid = this.getAgentPid();
     const logFile = this.getAgentLogFile();
