@@ -35,12 +35,9 @@ export default class ScanTicketsController {
   private mapStatus(status: string): TicketStatus {
     const statusMap: Record<string, TicketStatus> = {
       'open': TicketStatus.OPEN,
-      'in_progress': TicketStatus.IN_PROGRESS,
       'in-progress': TicketStatus.IN_PROGRESS,
-      'in_review': TicketStatus.IN_REVIEW,
       'in-review': TicketStatus.IN_REVIEW,
       'closed': TicketStatus.CLOSED,
-      'reopened': TicketStatus.REOPENED,
     };
 
     const normalizedStatus = status.toLowerCase().trim();
@@ -72,7 +69,7 @@ export default class ScanTicketsController {
         return this.res.status(200).json({
           success: true,
           message: "No tickets folder found - scan completed",
-          data: { ticketsProcessed: 0 },
+          data: { tickets: [] },
         });
       }
 
@@ -80,9 +77,7 @@ export default class ScanTicketsController {
         file.endsWith('.md') || file.endsWith('.markdown')
       );
 
-      let ticketsCreated = 0;
-      let ticketsUpdated = 0;
-      let ticketsSkipped = 0;
+      const scannedTickets = [];
 
       for (const ticketFile of ticketFiles) {
         const ticketPath = path.join(ticketsFolder, ticketFile);
@@ -92,7 +87,6 @@ export default class ScanTicketsController {
         // Skip files without required frontmatter
         if (!frontmatter.id || !frontmatter.title) {
           console.warn(`Skipping ${ticketFile}: missing required fields (id, title)`);
-          ticketsSkipped++;
           continue;
         }
 
@@ -109,9 +103,12 @@ export default class ScanTicketsController {
           },
         });
 
+        let ticketRecord;
+        let action: 'created' | 'updated' | 'unchanged';
+
         if (!existingTicket) {
           // Create new ticket
-          const newTicket = await this.db.ticket.create({
+          ticketRecord = await this.db.ticket.create({
             data: {
               codebaseId,
               ticketId,
@@ -121,21 +118,21 @@ export default class ScanTicketsController {
             },
           });
 
+          action = 'created';
+
           new TicketCreated({
             ...this.data,
             ticket: {
-              id: newTicket.id,
-              ticketId: newTicket.ticketId,
-              title: newTicket.title,
-              status: newTicket.status,
+              id: ticketRecord.id,
+              ticketId: ticketRecord.ticketId,
+              title: ticketRecord.title,
+              status: ticketRecord.status,
             },
           }).publish();
-
-          ticketsCreated++;
         } else {
           // Check if status changed
           if (existingTicket.status !== status) {
-            await this.db.ticket.update({
+            ticketRecord = await this.db.ticket.update({
               where: { id: existingTicket.id },
               data: {
                 title,
@@ -143,6 +140,8 @@ export default class ScanTicketsController {
                 status,
               },
             });
+
+            action = 'updated';
 
             new TicketStatusChanged({
               ...this.data,
@@ -154,11 +153,9 @@ export default class ScanTicketsController {
                 newStatus: status,
               },
             }).publish();
-
-            ticketsUpdated++;
           } else {
             // Update title and description but no status change
-            await this.db.ticket.update({
+            ticketRecord = await this.db.ticket.update({
               where: { id: existingTicket.id },
               data: {
                 title,
@@ -166,27 +163,27 @@ export default class ScanTicketsController {
               },
             });
 
-            ticketsSkipped++;
+            action = 'unchanged';
           }
         }
+
+        scannedTickets.push({
+          ...ticketRecord,
+          action,
+        });
       }
 
       new ScanningTicketsComplete({
         ...this.data,
         ticketsProcessed: ticketFiles.length,
-        ticketsCreated,
-        ticketsUpdated,
-        ticketsSkipped,
+        scannedTickets: scannedTickets.length,
       }).publish();
 
       return this.res.status(200).json({
         success: true,
         message: "Tickets scanned successfully",
         data: {
-          ticketsProcessed: ticketFiles.length,
-          ticketsCreated,
-          ticketsUpdated,
-          ticketsSkipped,
+          tickets: scannedTickets,
         },
       });
     } catch (error: any) {

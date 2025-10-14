@@ -53,7 +53,7 @@ describe("POST /api/tickets/scan (ScanTicketsController)", () => {
 
       expect(res.body.success).toBe(true);
       expect(res.body.message).toBe("No tickets folder found - scan completed");
-      expect(res.body.data.ticketsProcessed).toBe(0);
+      expect(res.body.data.tickets).toEqual([]);
     });
   });
 
@@ -71,7 +71,7 @@ describe("POST /api/tickets/scan (ScanTicketsController)", () => {
       
       // Create test ticket files
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-001.md"),
+        path.join(ticketsDir, "001-first-ticket.md"),
         `---
 id: '001'
 title: First Ticket
@@ -87,7 +87,7 @@ status: open
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-002.md"),
+        path.join(ticketsDir, "002-second-ticket.md"),
         `---
 id: '002'
 title: Second Ticket
@@ -109,10 +109,21 @@ status: in-progress
 
       expect(res.body.success).toBe(true);
       expect(res.body.message).toBe("Tickets scanned successfully");
-      expect(res.body.data.ticketsProcessed).toBe(2);
-      expect(res.body.data.ticketsCreated).toBe(2);
-      expect(res.body.data.ticketsUpdated).toBe(0);
-      expect(res.body.data.ticketsSkipped).toBe(0);
+      expect(res.body.data.tickets).toHaveLength(2);
+      
+      // Verify the returned ticket data includes action
+      expect(res.body.data.tickets[0]).toMatchObject({
+        ticketId: "001",
+        title: "First Ticket",
+        status: "OPEN",
+        action: "created",
+      });
+      expect(res.body.data.tickets[1]).toMatchObject({
+        ticketId: "002", 
+        title: "Second Ticket",
+        status: "IN_PROGRESS",
+        action: "created",
+      });
 
       // Verify tickets were created in database
       const tickets = await prisma.ticket.findMany({
@@ -151,7 +162,7 @@ status: in-progress
 
       // Create ticket file with updated status
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-001.md"),
+        path.join(ticketsDir, "001-updated-ticket.md"),
         `---
 id: '001'
 title: Updated Title
@@ -172,10 +183,13 @@ status: closed
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data.ticketsProcessed).toBe(1);
-      expect(res.body.data.ticketsCreated).toBe(0);
-      expect(res.body.data.ticketsUpdated).toBe(1);
-      expect(res.body.data.ticketsSkipped).toBe(0);
+      expect(res.body.data.tickets).toHaveLength(1);
+      expect(res.body.data.tickets[0]).toMatchObject({
+        ticketId: "001",
+        title: "Updated Title",
+        status: "CLOSED",
+        action: "updated",
+      });
 
       // Verify ticket was updated
       const updatedTicket = await prisma.ticket.findFirst({
@@ -225,7 +239,7 @@ Content here
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "valid-ticket.md"),
+        path.join(ticketsDir, "003-valid-ticket.md"),
         `---
 id: '003'
 title: Valid Ticket
@@ -245,9 +259,13 @@ Valid content
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data.ticketsProcessed).toBe(3);
-      expect(res.body.data.ticketsCreated).toBe(1);
-      expect(res.body.data.ticketsSkipped).toBe(2);
+      expect(res.body.data.tickets).toHaveLength(1);
+      expect(res.body.data.tickets[0]).toMatchObject({
+        ticketId: "003",
+        title: "Valid Ticket", 
+        status: "OPEN",
+        action: "created",
+      });
 
       // Verify only valid ticket was created
       const tickets = await prisma.ticket.findMany({
@@ -261,7 +279,7 @@ Valid content
       const ticketsDir = path.join(tempDir, "agent", "tickets");
       
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-hyphen.md"),
+        path.join(ticketsDir, "001-ticket-hyphen.md"),
         `---
 id: '001'
 title: Hyphen Status
@@ -272,7 +290,7 @@ Content
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-underscore.md"),
+        path.join(ticketsDir, "002-ticket-underscore.md"),
         `---
 id: '002'
 title: Underscore Status
@@ -283,7 +301,7 @@ Content
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-mixed-case.md"),
+        path.join(ticketsDir, "003-ticket-mixed-case.md"),
         `---
 id: '003'
 title: Mixed Case Status
@@ -302,16 +320,12 @@ Content
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data.ticketsCreated).toBe(3);
+      expect(res.body.data.tickets).toHaveLength(3);
 
-      const tickets = await prisma.ticket.findMany({
-        where: { codebaseId },
-        orderBy: { ticketId: 'asc' },
-      });
-
-      expect(tickets[0]!.status).toBe(TicketStatus.IN_PROGRESS);
-      expect(tickets[1]!.status).toBe(TicketStatus.IN_REVIEW);
-      expect(tickets[2]!.status).toBe(TicketStatus.CLOSED);
+      const tickets = res.body.data.tickets;
+      expect(tickets[0].status).toBe("IN_PROGRESS");
+      expect(tickets[1].status).toBe("IN_REVIEW");
+      expect(tickets[2].status).toBe("CLOSED");
     });
 
     it("handles both numeric and string IDs correctly", async () => {
@@ -319,7 +333,7 @@ Content
       
       // Create tickets with numeric and string IDs
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-numeric.md"),
+        path.join(ticketsDir, "123-ticket-numeric.md"),
         `---
 id: 123
 title: Numeric ID
@@ -330,7 +344,7 @@ Content with numeric ID
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-string.md"),
+        path.join(ticketsDir, "456-ticket-string.md"),
         `---
 id: '456'
 title: String ID
@@ -348,23 +362,18 @@ Content with string ID
         })
         .expect(200);
 
-      expect(res.body.data.ticketsCreated).toBe(2);
+      expect(res.body.data.tickets).toHaveLength(2);
 
-      const tickets = await prisma.ticket.findMany({
-        where: { codebaseId },
-        orderBy: { ticketId: 'asc' },
-      });
-
-      expect(tickets).toHaveLength(2);
-      expect(tickets[0]!.ticketId).toBe("123"); // Numeric converted to string
-      expect(tickets[1]!.ticketId).toBe("456"); // String preserved
+      const tickets = res.body.data.tickets;
+      expect(tickets[0].ticketId).toBe("123"); // Numeric converted to string
+      expect(tickets[1].ticketId).toBe("456"); // String preserved
     });
 
     it("defaults to OPEN status for unknown status values", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
       
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-unknown-status.md"),
+        path.join(ticketsDir, "001-ticket-unknown-status.md"),
         `---
 id: '001'
 title: Unknown Status
@@ -382,11 +391,8 @@ Content
         })
         .expect(200);
 
-      const ticket = await prisma.ticket.findFirst({
-        where: { codebaseId, ticketId: "001" },
-      });
-
-      expect(ticket?.status).toBe(TicketStatus.OPEN);
+      expect(res.body.data.tickets).toHaveLength(1);
+      expect(res.body.data.tickets[0].status).toBe("OPEN");
     });
 
     it("filters non-markdown files", async () => {
@@ -394,7 +400,7 @@ Content
       
       // Create various file types
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket.md"),
+        path.join(ticketsDir, "001-ticket.md"),
         `---
 id: '001'
 title: Markdown Ticket
@@ -404,7 +410,7 @@ Content
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket.txt"),
+        path.join(ticketsDir, "002-ticket.txt"),
         `---
 id: '002'
 title: Text File
@@ -414,7 +420,7 @@ Content
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "README.md"),
+        path.join(ticketsDir, "003-README.md"),
         `---
 id: '003'
 title: README
@@ -431,23 +437,17 @@ Content
         })
         .expect(200);
 
-      expect(res.body.data.ticketsProcessed).toBe(2); // Only .md files
-      expect(res.body.data.ticketsCreated).toBe(2);
-
-      const tickets = await prisma.ticket.findMany({
-        where: { codebaseId },
-        orderBy: { ticketId: 'asc' },
-      });
-
-      expect(tickets).toHaveLength(2);
-      expect(tickets.map(t => t.ticketId)).toEqual(["001", "003"]);
+      expect(res.body.data.tickets).toHaveLength(2); // Only .md files
+      
+      const ticketIds = res.body.data.tickets.map((t: any) => t.ticketId);
+      expect(ticketIds).toEqual(["001", "003"]);
     });
 
     it("handles empty content gracefully", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
       
       fs.writeFileSync(
-        path.join(ticketsDir, "empty-content.md"),
+        path.join(ticketsDir, "001-empty-content.md"),
         `---
 id: '001'
 title: Empty Content Ticket
@@ -465,13 +465,13 @@ status: open
         })
         .expect(200);
 
-      expect(res.body.data.ticketsCreated).toBe(1);
-
-      const ticket = await prisma.ticket.findFirst({
-        where: { codebaseId, ticketId: "001" },
+      expect(res.body.data.tickets).toHaveLength(1);
+      expect(res.body.data.tickets[0]).toMatchObject({
+        ticketId: "001",
+        title: "Empty Content Ticket",
+        status: "OPEN",
+        description: null,
       });
-
-      expect(ticket?.description).toBeNull();
     });
   });
 
@@ -520,7 +520,7 @@ status: open
       const ticketsDir = path.join(tempDir, "agent", "tickets");
       
       fs.writeFileSync(
-        path.join(ticketsDir, "ticket-001.md"),
+        path.join(ticketsDir, "001-test-ticket.md"),
         `---
 id: '001'
 title: Test Ticket
