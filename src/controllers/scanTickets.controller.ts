@@ -4,7 +4,7 @@ import { PrismaClient, TicketStatus } from "@prisma/client";
 import { AGENT_FOLDER } from "../constants";
 import { readdirSync, readFileSync, existsSync } from "fs";
 import path from "path";
-import matter from 'gray-matter';
+import matter from "gray-matter";
 import {
   ScanningTicketsStarted,
   ScanningTicketsComplete,
@@ -34,10 +34,10 @@ export default class ScanTicketsController {
   // Convert string status from frontmatter to TicketStatus enum
   private mapStatus(status: string): TicketStatus {
     const statusMap: Record<string, TicketStatus> = {
-      'open': TicketStatus.OPEN,
-      'in-progress': TicketStatus.IN_PROGRESS,
-      'in-review': TicketStatus.IN_REVIEW,
-      'closed': TicketStatus.CLOSED,
+      open: TicketStatus.OPEN,
+      "in-progress": TicketStatus.IN_PROGRESS,
+      "in-review": TicketStatus.IN_REVIEW,
+      closed: TicketStatus.CLOSED,
     };
 
     const normalizedStatus = status.toLowerCase().trim();
@@ -58,14 +58,14 @@ export default class ScanTicketsController {
       }
 
       const ticketsFolder = path.join(codebase.path, `${AGENT_FOLDER}/tickets`);
-      
+
       if (!existsSync(ticketsFolder)) {
         new ScanningTicketsComplete({
           ...this.data,
-          message: 'No tickets folder found',
+          message: "No tickets folder found",
           ticketsProcessed: 0,
         }).publish();
-        
+
         return this.res.status(200).json({
           success: true,
           message: "No tickets folder found - scan completed",
@@ -73,8 +73,8 @@ export default class ScanTicketsController {
         });
       }
 
-      const ticketFiles = readdirSync(ticketsFolder).filter(file => 
-        file.endsWith('.md') || file.endsWith('.markdown')
+      const ticketFiles = readdirSync(ticketsFolder).filter(
+        (file) => file.endsWith(".md") || file.endsWith(".markdown")
       );
 
       const scannedTickets = [];
@@ -83,7 +83,7 @@ export default class ScanTicketsController {
         const ticketPath = path.join(ticketsFolder, ticketFile);
         const ticketContent = readFileSync(ticketPath, "utf-8");
         const { data: frontmatter, content } = matter(ticketContent);
-        
+
         // Skip files without required frontmatter
         if (!frontmatter.id || !frontmatter.title) {
           console.warn(`Skipping ${ticketFile}: missing required fields (id, title)`);
@@ -92,7 +92,7 @@ export default class ScanTicketsController {
 
         const ticketId = String(frontmatter.id);
         const title = String(frontmatter.title);
-        const status = this.mapStatus(frontmatter.status || 'open');
+        const status = this.mapStatus(frontmatter.status || "open");
         const description = content.trim() || null;
 
         // Check if ticket exists
@@ -104,7 +104,7 @@ export default class ScanTicketsController {
         });
 
         let ticketRecord;
-        let action: 'created' | 'updated' | 'unchanged';
+        let action: "created" | "updated" | "unchanged";
 
         if (!existingTicket) {
           // Create new ticket
@@ -118,7 +118,7 @@ export default class ScanTicketsController {
             },
           });
 
-          action = 'created';
+          action = "created";
 
           new TicketCreated({
             ...this.data,
@@ -141,7 +141,7 @@ export default class ScanTicketsController {
               },
             });
 
-            action = 'updated';
+            action = "updated";
 
             new TicketStatusChanged({
               ...this.data,
@@ -163,7 +163,7 @@ export default class ScanTicketsController {
               },
             });
 
-            action = 'unchanged';
+            action = "unchanged";
           }
         }
 
@@ -176,14 +176,17 @@ export default class ScanTicketsController {
       new ScanningTicketsComplete({
         ...this.data,
         ticketsProcessed: ticketFiles.length,
-        scannedTickets: scannedTickets.length,
+        scannedTickets: scannedTickets.map((t) => t.ticketId),
       }).publish();
+
+      const nextTicket = scannedTickets.find((t) => t.status === TicketStatus.OPEN);
 
       return this.res.status(200).json({
         success: true,
         message: "Tickets scanned successfully",
         data: {
           tickets: scannedTickets,
+          nextTicket: nextTicket || null,
         },
       });
     } catch (error: any) {
