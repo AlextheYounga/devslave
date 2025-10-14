@@ -94,6 +94,12 @@ export class WatchdogStarted extends BaseEvent {
 
 
 // Ticket-related events
+export class ScanningTicketsStarted extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
 export class TicketCreated extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
@@ -101,6 +107,18 @@ export class TicketCreated extends BaseEvent {
 }
 
 export class TicketStatusChanged extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
+export class ScanningTicketsComplete extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
+export class ScanningTicketsFailed extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }

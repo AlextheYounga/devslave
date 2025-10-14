@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { REPO_ROOT } from "../constants";
+import { REPO_ROOT, AGENT_FOLDER } from "../constants";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -66,7 +66,7 @@ export default class CodebaseSetupController {
       const branch = await this.createMasterBranch(codebase.id, projectPath);
 
       // Create PROJECT.md file from prompt
-      const projectMdPath = path.join(projectPath, "/agent/PROJECT.md");
+      const projectMdPath = path.join(projectPath, `/${AGENT_FOLDER}/PROJECT.md`);
       fs.writeFileSync(projectMdPath, prompt, { encoding: "utf-8" });
 
       // Update codebase to mark setup as completed

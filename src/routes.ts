@@ -5,6 +5,7 @@ import HealthController from './controllers/health.controller';
 import CodebaseSetupController from './controllers/codebaseSetup.controller';
 import AgentLaunchController from './controllers/agentLaunch.controller';
 import AgentWatchdogController from './controllers/agentWatchdog.controller';
+import ScanTicketsController from './controllers/scanTickets.controller';
 
 const router = Router();
 
@@ -39,7 +40,7 @@ router.post('/api/agent/status', async (req: Request, res: Response) => {
 
 // Scan tickets
 router.post('/api/tickets/scan', async (req: Request, res: Response) => {
-    return new AgentWatchdogController(req, res).handleRequest();
+    return new ScanTicketsController(req, res).handleRequest();
 });
 
 export default router;
