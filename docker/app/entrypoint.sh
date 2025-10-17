@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
+source ~/.nvm/nvm.sh
 
 echo "[entrypoint] working dir: $(pwd)"
 
 # Ensure SSH is available (start in background)
 echo "[entrypoint] starting sshd"
 service ssh start
+
+echo "[entrypoint] installing npm dependencies"
+nvm install
+npm install --no-audit --no-fund
 
 # One-time seed for Codex auth into named volume
 if [ -d "/seed/.codex" ]; then
@@ -23,12 +28,6 @@ if [ -d "/seed/.codex" ]; then
   fi
 else
   echo "[entrypoint] no /seed/.codex present; skipping seed"
-fi
-
-# Ensure dependencies are installed (named volume may override image node_modules)
-if [ ! -d node_modules ] || [ ! -d node_modules/@prisma/client ]; then
-  echo "[entrypoint] installing node dependencies (node_modules missing)"
-  npm install --no-audit --no-fund
 fi
 
 echo "[entrypoint] prisma migrate deploy"
