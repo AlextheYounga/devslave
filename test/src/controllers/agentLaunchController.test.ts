@@ -7,7 +7,6 @@ import * as os from "os";
 import { execSync } from "child_process";
 import routes from "../../../src/routes";
 import prisma from "../../client";
-import dd from "../../dd"
 
 // Build an in-memory Express app that mirrors server.ts
 function buildApp() {
@@ -26,13 +25,16 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
 
   const listTmuxSessions = (): string[] => {
     try {
-      const out = execSync("tmux list-sessions -F \"#{session_name}\"", {
+      const out = execSync('tmux list-sessions -F "#{session_name}"', {
         stdio: ["ignore", "pipe", "ignore"],
       })
         .toString()
         .trim();
       if (!out) return [];
-      return out.split("\n").map((s) => s.trim()).filter(Boolean);
+      return out
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
     } catch {
       return [];
     }
@@ -80,7 +82,7 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       execSync("tmux -V", { stdio: "ignore" });
     } catch {
       console.warn("Skipping agent launch test: tmux not available");
-      return; // effectively skip test 
+      return; // effectively skip test
     }
 
     // Seed a codebase for the controller to find
@@ -88,17 +90,15 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       data: { name: "test-agent", path: tempDir },
     });
 
-    const res = await request(app)
-      .post("/api/agent/launch")
-      .send({
-        executionId: "exec-123",
-        codebaseId: codebase.id,
-        prompt: "Run simple task",
-        role: "engineer",
-      })
-      .expect(202);
-    expect(res.body?.success).toBe(true);
+    const res = await request(app).post("/api/agent/launch").send({
+      executionId: "exec-123",
+      codebaseId: codebase.id,
+      prompt: "Run simple task",
+      role: "engineer",
+    });
     expect(res.body?.message).toBe("Agent started");
+    expect(res.status).toBe(202);
+    expect(res.body?.success).toBe(true);
 
     const data = res.body?.data;
     // Record for afterEach cleanup, in case assertions fail later

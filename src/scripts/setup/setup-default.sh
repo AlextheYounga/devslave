@@ -25,7 +25,7 @@ prompts_dir="${repo_root}/src/prompts"
 cp -R "${prompts_dir}/." "${project_path}/${agent_folder}/" || true
 
 # Adding scripts
-cp -r "${repo_root}/src/scripts/agent" "${project_path}/${agent_folder}/scripts"
+cp -R "${repo_root}/src/scripts/agent/." "${project_path}/${agent_folder}/scripts"
 
 # Move to project folder
 cd "${project_path}"
