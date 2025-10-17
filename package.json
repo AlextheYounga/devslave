@@ -7,6 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
+    "docker:start": "./start.sh",
     "build": "tsc -p .",
     "server": "tsx src/server.ts",
     "server:dev": "tsx watch src/server.ts",
