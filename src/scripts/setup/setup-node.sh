@@ -15,22 +15,49 @@ repo_root="$(cd "${script_dir}/../../.." && pwd)"
 # Run basic setup
 source "$repo_root/src/scripts/setup/setup-default.sh"
 
-# Setup nvm
-source ~/.nvm/nvm.sh
-touch .nvmrc
-echo "lts/*" > .nvmrc
-nvm install
+# Setup nvm and Node.js
+if [[ -f ~/.nvm/nvm.sh ]]; then
+  source ~/.nvm/nvm.sh
+  
+  # Create .nvmrc if it doesn't exist
+  if [[ ! -f .nvmrc ]]; then
+    echo "lts/*" > .nvmrc
+    echo "Created .nvmrc file"
+  else
+    echo ".nvmrc already exists, skipping"
+  fi
+  
+  # Install Node.js if not already installed for this version
+  if ! nvm which "$(cat .nvmrc)" >/dev/null 2>&1; then
+    nvm install
+    echo "Installed Node.js version $(cat .nvmrc)"
+  else
+    nvm use
+    echo "Node.js version $(cat .nvmrc) already installed"
+  fi
+else
+  echo "Warning: nvm not found at ~/.nvm/nvm.sh, skipping Node.js setup"
+fi
 
-# Setup npm 
-npm init -y
+# Setup npm package.json
+if [[ ! -f package.json ]]; then
+  npm init -y
+  echo "Created package.json"
+else
+  echo "package.json already exists, skipping npm init"
+fi
 
 # Create project structure
 mkdir -p src
 mkdir -p tests
 
-# Create gitignore
-touch .gitignore
-cat << EOF > .gitignore
+# Setup gitignore (append Node.js rules if not already present)
+node_gitignore_marker="# Node.js gitignore rules"
+if [[ ! -f .gitignore ]] || ! grep -q "$node_gitignore_marker" .gitignore; then
+  echo "Adding Node.js gitignore rules"
+  cat << EOF >> .gitignore
+
+$node_gitignore_marker
 # Logs
 logs
 *.log
@@ -120,6 +147,15 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 EOF
+else
+  echo "Node.js gitignore rules already present, skipping"
+fi
 
-git add .
-git commit -m "chore: add node setup"
+# Add and commit changes (only if there are changes)
+git add -A
+if git diff --cached --quiet; then
+  echo "No changes to commit"
+else
+  git commit -m "chore: add node setup" --no-gpg-sign || true
+  echo "Committed Node.js setup changes"
+fi

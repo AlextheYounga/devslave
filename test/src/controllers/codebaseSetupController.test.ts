@@ -20,22 +20,32 @@ function buildApp() {
 describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
   const app = buildApp();
   let tempDir: string;
+  let folderName: string;
 
   beforeEach(() => {
     jest.setTimeout(20000);
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "test-setup-dev-"));
+    // Generate unique folder name for this test
+    folderName = `test-setup-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // The controller will create this path: os.tmpdir() + folderName
+    tempDir = path.join(os.tmpdir(), folderName);
   });
 
   afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
+    // Clean up the directory created by the controller
+    if (fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 
   it("executes the setup script and returns 200 with IDs and stdout", async () => {
+    const prompt = "This is a test project for unit testing.";
+    
     const res = await request(app)
       .post("/api/codebase/setup")
       .send({
         name: "test-project",
-        projectPath: tempDir,
+        folderName,
+        prompt,
         setup: "test",
       })
       .expect(200);
@@ -46,14 +56,26 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(res.body?.data?.stdout).toContain("Project setup completed successfully");
 
     // Verify side effects on filesystem
-    expect(fs.existsSync(path.join(tempDir, "codex"))).toBe(true);
-    expect(fs.existsSync(path.join(tempDir, ".git"))).toBe(true);
+    expect(fs.existsSync(path.join(tempDir, "agent"))).toBe(true);
+    
+    // Verify PROJECT.md file is created with correct content
+    const projectMdPath = path.join(tempDir, "agent", "PROJECT.md");
+    expect(fs.existsSync(projectMdPath)).toBe(true);
+    const projectContent = fs.readFileSync(projectMdPath, "utf-8");
+    expect(projectContent).toBe(prompt);
   });
 
   it("saves codebase and branch records to the database", async () => {
+    const prompt = "Database test project description.";
+    
     const res = await request(app)
       .post("/api/codebase/setup")
-      .send({ name: "test-project", projectPath: tempDir, setup: "test" })
+      .send({ 
+        name: "test-project", 
+        folderName, 
+        prompt,
+        setup: "test" 
+      })
       .expect(200);
 
     const { codebaseId, branchId } = res.body.data;
@@ -77,9 +99,16 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
       data: { name: "existing-project", path: tempDir },
     });
 
+    const prompt = "Duplicate test project.";
+
     const res = await request(app)
       .post("/api/codebase/setup")
-      .send({ name: "test-project", projectPath: tempDir, setup: "test" })
+      .send({ 
+        name: "test-project", 
+        folderName, 
+        prompt,
+        setup: "test" 
+      })
       .expect(200);
 
     const { codebaseId } = res.body.data;
@@ -103,9 +132,16 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
       },
     });
 
+    const prompt = "Branch test project.";
+
     const res = await request(app)
       .post("/api/codebase/setup")
-      .send({ name: "test-project", projectPath: tempDir, setup: "test" })
+      .send({ 
+        name: "test-project", 
+        folderName, 
+        prompt,
+        setup: "test" 
+      })
       .expect(200);
 
     expect(res.body.data.branchId).toBe(existingBranch.id);
@@ -115,39 +151,18 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(branches.length).toBe(1);
   });
 
-  it("initializes git with master as the main branch and author info", async () => {
-    await request(app)
-      .post("/api/codebase/setup")
-      .send({
-        name: "test-project",
-        projectPath: tempDir,
-        setup: "test",
-      })
-      .expect(200);
-
-    const headContent = fs
-      .readFileSync(path.join(tempDir, ".git", "HEAD"), "utf-8")
-      .trim();
-    expect(headContent).toBe("ref: refs/heads/master");
-
-    const authorName = execSync("git config user.name", {
-      cwd: tempDir,
-      encoding: "utf-8",
-    }).trim();
-    expect(authorName).toBe("Alex Younger Agent");
-
-    const authorEmail = execSync("git config user.email", {
-      cwd: tempDir,
-      encoding: "utf-8",
-    }).trim();
-    expect(authorEmail).toBe("thealexyounger@proton.me");
-  });
-
   it("does not re-run setup script when project already initialized (idempotent)", async () => {
+    const prompt = "Idempotent test project.";
+
     // First run should execute the script and mark setup=true in DB
     const first = await request(app)
       .post("/api/codebase/setup")
-      .send({ name: "test-project", projectPath: tempDir, setup: "test" })
+      .send({ 
+        name: "test-project", 
+        folderName, 
+        prompt,
+        setup: "test" 
+      })
       .expect(200);
 
     expect(first.body.success).toBe(true);
@@ -159,7 +174,12 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     // Second run should skip script based on DB flag
     const second = await request(app)
       .post("/api/codebase/setup")
-      .send({ name: "test-project", projectPath: tempDir, setup: "test" })
+      .send({ 
+        name: "test-project", 
+        folderName, 
+        prompt,
+        setup: "test" 
+      })
       .expect(200);
 
     expect(second.body.success).toBe(true);
@@ -172,9 +192,16 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
   });
 
   it("returns 500 and does not complete setup when setup script fails", async () => {
+    const prompt = "Failing test project.";
+
     const res = await request(app)
       .post("/api/codebase/setup")
-      .send({ name: "test-project", projectPath: tempDir, setup: "failing" })
+      .send({ 
+        name: "test-project", 
+        folderName, 
+        prompt,
+        setup: "failing" 
+      })
       .expect(500);
 
     expect(res.body?.success).toBe(false);
@@ -184,7 +211,97 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     const codebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
     expect(codebase).toBeTruthy();
     expect(codebase?.setup).toBe(false);
+  });
 
-    expect(fs.existsSync(path.join(tempDir, ".git"))).toBe(false);
+  it("returns 400 when required fields are missing", async () => {
+    const resNoName = await request(app)
+      .post("/api/codebase/setup")
+      .send({ 
+        folderName: "test-folder", 
+        prompt: "Test prompt"
+      })
+      .expect(400);
+
+    expect(resNoName.body?.success).toBe(false);
+    expect(resNoName.body?.error).toBe("name and folderName are required");
+
+    const resNoFolder = await request(app)
+      .post("/api/codebase/setup")
+      .send({ 
+        name: "test-project", 
+        prompt: "Test prompt"
+      })
+      .expect(400);
+
+    expect(resNoFolder.body?.success).toBe(false);
+    expect(resNoFolder.body?.error).toBe("name and folderName are required");
+  });
+
+  it("works without prompt parameter (optional field)", async () => {
+    const res = await request(app)
+      .post("/api/codebase/setup")
+      .send({
+        name: "test-project",
+        folderName,
+        setup: "test",
+      })
+      .expect(200);
+
+    expect(res.body?.success).toBe(true);
+
+    // Verify PROJECT.md is created but may be empty when no prompt provided
+    const projectMdPath = path.join(tempDir, "agent", "PROJECT.md");
+    expect(fs.existsSync(projectMdPath)).toBe(true);
+  });
+
+  it("creates PROJECT.md with multi-line prompt content", async () => {
+    const prompt = `# Test Project
+
+This is a multi-line prompt with:
+- Bullet points
+- **Bold text**
+- Code blocks
+
+## Goals
+1. Test functionality
+2. Validate content preservation`;
+
+    const res = await request(app)
+      .post("/api/codebase/setup")
+      .send({
+        name: "test-project",
+        folderName,
+        prompt,
+        setup: "test",
+      })
+      .expect(200);
+
+    expect(res.body?.success).toBe(true);
+
+    const projectMdPath = path.join(tempDir, "agent", "PROJECT.md");
+    expect(fs.existsSync(projectMdPath)).toBe(true);
+    const projectContent = fs.readFileSync(projectMdPath, "utf-8");
+    expect(projectContent).toBe(prompt);
+  });
+
+  it("handles empty prompt gracefully", async () => {
+    const prompt = "";
+
+    const res = await request(app)
+      .post("/api/codebase/setup")
+      .send({
+        name: "test-project",
+        folderName,
+        prompt,
+        setup: "test",
+      })
+      .expect(200);
+
+    expect(res.body?.success).toBe(true);
+
+    const projectMdPath = path.join(tempDir, "agent", "PROJECT.md");
+    expect(fs.existsSync(projectMdPath)).toBe(true);
+    const projectContent = fs.readFileSync(projectMdPath, "utf-8");
+    expect(projectContent).toBe("");
   });
 });

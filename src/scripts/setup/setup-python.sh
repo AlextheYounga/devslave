@@ -16,13 +16,19 @@ repo_root="$(cd "${script_dir}/../../.." && pwd)"
 source "$repo_root/src/scripts/setup/setup-default.sh"
 
 # Setup uv
-uv init
+if [[ ! -f "pyproject.toml" ]]; then
+  uv init
+fi
+
 uv python install 3.13
-uv venv .venv
+  
+if [[ ! -d ".venv" ]]; then
+  uv venv .venv
+fi
 
 # Create requirements.txt
-touch requirements.txt
-cat << EOF > requirements.txt
+if [[ ! -f "requirements.txt" ]]; then
+  cat << EOF > requirements.txt
 numpy
 matplotlib
 pandas
@@ -35,16 +41,17 @@ autopep8
 pytest
 pytest-env
 EOF
+fi
 
 uv pip install -r requirements.txt
 
 # Create gitignore
-touch .gitignore
-cat << EOF > .gitignore
+if [[ ! -f ".gitignore" ]]; then
+  cat << EOF > .gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
+*\$py.class
 
 # C extensions
 *.so
@@ -166,6 +173,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 EOF
+fi
 
-git add .
-git commit -m "chore: add python setup"
+# Only commit if there are changes
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  git add .
+  git commit -m "chore: add python setup"
+fi

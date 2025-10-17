@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { REPO_ROOT, AGENT_FOLDER } from "../constants";
+import { REPO_ROOT, AGENT_FOLDER, DEV_WORKSPACE } from "../constants";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -18,7 +18,7 @@ dotenv.config();
 type RequestBody = {
   executionId: string;
   name: string;
-  projectPath: string;
+  folderName: string;
   prompt: string;
   setup?: string;
 };
@@ -38,16 +38,17 @@ export default class CodebaseSetupController {
 
   async handleRequest() {
     try {
-      const { name, projectPath, prompt } = this.data as RequestBody;
+      const { name, folderName, prompt } = this.data as RequestBody;
 
-      if (!name || !projectPath) {
+      if (!name || !folderName) {
         return this.res.status(400).json({
           success: false,
-          error: "name and projectPath are required",
+          error: "name and folderName are required",
         });
       }
 
       new CodebaseSetupStarted(this.data).publish();
+      const projectPath = path.join(DEV_WORKSPACE, folderName);
 
       // Idempotency: use DB flag to determine if setup already completed
       const codebase = await this.saveCodebase(name, projectPath);
@@ -65,9 +66,7 @@ export default class CodebaseSetupController {
       const scriptOutput = await this.runSetupScript(projectPath);
       const branch = await this.createMasterBranch(codebase.id, projectPath);
 
-      // Create PROJECT.md file from prompt
-      const projectMdPath = path.join(projectPath, `/${AGENT_FOLDER}/PROJECT.md`);
-      fs.writeFileSync(projectMdPath, prompt, { encoding: "utf-8" });
+      this.createMasterPromptFile(projectPath, prompt);
 
       // Update codebase to mark setup as completed
       await this.db.codebase.update({
@@ -116,6 +115,18 @@ export default class CodebaseSetupController {
       encoding: "utf-8",
     });
     return scriptOutput;
+  }
+
+  private createMasterPromptFile(projectPath: string, prompt: string) {
+      // Create PROJECT.md file from prompt
+      const projectMdPath = path.join(projectPath, `/${AGENT_FOLDER}/PROJECT.md`);
+      fs.writeFileSync(projectMdPath, prompt || "", { encoding: "utf-8" });
+
+      // Commit the PROJECT.md file
+      execSync(`bash "${projectPath}/${AGENT_FOLDER}/scripts/git_commit.sh" "feat: add PROJECT.md"`, {
+        stdio: "pipe",
+        encoding: "utf-8",
+      });
   }
 
   private async saveCodebase(name: string, projectPath: string) {

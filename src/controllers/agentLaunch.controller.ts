@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
 import { AgentFailed } from "../events";
+import type { Role } from "../constants";
 import AgentProcessHandler from "../handlers/agentProcess.handler";
 
 type RequestBody = {
   executionId: string;
   codebaseId: string;
   prompt: string;
-  role: string;
+  role: Role;
 };
 
 export default class AgentLaunchController {

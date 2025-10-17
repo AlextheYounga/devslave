@@ -9,15 +9,19 @@ fi
 
 echo "Setting up test project at: ${project_path}"
 
-mkdir -p "${project_path}/codex/tickets"
-mkdir -p "${project_path}/codex/templates"
-touch "${project_path}/codex/PROJECT.md"
+# Create directory structure that the controller expects
+mkdir -p "${project_path}/agent/tickets"
+mkdir -p "${project_path}/agent/templates"
+mkdir -p "${project_path}/agent/scripts"
 
-cd "${project_path}"
-git -c init.defaultBranch=master init -q
-git config user.name "Alex Younger Agent"
-git config user.email "thealexyounger@proton.me"
-git add -A
-git commit -q -m "initial commit" --no-gpg-sign || true
+# Create a mock git_commit.sh script that doesn't actually commit
+cat > "${project_path}/agent/scripts/git_commit.sh" << 'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+commit_message="${1:-Auto commit}"
+echo "Mock commit: ${commit_message}"
+EOF
+
+chmod +x "${project_path}/agent/scripts/git_commit.sh"
 
 echo "Project setup completed successfully"

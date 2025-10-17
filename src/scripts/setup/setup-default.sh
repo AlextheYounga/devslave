@@ -23,7 +23,9 @@ mkdir -p "${project_path}/${agent_folder}/scripts"
 
 prompts_dir="${repo_root}/src/prompts"
 cp -R "${prompts_dir}/." "${project_path}/${agent_folder}/" || true
-cp "${repo_root}/src/scripts/git_commit.sh" "${project_path}/${agent_folder}/scripts/git_commit.sh"
+
+# Adding scripts
+cp -r "${repo_root}/src/scripts/agent" "${project_path}/${agent_folder}/scripts"
 
 # Move to project folder
 cd "${project_path}"
