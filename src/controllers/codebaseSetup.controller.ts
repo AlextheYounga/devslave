@@ -64,10 +64,13 @@ export default class CodebaseSetupController {
         });
       }
 
+      // Create PROJECT.md file from prompt
+      fs.mkdirSync(`${projectPath}/${AGENT_FOLDER}`, { recursive: true });
+      const projectMdPath = path.join(projectPath, `/${AGENT_FOLDER}/PROJECT.md`);
+      fs.writeFileSync(projectMdPath, prompt || "", { encoding: "utf-8" });
+
       const scriptOutput = await this.runSetupScript(projectPath);
       const branch = await this.createMasterBranch(codebase.id, projectPath);
-
-      this.createMasterPromptFile(projectPath, prompt);
 
       // Update codebase to mark setup as completed
       await this.db.codebase.update({
@@ -116,18 +119,6 @@ export default class CodebaseSetupController {
       encoding: "utf-8",
     });
     return scriptOutput;
-  }
-
-  private createMasterPromptFile(projectPath: string, prompt: string) {
-      // Create PROJECT.md file from prompt
-      const projectMdPath = path.join(projectPath, `/${AGENT_FOLDER}/PROJECT.md`);
-      fs.writeFileSync(projectMdPath, prompt || "", { encoding: "utf-8" });
-
-      // Commit the PROJECT.md file
-      execSync(`bash "${projectPath}/${AGENT_FOLDER}/scripts/git_commit.sh" "feat: add PROJECT.md"`, {
-        stdio: "pipe",
-        encoding: "utf-8",
-      });
   }
 
   private async saveCodebase(name: string, projectPath: string) {
