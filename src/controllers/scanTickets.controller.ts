@@ -34,14 +34,15 @@ export default class ScanTicketsController {
   // Convert string status from frontmatter to TicketStatus enum
   private mapStatus(status: string): TicketStatus {
     const statusMap: Record<string, TicketStatus> = {
-      open: TicketStatus.OPEN,
-      "in-progress": TicketStatus.IN_PROGRESS,
-      "qa-review": TicketStatus.QA_REVIEW,
-      closed: TicketStatus.CLOSED,
+      "OPEN": TicketStatus.OPEN,
+      "IN_PROGRESS": TicketStatus.IN_PROGRESS,
+      "QA_REVIEW": TicketStatus.QA_REVIEW,
+      "QA_CHANGES_REQUESTED": TicketStatus.QA_CHANGES_REQUESTED,
+      "CLOSED": TicketStatus.CLOSED,
     };
 
-    // Normalize status: replace underscores with hyphens, lowercase, and trim
-    const normalizedStatus = status.toLowerCase().trim().replace(/_/g, "-");
+    // Normalize status: replace underscores with hyphens, uppercase, and trim
+    const normalizedStatus = status.toUpperCase().trim().replace(/_/g, "_").replace(/-/g, "_");
     return statusMap[normalizedStatus] ?? TicketStatus.OPEN;
   }
 

@@ -15,7 +15,7 @@ Follow `philosophy.md`, respect project scope, and deliver tested, working code.
 ## Workflow
 1. **Read & Align**
    - Review `PROJECT.md`, your ticket, and `philosophy.md`.  
-   - If ticket status is `qa_changes_required`, fix noted issues.
+   - If ticket status is `QA_CHANGES_REQUESTED`, fix noted issues.
 
 2. **Setup**
    - If new repo, initialize env per `philosophy.md`.  
@@ -37,7 +37,7 @@ Follow `philosophy.md`, respect project scope, and deliver tested, working code.
    - Run all tests; ensure integration and stability.
 
 7. **Finish**
-   - Mark ticket `qa_ready`.  
+   - Mark ticket `QA_REVIEW`.  
    - Add brief notes if useful.
 
 ---

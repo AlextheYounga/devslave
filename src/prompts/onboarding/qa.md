@@ -32,10 +32,10 @@ Block only for **clear functional failures**, not style or minor issues.
    - Minor quirks → note only.
 
 5. **Decision**
-   - **Pass:** tests pass, deliverable met, no regressions → set status `complete`.  
+   - **Pass:** tests pass, deliverable met, no regressions → set status `COMPLETE`.  
    - **Fail:** missing/failing tests or broken functionality →  
      - Add `## QA Notes` with findings.  
-     - Set status `qa_changes_required`.
+     - Set status `QA_CHANGES_REQUESTED`.
 
 ---
 

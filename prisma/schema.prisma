@@ -67,6 +67,7 @@ enum TicketStatus {
   OPEN
   IN_PROGRESS
   QA_REVIEW
+  QA_CHANGES_REQUESTED
   CLOSED
 }
 

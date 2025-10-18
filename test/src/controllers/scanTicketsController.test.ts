@@ -301,9 +301,20 @@ Content
       );
 
       fs.writeFileSync(
-        path.join(ticketsDir, "003-ticket-mixed-case.md"),
+        path.join(ticketsDir, "003-ticket-changes-requested.md"),
         `---
 id: '003'
+title: Changes Requested Status
+status: qa_changes_requested
+---
+Content
+`
+      );
+
+      fs.writeFileSync(
+        path.join(ticketsDir, "004-ticket-mixed-case.md"),
+        `---
+id: '004'
 title: Mixed Case Status
 status: CLOSED
 ---
@@ -320,12 +331,13 @@ Content
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data.tickets).toHaveLength(3);
+      expect(res.body.data.tickets).toHaveLength(4);
 
       const tickets = res.body.data.tickets;
       expect(tickets[0].status).toBe("IN_PROGRESS");
       expect(tickets[1].status).toBe("QA_REVIEW");
-      expect(tickets[2].status).toBe("CLOSED");
+      expect(tickets[2].status).toBe("QA_CHANGES_REQUESTED");
+      expect(tickets[3].status).toBe("CLOSED");
     });
 
     it("handles both numeric and string IDs correctly", async () => {
@@ -367,6 +379,59 @@ Content with string ID
       const tickets = res.body.data.tickets;
       expect(tickets[0].ticketId).toBe("123"); // Numeric converted to string
       expect(tickets[1].ticketId).toBe("456"); // String preserved
+    });
+
+    it("handles QA_CHANGES_REQUESTED status in different formats", async () => {
+      const ticketsDir = path.join(tempDir, "agent", "tickets");
+      
+      fs.writeFileSync(
+        path.join(ticketsDir, "001-ticket-underscore.md"),
+        `---
+id: '001'
+title: Underscore Format
+status: qa_changes_requested
+---
+Content
+`
+      );
+
+      fs.writeFileSync(
+        path.join(ticketsDir, "002-ticket-hyphen.md"),
+        `---
+id: '002'
+title: Hyphen Format
+status: qa-changes-requested
+---
+Content
+`
+      );
+
+      fs.writeFileSync(
+        path.join(ticketsDir, "003-ticket-mixed-case.md"),
+        `---
+id: '003'
+title: Mixed Case Format
+status: QA_CHANGES_REQUESTED
+---
+Content
+`
+      );
+
+      const res = await request(app)
+        .post("/api/tickets/scan")
+        .send({
+          executionId: "test-execution-123",
+          codebaseId,
+        })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.tickets).toHaveLength(3);
+
+      const tickets = res.body.data.tickets;
+      expect(tickets[0].status).toBe("QA_CHANGES_REQUESTED");
+      expect(tickets[1].status).toBe("QA_CHANGES_REQUESTED");
+      expect(tickets[2].status).toBe("QA_CHANGES_REQUESTED");
     });
 
     it("defaults to OPEN status for unknown status values", async () => {
