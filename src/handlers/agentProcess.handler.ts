@@ -1,4 +1,4 @@
-import { REPO_ROOT } from "../constants";
+import { REPO_ROOT, SCRIPT_PATH } from "../constants";
 import { execSync } from "child_process";
 import { prisma } from "../prisma";
 import { PrismaClient, Codebase, AgentStatus } from "@prisma/client";
@@ -31,12 +31,10 @@ export default class AgentProcessHandler {
   async launch() {
     const projectPath = this.codebase.path;
     const prompt = this.params.prompt;
-    const scriptFolder = process.env.SCRIPT_PATH || "src/scripts";
-    const scriptFile = `${REPO_ROOT}/${scriptFolder}/launch-agent.sh`;
+    const scriptFile = `${REPO_ROOT}/${SCRIPT_PATH}/launch-agent.sh`;
     const agentRecord = await this.createAgentRecord();
     this.tmuxSession = `agent_${agentRecord.id}`;
 
-    // Quote args for safety and reliability across shells/paths with spaces
     execSync(`bash "${scriptFile}" "${projectPath}" "${prompt}" "${this.tmuxSession}"`);
 
     this.pid = this.getAgentPid();
@@ -55,23 +53,41 @@ export default class AgentProcessHandler {
   }
 
   getAgentPid() {
-    const panePid = this.getTmuxPanePid();
-    // Use default timeouts for stability in production
-    return this.waitForChildPidByPattern(panePid, "tail");
+    const timeout = Date.now() + 3000; // 3 seconds from now
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));  
+    while (true) {
+      const tmuxServers = execSync("tmux list-sessions").toString();
+      if (tmuxServers.includes(this.tmuxSession!)) {
+        const tmuxPid = this.getTmuxPanePid();
+        const codexPid = execSync(`pgrep -P ${tmuxPid}`);
+        if (codexPid && codexPid.toString().trim().length > 0) {
+          return parseInt(codexPid.toString().trim(), 10);
+        }
+      }
+
+      if (Date.now() > timeout) {
+        throw new Error(`Timed out waiting for tmux session ${this.tmuxSession}`);
+      }
+      
+      sleep(100).then(() => {}); // wait 100ms before retrying
+    }
   }
 
   getAgentLogFile() {
-    const out = this.waitForProcessOpenFile(this.pid!, "sessions");
-    return this.parseLogFilePathFromLsofOutput(out);
+    const lsofOutput = execSync(`lsof -p ${this.pid} | grep sessions`).toString();
+    const pathStack = lsofOutput.split("/");
+    pathStack.shift();
+    const logFilePath = "/" + pathStack.join("/");
+    return logFilePath;
   }
 
-  // Helpers
   private getTmuxPanePid(): number {
     const tmuxPanePidStr = execSync(
       `tmux list-panes -t ${this.tmuxSession}:0 -F "#{pane_pid}"`
     )
       .toString()
       .trim();
+
     const panePid = parseInt(tmuxPanePidStr, 10);
     if (isNaN(panePid) || panePid <= 0) {
       throw new Error(
@@ -79,74 +95,6 @@ export default class AgentProcessHandler {
       );
     }
     return panePid;
-  }
-
-  private waitForChildPidByPattern(
-    parentPid: number,
-    pattern: string,
-    timeoutMs = 5000,
-    intervalMs = 100
-  ): number {
-    const deadline = Date.now() + timeoutMs;
-    let lastErr: any;
-    while (Date.now() < deadline) {
-      try {
-        const cmd = `pgrep -n -P ${parentPid} -f ${pattern}`;
-        const pidStr = execSync(cmd, { stdio: "pipe" }).toString().trim();
-        const pid = parseInt(pidStr, 10);
-        if (!isNaN(pid) && pid > 0) return pid;
-      } catch (err) {
-        lastErr = err;
-      }
-      AgentProcessHandler.sleepMs(intervalMs);
-    }
-    throw (
-      lastErr ??
-      new Error(`No child process matching '${pattern}' for parent ${parentPid}`)
-    );
-  }
-
-  private waitForProcessOpenFile(
-    pid: number,
-    grepPattern: string,
-    timeoutMs = 5000,
-    intervalMs = 100
-  ): string {
-    const deadline = Date.now() + timeoutMs;
-    let last = "";
-    while (Date.now() < deadline) {
-      try {
-        const out = execSync(`lsof -p ${pid} | grep ${grepPattern}`, {
-          stdio: "pipe",
-        }).toString();
-        if (out.trim().length > 0) {
-          last = out;
-          break;
-        }
-      } catch {
-        // ignore and retry
-      }
-      AgentProcessHandler.sleepMs(intervalMs);
-    }
-    if (!last)
-      throw new Error(`No open file matching '${grepPattern}' found for pid ${pid}`);
-    return last;
-  }
-
-  private parseLogFilePathFromLsofOutput(out: string): string {
-    const lines = out.trim().split("\n");
-    const lastLine = lines[lines.length - 1]?.trim() ?? "";
-    const cols = lastLine.split(/\s+/);
-    const pathCol = cols[cols.length - 1];
-    if (!pathCol || !pathCol.includes("/sessions/")) {
-      throw new Error(`Unable to parse sessions log file from lsof output: ${lastLine}`);
-    }
-    return pathCol;
-  }
-
-  private static sleepMs(ms: number) {
-    // Synchronous sleep using Atomics; avoids async refactors
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
   }
 
   private extractSessionId(filePath: string) {

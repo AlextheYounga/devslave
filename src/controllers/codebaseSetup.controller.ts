@@ -58,6 +58,7 @@ export default class CodebaseSetupController {
           success: true,
           data: {
             ...this.data,
+            codebaseId: codebase.id,
             stdout: "codebase already set up, skipping initialization",
           },
         });
