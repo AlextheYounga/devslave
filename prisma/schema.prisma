@@ -66,9 +66,8 @@ model Events {
 enum TicketStatus {
   OPEN
   IN_PROGRESS
-  IN_REVIEW
+  QA_REVIEW
   CLOSED
-  REOPENED
 }
 
 model Ticket {

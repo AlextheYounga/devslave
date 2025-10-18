@@ -294,7 +294,7 @@ Content
         `---
 id: '002'
 title: Underscore Status
-status: in_review
+status: qa_review
 ---
 Content
 `
@@ -324,7 +324,7 @@ Content
 
       const tickets = res.body.data.tickets;
       expect(tickets[0].status).toBe("IN_PROGRESS");
-      expect(tickets[1].status).toBe("IN_REVIEW");
+      expect(tickets[1].status).toBe("QA_REVIEW");
       expect(tickets[2].status).toBe("CLOSED");
     });
 

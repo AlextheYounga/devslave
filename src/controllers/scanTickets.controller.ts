@@ -36,11 +36,12 @@ export default class ScanTicketsController {
     const statusMap: Record<string, TicketStatus> = {
       open: TicketStatus.OPEN,
       "in-progress": TicketStatus.IN_PROGRESS,
-      "in-review": TicketStatus.IN_REVIEW,
+      "qa-review": TicketStatus.QA_REVIEW,
       closed: TicketStatus.CLOSED,
     };
 
-    const normalizedStatus = status.toLowerCase().trim();
+    // Normalize status: replace underscores with hyphens, lowercase, and trim
+    const normalizedStatus = status.toLowerCase().trim().replace(/_/g, "-");
     return statusMap[normalizedStatus] ?? TicketStatus.OPEN;
   }
 
