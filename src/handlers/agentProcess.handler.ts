@@ -37,7 +37,7 @@ export default class AgentProcessHandler {
 
     execSync(`bash "${scriptFile}" "${projectPath}" "${prompt}" "${this.tmuxSession}"`);
 
-    this.pid = this.getAgentPid();
+    this.pid = await this.getAgentPid();
     const logFile = this.getAgentLogFile();
     const sessionId = this.extractSessionId(logFile);
 
@@ -52,24 +52,28 @@ export default class AgentProcessHandler {
     };
   }
 
-  getAgentPid() {
-    const timeout = Date.now() + 3000; // 3 seconds from now
+  async getAgentPid() {
+    const timeout = Date.now() + 2000; // 2 seconds from now
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));  
     while (true) {
-      const tmuxServers = execSync("tmux list-sessions").toString();
-      if (tmuxServers.includes(this.tmuxSession!)) {
-        const tmuxPid = this.getTmuxPanePid();
-        const codexPid = execSync(`pgrep -P ${tmuxPid}`);
-        if (codexPid && codexPid.toString().trim().length > 0) {
-          return parseInt(codexPid.toString().trim(), 10);
+      try {
+        const tmuxServers = execSync("tmux list-sessions").toString();
+        if (tmuxServers.includes(this.tmuxSession!)) {
+          const tmuxPid = this.getTmuxPanePid();
+          const codexPid = execSync(`pgrep -P ${tmuxPid}`);
+          if (codexPid && codexPid.toString().trim().length > 0) {
+            return parseInt(codexPid.toString().trim(), 10);
+          }
         }
+      } catch (error) {
+        // tmux server might not be running yet, continue retrying
       }
 
       if (Date.now() > timeout) {
         throw new Error(`Timed out waiting for tmux session ${this.tmuxSession}`);
       }
-      
-      sleep(100).then(() => {}); // wait 100ms before retrying
+
+      await sleep(100); // wait 100ms before retrying
     }
   }
 

@@ -77,18 +77,18 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       
       if (cmd.includes("tmux list-sessions")) {
         // Return the dynamically created session name
-        return Buffer.from(`${currentSessionName}\n`);
+        return Buffer.from(`${currentSessionName}: 1 windows (created`);
       }
       
       if (cmd.includes("tmux list-panes")) {
-        return Buffer.from(`${mockPanePid}\n`);
+        return Buffer.from(`${mockPanePid}`);
       }
       
       if (cmd.includes("pgrep -P")) {
-        return Buffer.from(`${mockPid}\n`);
+        return Buffer.from(`${mockPid}`);
       }
       
-      if (cmd.includes("lsof -p")) {
+      if (cmd.includes("lsof -p") && cmd.includes("grep sessions")) {
         return Buffer.from(`codex   ${mockPid}    user   3r   REG    1,4      0  123456 ${mockLogFile}`);
       }
       

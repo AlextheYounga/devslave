@@ -52,7 +52,7 @@ export default class CodebaseSetupController {
 
       // Idempotency: use DB flag to determine if setup already completed
       const codebase = await this.saveCodebase(name, projectPath);
-      if (codebase.setup) {
+      if (codebase.setup && fs.existsSync(projectPath)) {
         new CodebaseAlreadySetup(this.data).publish();
         return this.res.status(200).json({
           success: true,
