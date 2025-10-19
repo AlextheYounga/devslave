@@ -14,7 +14,7 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:test": "npx dotenv -e .env.test -- npx prisma migrate dev",
     "db:reset:test": "npx dotenv -e .env.test -- npx prisma migrate reset",
-    "test": "jest"
+    "test": "jest --silent"
   },
   "author": "Alex Younger, Trey Goff",
   "license": "ISC",

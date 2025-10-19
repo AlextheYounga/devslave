@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { REPO_ROOT, AGENT_FOLDER, DEV_WORKSPACE } from "../constants";
+import { paths, AGENT_FOLDER } from "../constants";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -48,7 +48,7 @@ export default class CodebaseSetupController {
       }
 
       new CodebaseSetupStarted(this.data).publish();
-      const projectPath = path.join(DEV_WORKSPACE, folderName);
+      const projectPath = path.join(paths.devWorkspace, folderName);
 
       // Idempotency: use DB flag to determine if setup already completed
       const codebase = await this.saveCodebase(name, projectPath);
@@ -70,7 +70,6 @@ export default class CodebaseSetupController {
       fs.writeFileSync(projectMdPath, prompt || "", { encoding: "utf-8" });
 
       const scriptOutput = await this.runSetupScript(projectPath);
-      const branch = await this.createMasterBranch(codebase.id, projectPath);
 
       // Update codebase to mark setup as completed
       await this.db.codebase.update({
@@ -81,7 +80,6 @@ export default class CodebaseSetupController {
       this.data = {
         ...this.data,
         codebaseId: codebase.id,
-        branchId: branch.id,
         stdout: scriptOutput,
       };
 
@@ -109,12 +107,11 @@ export default class CodebaseSetupController {
   }
 
   private async runSetupScript(projectPath: string) {
-    const { setup = "default" } = this.data as RequestBody;
-    const scriptFolder = process.env.SCRIPT_PATH || "src/scripts";
-    const scriptFile = `${REPO_ROOT}/${scriptFolder}/setup/setup-${setup}.sh`;
+    const { setup = "node" } = this.data as RequestBody;
+    const scriptFile = `${paths.scripts}/setup.sh`;
 
     // Execute via bash for portability and proper error codes; quote args
-    const scriptOutput = execSync(`bash "${scriptFile}" "${projectPath}"`, {
+    const scriptOutput = execSync(`bash "${scriptFile}" "${setup}" "${projectPath}"`, {
       stdio: "pipe",
       encoding: "utf-8",
     });
@@ -125,22 +122,5 @@ export default class CodebaseSetupController {
     const existing = await this.db.codebase.findFirst({ where: { path: projectPath } });
     if (existing) return existing;
     return await this.db.codebase.create({ data: { name, path: projectPath } });
-  }
-
-  private async createMasterBranch(codebaseId: string, projectPath: string) {
-    const existing = await this.db.branch.findFirst({
-      where: { codebaseId: codebaseId, name: "master" },
-    });
-
-    if (existing) return existing;
-
-    return await this.db.branch.create({
-      data: {
-        name: "master",
-        codebaseId: codebaseId,
-        worktree: projectPath,
-        ticketId: null,
-      },
-    });
   }
 }

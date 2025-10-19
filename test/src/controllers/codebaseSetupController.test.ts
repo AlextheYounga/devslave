@@ -17,10 +17,11 @@ function buildApp() {
   return app;
 }
 
-describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
+describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
   const app = buildApp();
   let tempDir: string;
   let folderName: string;
+  let originalScriptPath: string | undefined;
 
   beforeEach(() => {
     jest.setTimeout(20000);
@@ -28,6 +29,10 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     folderName = `test-setup-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     // The controller will create this path: os.tmpdir() + folderName
     tempDir = path.join(os.tmpdir(), folderName);
+    
+    // Override SCRIPT_PATH to use test fixtures
+    originalScriptPath = process.env.SCRIPT_PATH;
+    process.env.SCRIPT_PATH = path.join(__dirname, "../../fixtures/scripts");
   });
 
   afterEach(() => {
@@ -35,13 +40,20 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     if (fs.existsSync(tempDir)) {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
+    
+    // Restore original SCRIPT_PATH
+    if (originalScriptPath) {
+      process.env.SCRIPT_PATH = originalScriptPath;
+    } else {
+      delete process.env.SCRIPT_PATH;
+    }
   });
 
-  it("executes the setup script and returns 200 with IDs and stdout", async () => {
+  it("executes the setup script and returns 200 with codebase ID and stdout", async () => {
     const prompt = "This is a test project for unit testing.";
     
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -52,7 +64,6 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
 
     expect(res.body?.success).toBe(true);
     expect(res.body?.data?.codebaseId).toBeDefined();
-    expect(res.body?.data?.branchId).toBeDefined();
     expect(res.body?.data?.stdout).toContain("Project setup completed successfully");
 
     // Verify side effects on filesystem
@@ -65,11 +76,11 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(projectContent).toBe(prompt);
   });
 
-  it("saves codebase and branch records to the database", async () => {
+  it("saves codebase record to the database", async () => {
     const prompt = "Database test project description.";
     
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         name: "test-project", 
         folderName, 
@@ -78,19 +89,13 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
       })
       .expect(200);
 
-    const { codebaseId, branchId } = res.body.data;
+    const { codebaseId } = res.body.data;
 
     const codebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
     expect(codebase).toBeTruthy();
     expect(codebase?.id).toBe(codebaseId);
     expect(codebase?.name).toBe("test-project");
-
-    const branch = await prisma.branch.findFirst({ where: { id: branchId } });
-    expect(branch).toBeTruthy();
-    expect(branch?.codebaseId).toBe(codebaseId);
-    expect(branch?.name).toBe("master");
-    expect(branch?.worktree).toBe(tempDir);
-    expect(branch?.ticketId).toBeNull();
+    expect(codebase?.setup).toBe(true);
   });
 
   it("doesn't duplicate codebase when it already exists", async () => {
@@ -102,7 +107,7 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     const prompt = "Duplicate test project.";
 
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         name: "test-project", 
         folderName, 
@@ -119,23 +124,15 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(codebases[0]?.name).toBe("existing-project");
   });
 
-  it("doesn't duplicate branch when master already exists", async () => {
+  it("marks existing codebase as setup when rerun", async () => {
     const codebase = await prisma.codebase.create({
-      data: { name: "test-project", path: tempDir },
-    });
-    const existingBranch = await prisma.branch.create({
-      data: {
-        name: "master",
-        codebaseId: codebase.id,
-        worktree: tempDir,
-        ticketId: null,
-      },
+      data: { name: "test-project", path: tempDir, setup: false },
     });
 
-    const prompt = "Branch test project.";
+    const prompt = "Rerun test project.";
 
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         name: "test-project", 
         folderName, 
@@ -144,11 +141,10 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
       })
       .expect(200);
 
-    expect(res.body.data.branchId).toBe(existingBranch.id);
-    const branches = await prisma.branch.findMany({
-      where: { codebaseId: codebase.id, name: "master" },
-    });
-    expect(branches.length).toBe(1);
+    expect(res.body.data.codebaseId).toBe(codebase.id);
+    
+    const updatedCodebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
+    expect(updatedCodebase?.setup).toBe(true);
   });
 
   it("does not re-run setup script when project already initialized (idempotent)", async () => {
@@ -156,7 +152,7 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
 
     // First run should execute the script and mark setup=true in DB
     const first = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         name: "test-project", 
         folderName, 
@@ -173,7 +169,7 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
 
     // Second run should skip script based on DB flag
     const second = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         name: "test-project", 
         folderName, 
@@ -195,7 +191,7 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     const prompt = "Failing test project.";
 
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         name: "test-project", 
         folderName, 
@@ -207,7 +203,7 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(res.body?.success).toBe(false);
     expect(res.body?.error).toContain("Command failed:");
 
-    // With the new flow, the codebase record may exist but setup must remain false
+    // Codebase record should exist but setup should remain false
     const codebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
     expect(codebase).toBeTruthy();
     expect(codebase?.setup).toBe(false);
@@ -215,7 +211,7 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
 
   it("returns 400 when required fields are missing", async () => {
     const resNoName = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         folderName: "test-folder", 
         prompt: "Test prompt"
@@ -226,7 +222,7 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
     expect(resNoName.body?.error).toBe("name and folderName are required");
 
     const resNoFolder = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({ 
         name: "test-project", 
         prompt: "Test prompt"
@@ -239,11 +235,11 @@ describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
 
   it("works without prompt parameter (optional field)", async () => {
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({
         name: "test-project",
         folderName,
-        setup: "test",
+        setup: "node",
       })
       .expect(200);
 
@@ -267,12 +263,12 @@ This is a multi-line prompt with:
 2. Validate content preservation`;
 
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({
         name: "test-project",
         folderName,
         prompt,
-        setup: "test",
+        setup: "node",
       })
       .expect(200);
 
@@ -288,12 +284,12 @@ This is a multi-line prompt with:
     const prompt = "";
 
     const res = await request(app)
-      .post("/api/codebase/setup")
+      .post("/api/commands/codebase/setup")
       .send({
         name: "test-project",
         folderName,
         prompt,
-        setup: "test",
+        setup: "node",
       })
       .expect(200);
 

@@ -4,6 +4,7 @@ import CodebaseSetupController from './controllers/codebaseSetup.controller';
 import AgentLaunchController from './controllers/agentLaunch.controller';
 import AgentWatchdogController from './controllers/agentWatchdog.controller';
 import ScanTicketsController from './controllers/scanTickets.controller';
+import GitController from './controllers/git.controller';
 
 const router = Router();
 
@@ -12,9 +13,17 @@ router.get('/health', async (req: Request, res: Response) => {
     return new HealthController(req, res).handleRequest();
 });
 
-// Direct action endpoints
-router.post('/api/codebase/setup', async (req: Request, res: Response) => {
+// Direct action command endpoints
+router.post('/api/commands/codebase/setup', async (req: Request, res: Response) => {
     return new CodebaseSetupController(req, res).handleRequest();
+});
+
+router.post('/api/commands/git/commit', async (req: Request, res: Response) => {
+    return new GitController().handleRequest(req, res);
+});
+
+router.post('/api/commands/git/create-branch', async (req: Request, res: Response) => {
+    return new GitController().handleRequest(req, res);
 });
 
 // Launch Codex Agent endpoint

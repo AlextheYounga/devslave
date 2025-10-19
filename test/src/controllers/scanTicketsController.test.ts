@@ -155,6 +155,7 @@ status: in-progress
           codebaseId,
           ticketId: "001",
           title: "Original Title",
+          branchName: "feat/ticket-001",
           description: "Original description",
           status: TicketStatus.OPEN,
         },

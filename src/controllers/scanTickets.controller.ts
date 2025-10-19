@@ -46,6 +46,10 @@ export default class ScanTicketsController {
     return statusMap[normalizedStatus] ?? TicketStatus.OPEN;
   }
 
+  private createBranchName(ticketId: string) {
+    return `feat/ticket-${ticketId}`;
+  }
+
   async handleRequest() {
     try {
       const { codebaseId } = this.data as RequestBody;
@@ -110,11 +114,13 @@ export default class ScanTicketsController {
 
         if (!existingTicket) {
           // Create new ticket
+          const branchName = this.createBranchName(ticketId);
           ticketRecord = await this.db.ticket.create({
             data: {
               codebaseId,
               ticketId,
               title,
+              branchName,
               description,
               status,
             },
