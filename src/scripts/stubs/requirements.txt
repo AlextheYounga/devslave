@@ -1,0 +1,11 @@
+numpy
+matplotlib
+pandas
+python-dotenv
+python-environ
+beautifulsoup4
+inquirer
+SQLAlchemy
+autopep8
+pytest
+pytest-env
