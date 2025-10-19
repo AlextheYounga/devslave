@@ -4,16 +4,21 @@ import cors from "cors";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { execSync } from "child_process";
+import * as cp from "child_process";
+import AgentProcessHandler from "../../../src/handlers/agentProcess.handler";
 import routes from "../../../src/routes";
 import prisma from "../../client";
 
-// Mock execSync for controlled test behavior
-jest.mock("child_process", () => ({
-  execSync: jest.fn(),
-}));
+// Mock child_process.spawn to a jest.fn we can control
+jest.mock("child_process", () => {
+  const actual = jest.requireActual("child_process");
+  return {
+    ...actual,
+    spawn: jest.fn(),
+  };
+});
 
-const mockExecSync = execSync as jest.MockedFunction<typeof execSync>;
+// We'll spy on spawn; execSync will run normally for find(1)
 
 // Build an in-memory Express app that mirrors server.ts
 function buildApp() {
@@ -28,17 +33,28 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
   const app = buildApp();
   let tempDir: string;
   let originalScriptPath: string | undefined;
+  let originalHome: string | undefined;
+  let tempHome: string;
 
   // Mock data for consistent testing
-  const mockPid = 12345;
-  const mockPanePid = 12340;
-  const mockLogFile = "/tmp/sessions/123e4567-e89b-12d3-a456-426614174000.jsonl";
+  const sessionId = "123e4567-e89b-12d3-a456-426614174000";
+  // We don't know the rollout timestamped filename exactly; assert by pattern
+  const homeSessionsDir = () => path.join(process.env.HOME!, ".codex", "sessions");
+  const expectLogFileMatches = (p: string) => {
+    expect(p).toContain(homeSessionsDir());
+    expect(p.endsWith(`${sessionId}.jsonl`) || p.includes(`${sessionId}.jsonl`) || p.includes(`${sessionId}`)).toBe(true);
+    expect(p.endsWith(".jsonl")).toBe(true);
+  };
 
   beforeAll(() => {
     jest.setTimeout(5000);
     // Set test script path to use fixtures
     originalScriptPath = process.env.SCRIPT_PATH;
     process.env.SCRIPT_PATH = "test/fixtures/scripts";
+    // Isolate HOME so ~/.codex is under a temp directory
+    originalHome = process.env.HOME;
+    tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "home-"));
+    process.env.HOME = tempHome;
   });
 
   afterAll(() => {
@@ -48,60 +64,54 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
     } else {
       delete process.env.SCRIPT_PATH;
     }
+    if (originalHome !== undefined) {
+      process.env.HOME = originalHome;
+    } else {
+      delete process.env.HOME;
+    }
+    // Remove the temporary HOME directory to avoid clutter
+    try {
+      fs.rmSync(tempHome, { recursive: true, force: true });
+    } catch {}
   });
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "test-agent-dev-"));
-    
-    // Reset all mocks
-    mockExecSync.mockReset();
-    
-    // Track the dynamic session name that gets created
-    let currentSessionName = "";
-    
-    // Mock the main script execution (launch-agent.sh)
-    mockExecSync.mockImplementation((command: string) => {
-      const cmd = command.toString();
-      
-      if (cmd.includes("launch-agent.sh")) {
-        // Extract session name from the command
-        const match = cmd.match(/"([^"]*agent_[^"]*)"$/);
-        if (match && match[1]) {
-          currentSessionName = match[1];
-        }
-        // Create the mock log file that the script would create
-        fs.mkdirSync("/tmp/sessions", { recursive: true });
-        fs.writeFileSync(mockLogFile, "");
-        return Buffer.from(`OK: ${currentSessionName}`);
+
+    // Ensure ~/.codex exists so the handler's baseline scan doesn't fail if the directory is missing
+    fs.mkdirSync(path.join(process.env.HOME!, ".codex"), { recursive: true });
+
+    // Mock spawn to avoid actually running tmux; create a fake session file
+  // We will compute the created path dynamically after spawn runs; no fixed path
+    (cp.spawn as unknown as jest.Mock).mockImplementation(
+      (command: any, args?: readonly string[], options?: any) => {
+        // Mirror fixture behavior: create nested date-based rollout file
+        const year = new Date().getFullYear().toString().padStart(4, "0");
+        const month = (new Date().getMonth() + 1).toString().padStart(2, "0");
+        const day = new Date().getDate().toString().padStart(2, "0");
+        const dir = path.join(homeSessionsDir(), year, month, day);
+        fs.mkdirSync(dir, { recursive: true });
+        const file = path.join(dir, `rollout-TEST-${sessionId}.jsonl`);
+        fs.writeFileSync(file, "");
+        return {
+          unref: () => {},
+          stdout: null,
+          stderr: null,
+          pid: 0,
+          on: () => ({} as any),
+          once: () => ({} as any),
+        } as unknown as cp.ChildProcess;
       }
-      
-      if (cmd.includes("tmux list-sessions")) {
-        // Return the dynamically created session name
-        return Buffer.from(`${currentSessionName}: 1 windows (created`);
-      }
-      
-      if (cmd.includes("tmux list-panes")) {
-        return Buffer.from(`${mockPanePid}`);
-      }
-      
-      if (cmd.includes("pgrep -P")) {
-        return Buffer.from(`${mockPid}`);
-      }
-      
-      if (cmd.includes("lsof -p") && cmd.includes("grep sessions")) {
-        return Buffer.from(`codex   ${mockPid}    user   3r   REG    1,4      0  123456 ${mockLogFile}`);
-      }
-      
-      return Buffer.from("");
-    });
+    );
   });
 
   afterEach(async () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
-    
+  jest.resetAllMocks();
     // Clean up mock log file if it exists
     try {
-      fs.rmSync("/tmp/sessions", { recursive: true, force: true });
+      const p = path.join(process.env.HOME!, ".codex", "sessions");
+      fs.rmSync(p, { recursive: true, force: true });
     } catch {
       // Ignore cleanup errors
     }
@@ -119,45 +129,30 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       prompt: "Run simple task",
       role: "engineer",
     });
-    
+
     expect(res.status).toBe(202);
     expect(res.body?.success).toBe(true);
     expect(res.body?.message).toBe("Agent started");
 
     const data = res.body?.data;
     expect(data?.agentId).toBeDefined();
-    expect(data?.pid).toBe(mockPid);
     expect(data?.tmuxSession).toMatch(/^agent_/);
-    expect(data?.logFile).toBe(mockLogFile);
-    expect(data?.sessionId).toBe("123e4567-e89b-12d3-a456-426614174000");
+  expectLogFileMatches(data?.logFile);
+  expect(data?.sessionId).toBe(sessionId);
 
     // Verify DB record persisted with expected fields
     const agent = await prisma.agent.findUnique({ where: { id: data.agentId } });
     expect(agent).toBeTruthy();
     expect(agent?.executionId).toBe("exec-123");
     expect(agent?.role).toBe("engineer");
-    expect(agent?.pid).toBe(mockPid);
     expect(agent?.tmuxSession).toMatch(/^agent_/);
-    expect(agent?.sessionId).toBe("123e4567-e89b-12d3-a456-426614174000");
-    expect(agent?.logFile).toBe(mockLogFile);
+  expect(agent?.sessionId).toBe(sessionId);
+  expectLogFileMatches(agent?.logFile!);
 
     // Verify the mock log file was created
-    expect(fs.existsSync(mockLogFile)).toBe(true);
+  expect(fs.existsSync(data?.logFile)).toBe(true);
 
-    // Verify correct script calls were made
-    expect(mockExecSync).toHaveBeenCalledWith(
-      expect.stringContaining("test/fixtures/scripts/launch-agent.sh")
-    );
-    expect(mockExecSync).toHaveBeenCalledWith("tmux list-sessions");
-    expect(mockExecSync).toHaveBeenCalledWith(
-      expect.stringContaining("tmux list-panes")
-    );
-    expect(mockExecSync).toHaveBeenCalledWith(
-      expect.stringContaining("pgrep -P")
-    );
-    expect(mockExecSync).toHaveBeenCalledWith(
-      expect.stringContaining("lsof -p")
-    );
+    // No lsof/pgrep/tmux expectations anymore; spawn is used and we stubbed it
   });
 
   it("returns 400 when codebase is missing or invalid (agent-launch-negative)", async () => {
@@ -183,8 +178,8 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       data: { name: "test-agent", path: tempDir },
     });
 
-    // Mock execSync to fail on script execution
-    mockExecSync.mockImplementation(() => {
+    // Mock spawn to fail when launching script
+    (cp.spawn as unknown as jest.Mock).mockImplementation(() => {
       throw new Error("tmux session creation failed");
     });
 
@@ -208,21 +203,12 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       data: { name: "test-agent", path: tempDir },
     });
 
-    // Mock execSync to succeed for script but fail for tmux list-sessions
-    mockExecSync.mockImplementation((command: string) => {
-      const cmd = command.toString();
-      
-      if (cmd.includes("launch-agent.sh")) {
-        return Buffer.from("OK: agent_test_session");
-      }
-      
-      if (cmd.includes("tmux list-sessions")) {
-        // Return empty to simulate session not found, causing timeout
-        return Buffer.from("");
-      }
-      
-      return Buffer.from("");
-    });
+    // Do not create any log file and mock getAgentLogFile to throw quickly
+    jest
+      .spyOn(AgentProcessHandler.prototype as any, "getAgentLogFile")
+      .mockImplementation(async () => {
+        throw new Error("Unable to determine new log file for agent. Found 0 new files.");
+      });
 
     const res = await request(app)
       .post("/api/agent/launch")
@@ -235,6 +221,6 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
       .expect(500);
 
     expect(res.body?.success).toBe(false);
-    expect(res.body?.error).toContain("Timed out waiting for tmux session");
+    expect(res.body?.error).toContain("Unable to determine new log file for agent");
   });
 });

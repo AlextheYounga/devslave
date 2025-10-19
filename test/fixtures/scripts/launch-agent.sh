@@ -14,12 +14,13 @@ fi
 # Use a deterministic UUID-looking value so tests can assert extraction
 session_id="123e4567-e89b-12d3-a456-426614174000"
 
-# Start a detached tmux session with working directory set to project_path
-# We intentionally spawn a child process (tail -f) that keeps a file under /tmp/sessions/* open,
-# so that `lsof -p <childPid> | grep sessions` returns a path including the session_id.
-tmux new-session -s "$session_name" -c "$project_path" \
-  bash -lc "mkdir -p /tmp/sessions; touch /tmp/sessions/${session_id}.jsonl; tail -f /tmp/sessions/${session_id}.jsonl & wait"
-
-tmux detach -s "$session_name"  
+# Create a deterministic session file in a nested date path and exit; no tmux needed in tests
+year=$(date +%Y)
+month=$(date +%m)
+day=$(date +%d)
+timestamp=$(date +%Y-%m-%dT%H-%M-%S)
+dir="$HOME/.codex/sessions/${year}/${month}/${day}"
+mkdir -p "$dir"
+touch "$dir/rollout-${timestamp}-${session_id}.jsonl"
 
 echo "OK: ${session_name}"

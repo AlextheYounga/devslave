@@ -27,7 +27,6 @@ model Agent {
   sessionId   String?
   tmuxSession String?
   role        String?
-  pid         Int?
   logFile     String?
   status      AgentStatus @default(PREPARING)
   inputs      Json?
