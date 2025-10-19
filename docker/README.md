@@ -22,3 +22,7 @@ docker-compose stop
 ## Configuration
 
 The default name of the database, user and password for PostgreSQL can be changed in the [`.env`](.env) file in the current directory.
+
+
+## Codex Login
+Run `docker/codex-login.sh` to do a port forwarding of the url that codex spins up on the server. 

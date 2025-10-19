@@ -12,24 +12,6 @@ echo "[entrypoint] installing npm dependencies"
 nvm install
 npm install --no-audit --no-fund
 
-# One-time seed for Codex auth into named volume
-if [ -d "/seed/.codex" ]; then
-  if [ ! -d "/root/.codex" ] || [ -z "$(ls -A /root/.codex 2>/dev/null || true)" ]; then
-    echo "[entrypoint] seeding /root/.codex from /seed/.codex"
-    mkdir -p /root/.codex
-    # Preserve perms and attributes
-    cp -a /seed/.codex/. /root/.codex/
-
-    # Reset codex history
-    rm -rf /root/.codex/sessions/**
-    truncate -s 0 /root/.codex/history.jsonl
-  else
-    echo "[entrypoint] /root/.codex already initialized; skipping seed"
-  fi
-else
-  echo "[entrypoint] no /seed/.codex present; skipping seed"
-fi
-
 echo "[entrypoint] prisma migrate deploy"
 npx prisma migrate deploy
 

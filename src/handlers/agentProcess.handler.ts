@@ -1,5 +1,5 @@
 import { REPO_ROOT, SCRIPT_PATH } from "../constants";
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 import { prisma } from "../prisma";
 import { PrismaClient, Codebase, AgentStatus } from "@prisma/client";
 import dotenv from "dotenv";
@@ -35,12 +35,18 @@ export default class AgentProcessHandler {
     const agentRecord = await this.createAgentRecord();
     this.tmuxSession = `agent_${agentRecord.id}`;
 
-    execSync(`bash "${scriptFile}" "${projectPath}" "${prompt}" "${this.tmuxSession}"`);
+    console.log(
+      `[AgentProcessHandler] Executing command: bash ${scriptFile} ${projectPath} ${this.tmuxSession} ${prompt}`
+    );
+
+    spawn("bash", [scriptFile, projectPath, this.tmuxSession, prompt], {
+      detached: true,
+      stdio: "ignore",
+    }).unref(); // Allow parent to exit without waiting
 
     this.pid = await this.getAgentPid();
-    const logFile = this.getAgentLogFile();
+    const logFile = await this.getAgentLogFile();
     const sessionId = this.extractSessionId(logFile);
-
     await this.updateAgentRecord(agentRecord.id, logFile, sessionId);
 
     return {
@@ -53,11 +59,13 @@ export default class AgentProcessHandler {
   }
 
   async getAgentPid() {
-    const timeout = Date.now() + 2000; // 2 seconds from now
-    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));  
+    const timeout = Date.now() + 1000; // 1 second from now
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     while (true) {
       try {
-        const tmuxServers = execSync("tmux list-sessions").toString();
+        const tmuxServers = execSync("tmux list-sessions", {
+          stdio: ["ignore", "pipe", "pipe"],
+        }).toString();
         if (tmuxServers.includes(this.tmuxSession!)) {
           const tmuxPid = this.getTmuxPanePid();
           const codexPid = execSync(`pgrep -P ${tmuxPid}`);
@@ -67,22 +75,35 @@ export default class AgentProcessHandler {
         }
       } catch (error) {
         // tmux server might not be running yet, continue retrying
-      }
+        if (Date.now() > timeout) {
+          this.killTmuxFailSafe();
+          throw new Error(`Failed to get agent log file for pid ${this.pid}: ${error}`);
+        }
 
-      if (Date.now() > timeout) {
-        throw new Error(`Timed out waiting for tmux session ${this.tmuxSession}`);
+        await sleep(500); // wait 500ms before retrying
       }
-
-      await sleep(100); // wait 100ms before retrying
     }
   }
 
-  getAgentLogFile() {
-    const lsofOutput = execSync(`lsof -p ${this.pid} | grep sessions`).toString();
-    const pathStack = lsofOutput.split("/");
-    pathStack.shift();
-    const logFilePath = "/" + pathStack.join("/");
-    return logFilePath;
+  async getAgentLogFile() {
+    const timeout = Date.now() + 1000; // 1 second from now
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    while (true) {
+      try {
+        const lsofOutput = execSync(`lsof -p ${this.pid} | grep sessions`);
+        const pathStack = lsofOutput.toString().split("/");
+        pathStack.shift();
+        const logFilePath = "/" + pathStack.join("/");
+        return logFilePath;
+      } catch (error) {
+        if (Date.now() > timeout) {
+          this.killTmuxFailSafe();
+          throw new Error(`Failed to get agent log file for pid ${this.pid}: ${error}`);
+        }
+        await sleep(500); // wait 500ms before retrying
+        continue;
+      }
+    }
   }
 
   private getTmuxPanePid(): number {
@@ -99,6 +120,10 @@ export default class AgentProcessHandler {
       );
     }
     return panePid;
+  }
+
+  private killTmuxFailSafe() {
+    execSync(`tmux kill-session -a`);
   }
 
   private extractSessionId(filePath: string) {
