@@ -7,7 +7,7 @@
       "typeVersion": 1,
       "position": [
         -1568,
-        -760
+        -768
       ],
       "id": "31c4b57a-7928-4c7d-ae2c-4db746e10a58",
       "name": "When clicking ‘Execute workflow’"
@@ -20,15 +20,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1344,
-        -760
+        -1328,
+        -768
       ],
       "id": "6cd7cc16-4fed-4797-b5c6-d2c836dbedef",
       "name": "Check App is Running"
     },
     {
       "parameters": {
-        "url": "http://app:3000/health",
+        "url": "http://app:3000/api/tickets/scan",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -96,8 +96,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -672,
-        368
+        -896,
+        320
       ],
       "id": "cec7c26f-2d80-45f1-869a-718bb9d0fe42",
       "name": "Setup Git Branch",
@@ -150,27 +150,27 @@
     },
     {
       "parameters": {
-        "url": "http://app:3000/health",
+        "url": "http://app:3000/api/agent/launch",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -448,
-        368
+        -640,
+        288
       ],
       "id": "c1abee89-38dd-4c63-9274-e58a64811a0c",
       "name": "Launch Developer Agent"
     },
     {
       "parameters": {
-        "url": "http://app:3000/health",
+        "url": "http://app:3000/api/agent/launch",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        672,
+        464,
         288
       ],
       "id": "60202cfc-1291-4f70-9466-e9ae94837515",
@@ -189,8 +189,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        896,
-        -760
+        816,
+        -784
       ],
       "id": "25ebfe4d-032f-48f1-90c8-acb52c4ce981",
       "name": "Get Outline",
@@ -204,32 +204,6 @@
     },
     {
       "parameters": {
-        "formTitle": "Outline Confirmation",
-        "formDescription": "Upload the corrected outline",
-        "formFields": {
-          "values": [
-            {
-              "fieldLabel": "Outline File",
-              "fieldType": "file",
-              "acceptFileTypes": ".md",
-              "requiredField": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.formTrigger",
-      "typeVersion": 2.3,
-      "position": [
-        -1568,
-        -256
-      ],
-      "id": "63c26a2c-7177-4d76-8b18-3f278ad70393",
-      "name": "On form submission",
-      "webhookId": "d939ea0e-0c06-4ab6-a691-5adf6a299b14"
-    },
-    {
-      "parameters": {
         "mode": "markdownToHtml",
         "markdown": "={{ $json.outlineData }}",
         "destinationKey": "outlineHtml",
@@ -238,8 +212,8 @@
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        1344,
-        -760
+        1264,
+        -784
       ],
       "id": "76f2ef47-862a-448b-bca6-83a9a8463557",
       "name": "Markdown"
@@ -254,8 +228,8 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        1120,
-        -760
+        1040,
+        -784
       ],
       "id": "82cc2b6c-d70e-4427-a2b3-0f43b7e33d9c",
       "name": "Extract from File"
@@ -268,7 +242,7 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        448,
+        240,
         288
       ],
       "id": "46e25227-6135-4f00-b555-9bb2c7c24c54",
@@ -282,21 +256,7 @@
     },
     {
       "parameters": {
-        "url": "http://app:3000/health",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -224,
-        -760
-      ],
-      "id": "ef87ab64-cf88-449d-9751-3d112fa87628",
-      "name": "Launch Sprint Planning"
-    },
-    {
-      "parameters": {
-        "url": "http://app:3000/health",
+        "url": "http://app:3000/api/agent/launch",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -316,7 +276,7 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        1568,
+        1360,
         288
       ],
       "id": "ec50b570-60ef-49d1-9908-f19e2a925167",
@@ -336,7 +296,7 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        2240,
+        2032,
         368
       ],
       "id": "7ad344fc-1262-4457-a70f-242f62bda749",
@@ -349,26 +309,12 @@
       }
     },
     {
-      "parameters": {
-        "url": "http://app:3000/health",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -896,
-        368
-      ],
-      "id": "fe7beb53-543f-4f01-95aa-b5923e601425",
-      "name": "Get Ticket Details"
-    },
-    {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
         2464,
-        528
+        592
       ],
       "id": "c1e62dde-3dd9-43e3-8bdd-4bc02d80fad9",
       "name": "Next Ticket"
@@ -381,7 +327,7 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        1792,
+        1584,
         288
       ],
       "id": "f7e0389f-57d2-47ac-a91c-23c258b8c33f",
@@ -421,7 +367,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2016,
+        1808,
         368
       ],
       "id": "304ac997-fac9-4198-a5db-6b8000f5f920",
@@ -439,8 +385,8 @@
           "conditions": [
             {
               "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
-              "leftValue": "",
-              "rightValue": "",
+              "leftValue": "={{ $json.data.data.status }}",
+              "rightValue": "COMPLETED",
               "operator": {
                 "type": "string",
                 "operation": "equals",
@@ -455,22 +401,22 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        448,
-        -760
+        368,
+        -768
       ],
       "id": "c31c705a-6674-4d0c-bd98-81bb37f9164c",
       "name": "Planning Agent Finished"
     },
     {
       "parameters": {
-        "content": "# Sprint Planning Agent",
+        "content": "# Architect Agent",
         "height": 80,
-        "width": 384
+        "width": 288
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        96,
-        -960
+        32,
+        -944
       ],
       "typeVersion": 1,
       "id": "ff278ed4-4109-4dcc-8dc1-8c2ee7dcbb8a",
@@ -481,8 +427,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        0,
-        -760
+        -80,
+        -768
       ],
       "id": "9e6d796b-dce4-4d10-9d14-f375c424ad91",
       "name": "Planning Agent Delay",
@@ -491,16 +437,16 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://app:3000/api/jobs",
+        "url": "http://app:3000/api/agent/status",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ $json }}",
+        "jsonBody": "={\n\"executionId\": \"{{ $json.data.executionId }}\",\n\"agentId\": \"{{ $json.data.agentId }}\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        224,
+        144,
         -832
       ],
       "id": "8669cf76-6598-4d7b-b493-d6f8e6b0afb4",
@@ -509,7 +455,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://app:3000/api/jobs",
+        "url": "http://app:3000/api/agent/status",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json }}",
@@ -575,7 +521,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -224,
+        -432,
         288
       ],
       "id": "b431cf2d-c970-4c30-8eca-4dd4ef86b977",
@@ -585,7 +531,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://app:3000/api/jobs",
+        "url": "http://app:3000/api/agent/status",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json }}",
@@ -594,7 +540,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        0,
+        -208,
         224
       ],
       "id": "d1484563-8598-4494-b7c2-9b36bf273279",
@@ -628,7 +574,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        224,
+        16,
         288
       ],
       "id": "fa6f4392-3426-4363-adc7-88484bca7dcc",
@@ -639,7 +585,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        896,
+        688,
         288
       ],
       "id": "533f1ad7-e207-4177-95d0-c57d4d99c356",
@@ -649,7 +595,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://app:3000/api/jobs",
+        "url": "http://app:3000/api/agent/status",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json }}",
@@ -658,7 +604,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1120,
+        912,
         224
       ],
       "id": "83f14823-ba51-4cc4-93da-41f442d358ce",
@@ -692,7 +638,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1344,
+        1136,
         288
       ],
       "id": "e776882a-140f-43ab-95bd-a6962731962c",
@@ -721,7 +667,7 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -64,
+        -272,
         80
       ],
       "typeVersion": 1,
@@ -736,7 +682,7 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1072,
+        864,
         80
       ],
       "typeVersion": 1,
@@ -804,8 +750,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1600,
-        -704
+        1520,
+        -720
       ],
       "id": "4c57be2e-5a1d-4a9c-8a24-6026c0d2ac9c",
       "name": "Sprint Planning Form Confirmation",
@@ -824,8 +770,8 @@
               "requiredField": true
             },
             {
-              "fieldLabel": "Project Path",
-              "placeholder": "/app/dev/mynewproject",
+              "fieldLabel": "Project Folder",
+              "placeholder": "mynewproject",
               "requiredField": true
             },
             {
@@ -856,7 +802,7 @@
       "typeVersion": 1.1,
       "position": [
         -1120,
-        -760
+        -976
       ],
       "id": "1513b4c7-a7c7-4851-8e7d-f0aee6f1bf4c",
       "name": "Project Start Form",
@@ -865,7 +811,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://app:3000/api/codebase/setup",
+        "url": "http://app:3000/api/commands/codebase/setup",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json }}",
@@ -875,65 +821,25 @@
       "typeVersion": 4.2,
       "position": [
         -672,
-        -760
+        -768
       ],
       "id": "1b4565e2-70ee-4617-86d9-fa23d59aea47",
       "name": "Setup Codebase"
     },
     {
       "parameters": {
-        "command": "./agent/scripts/git_commit.sh \"Setting up agent project\"",
-        "cwd": "={{ $('Project Start Params').first().json.projectPath }}"
-      },
-      "type": "n8n-nodes-base.ssh",
-      "typeVersion": 1,
-      "position": [
-        -448,
-        -760
-      ],
-      "id": "776d7799-22cb-4cb3-95ab-9bd313e1b993",
-      "name": "Project Setup Commit",
-      "credentials": {
-        "sshPassword": {
-          "id": "cubrUaryfoxjprAQ",
-          "name": "SSH Password account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "mode": "raw",
-        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"{{ $json.Name }}\",\n  \"projectPath\": \"{{ $json['Project Path'] }}\",\n  \"setup\": \"{{ $json['Setup Type'] }}\",\n  \"prompt\": \"{{ $json['Master Prompt'] }}\"\n}",
+        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"{{ $json.Name }}\",\n  \"folderName\": \"{{ $json['Project Folder'] }}\",\n  \"setup\": \"{{ $json['Setup Type'] }}\",\n  \"prompt\": \"{{ $json['Master Prompt'] }}\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -896,
-        -760
+        -912,
+        -976
       ],
       "id": "bd333540-8807-4365-bf19-c83c98c5356e",
       "name": "Project Start Params"
-    },
-    {
-      "parameters": {
-        "command": "./agent/scripts/git_commit.sh \"Finished sprint planning\"",
-        "cwd": "={{ $('Project Start Params').first().json.projectPath }}"
-      },
-      "type": "n8n-nodes-base.ssh",
-      "typeVersion": 1,
-      "position": [
-        672,
-        -760
-      ],
-      "id": "f20355b8-78ee-4b5f-92e1-e7b7618741be",
-      "name": "Sprint Planning Git Commit",
-      "credentials": {
-        "sshPassword": {
-          "id": "cubrUaryfoxjprAQ",
-          "name": "SSH Password account"
-        }
-      }
     },
     {
       "parameters": {
@@ -1003,11 +909,111 @@
       "typeVersion": 2.3,
       "position": [
         -1568,
+        -256
+      ],
+      "id": "63c26a2c-7177-4d76-8b18-3f278ad70393",
+      "name": "On Outline Confirmation",
+      "webhookId": "d939ea0e-0c06-4ab6-a691-5adf6a299b14"
+    },
+    {
+      "parameters": {
+        "formTitle": "Outline Confirmation",
+        "formDescription": "Upload the corrected outline",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Outline File",
+              "fieldType": "file",
+              "acceptFileTypes": ".md",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -1568,
         528
       ],
       "id": "4f041e73-4918-4031-991b-1013104b0a4c",
-      "name": "On form submission1",
+      "name": "On Tickets Confirmation",
       "webhookId": "a4170261-8a52-4723-9d4d-aadb72f59110"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/launch",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n  \"prompt\": \"{{ $json.architect_prompt }}\",\n  \"role\": \"architect\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -304,
+        -768
+      ],
+      "id": "ef87ab64-cf88-449d-9751-3d112fa87628",
+      "name": "Launch Architect"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "architect_prompt",
+              "value": "You are an engineering architect. Please read agent/onboarding/architect.md to get started",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -496,
+        -768
+      ],
+      "id": "40dc50e4-2296-4a70-b649-085023467156",
+      "name": "Architect Prompt"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"Prime Number Finder\",\n  \"folderName\": \"primenumberfinder\",\n  \"setup\": \"python\",\n  \"prompt\": \"Write a program that finds all prime numbers\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        -768
+      ],
+      "id": "7f46393f-3159-4cf6-a34d-56738c69089b",
+      "name": "Test Params"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/commands/git/commit",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n\"message\": \"architect outline completed\",\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        608,
+        -784
+      ],
+      "id": "8d18b777-61f9-4aef-88f7-9cc8a7d4d92d",
+      "name": "Architect Git Commit"
     }
   ],
   "pinData": {},
@@ -1027,7 +1033,7 @@
       "main": [
         [
           {
-            "node": "Project Start Form",
+            "node": "Test Params",
             "type": "main",
             "index": 0
           }
@@ -1060,7 +1066,7 @@
       "main": [
         [
           {
-            "node": "Get Ticket Details",
+            "node": "Setup Git Branch",
             "type": "main",
             "index": 0
           }
@@ -1129,17 +1135,6 @@
         ]
       ]
     },
-    "On form submission": {
-      "main": [
-        [
-          {
-            "node": "Launch Project Manager",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Markdown": {
       "main": [
         [
@@ -1173,17 +1168,6 @@
         ]
       ]
     },
-    "Launch Sprint Planning": {
-      "main": [
-        [
-          {
-            "node": "Planning Agent Delay",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Launch Project Manager": {
       "main": [
         [
@@ -1211,17 +1195,6 @@
         [
           {
             "node": "Next Ticket",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Ticket Details": {
-      "main": [
-        [
-          {
-            "node": "Setup Git Branch",
             "type": "main",
             "index": 0
           }
@@ -1272,7 +1245,7 @@
       "main": [
         [
           {
-            "node": "Sprint Planning Git Commit",
+            "node": "Architect Git Commit",
             "type": "main",
             "index": 0
           }
@@ -1465,7 +1438,7 @@
       "main": [
         [
           {
-            "node": "Project Setup Commit",
+            "node": "Architect Prompt",
             "type": "main",
             "index": 0
           }
@@ -1474,35 +1447,7 @@
     },
     "Project Start Params": {
       "main": [
-        [
-          {
-            "node": "Setup Codebase",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Project Setup Commit": {
-      "main": [
-        [
-          {
-            "node": "Launch Sprint Planning",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Sprint Planning Git Commit": {
-      "main": [
-        [
-          {
-            "node": "Get Outline",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Tickets Review Confirmation Form": {
@@ -1516,11 +1461,66 @@
         ]
       ]
     },
-    "On form submission1": {
+    "On Outline Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Launch Project Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Tickets Confirmation": {
       "main": [
         [
           {
             "node": "Scan Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Architect": {
+      "main": [
+        [
+          {
+            "node": "Planning Agent Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Architect Prompt": {
+      "main": [
+        [
+          {
+            "node": "Launch Architect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Params": {
+      "main": [
+        [
+          {
+            "node": "Setup Codebase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Architect Git Commit": {
+      "main": [
+        [
+          {
+            "node": "Get Outline",
             "type": "main",
             "index": 0
           }
@@ -1532,7 +1532,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "6c9f92c8-74cf-4001-8ef5-b5963f1875db",
+  "versionId": "28459608-6408-49b3-8365-58bb1abb79b4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

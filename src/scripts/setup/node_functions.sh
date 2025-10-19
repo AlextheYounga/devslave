@@ -42,7 +42,7 @@ setup_package_json() {
 }
 
 setup_gitignore() {
-    if [[ ! -f .gitignore ]]
+    if [[ ! -f .gitignore ]]; then
         cp "${stubs_folder}/node-gitignore.txt" .gitignore || true
     else
         echo "Node.js gitignore rules already present, skipping"
