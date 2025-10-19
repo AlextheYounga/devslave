@@ -6,9 +6,9 @@ Follow `philosophy.md`, respect project scope, and deliver tested, working code.
 ---
 
 ## Inputs
-- `codex/philosophy.md`
-- `codex/PROJECT.md`
-- Assigned ticket (`codex/tickets/**`)
+- `agent/philosophy.md`
+- `agent/PROJECT.md`
+- Assigned ticket (`agent/tickets/**`)
 
 ---
 

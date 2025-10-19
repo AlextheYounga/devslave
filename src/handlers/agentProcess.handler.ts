@@ -1,5 +1,5 @@
-import { REPO_ROOT, SCRIPT_PATH } from "../constants";
-import { execSync, spawn } from "child_process";
+import { paths } from "../constants";
+import { exec, spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
@@ -34,7 +34,7 @@ export default class AgentProcessHandler {
   async launch() {
     const projectPath = this.codebase.path;
     const prompt = this.params.prompt;
-    const scriptFile = `${REPO_ROOT}/${SCRIPT_PATH}/launch-agent.sh`;
+    const scriptFile = `${paths.scripts}/launch-agent.sh`;
     const agentRecord = await this.createAgentRecord();
     this.tmuxSession = `agent_${agentRecord.id}`;
 
@@ -162,6 +162,6 @@ export default class AgentProcessHandler {
   }
 
   private killTmuxFailSafe() {
-    execSync(`tmux kill-session -t ${this.tmuxSession}`);
+    exec(`tmux kill-session -t ${this.tmuxSession}`);
   }
 }

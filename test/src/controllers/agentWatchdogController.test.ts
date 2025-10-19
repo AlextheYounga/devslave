@@ -48,7 +48,6 @@ describe("POST /api/agent/status (AgentWatchdogController)", () => {
         role: "engineer",
         status: "LAUNCHED",
         logFile: logPath,
-        pid: null,
         tmuxSession: null,
       },
     });
@@ -89,7 +88,6 @@ describe("POST /api/agent/status (AgentWatchdogController)", () => {
         role: "engineer",
         status: "LAUNCHED",
         logFile: logPath,
-        pid: null, // ensure watchdog doesn't try to kill a real PID
         tmuxSession: null,
       },
     });

@@ -7,8 +7,8 @@ Block only for **clear functional failures**, not style or minor issues.
 ---
 
 ## Inputs
-- `codex/philosophy.md`
-- Target ticket in `codex/tickets/**`
+- `agent/philosophy.md`
+- Target ticket in `agent/tickets/**`
 
 ---
 

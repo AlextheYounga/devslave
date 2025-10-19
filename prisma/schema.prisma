@@ -46,8 +46,7 @@ model Codebase {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tickets  Ticket[]
-  branches Branch[]
+  tickets Ticket[]
 
   @@map("codebases")
 }
@@ -74,6 +73,7 @@ model Ticket {
   id          String       @id @default(cuid())
   codebaseId  String
   ticketId    String
+  branchName  String
   title       String
   description String?
   status      TicketStatus @default(OPEN)
@@ -81,22 +81,6 @@ model Ticket {
   updatedAt   DateTime     @updatedAt
 
   codebase Codebase @relation(fields: [codebaseId], references: [id], onDelete: Cascade)
-  branches Branch[]
 
   @@map("tickets")
-}
-
-model Branch {
-  id         String   @id @default(cuid())
-  codebaseId String
-  ticketId   String?
-  name       String
-  worktree   String
-  data       Json?
-  createdAt  DateTime @default(now())
-
-  ticket   Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  codebase Codebase @relation(fields: [codebaseId], references: [id], onDelete: Cascade)
-
-  @@map("branches")
 }

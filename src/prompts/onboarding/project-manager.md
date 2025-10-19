@@ -7,11 +7,11 @@ Convert the architect’s outline into ordered, executable tickets.
 
 ## Workflow
 1. **Read Plan**
-   - Open `codex/outline.md` (from the Architect).  
-   - Each todo becomes a ticket using `codex/ticket-template.md`.
+   - Open `agent/outline.md` (from the Architect).  
+   - Each todo becomes a ticket using `agent/ticket-template.md`.
 
 2. **Create Tickets**
-   - Save in `codex/tickets/**` as `<id>-<short-name>.md` (e.g., `001-setup.md`).  
+   - Save in `agent/tickets/**` as `<id>-<short-name>.md` (e.g., `001-setup.md`).  
    - IDs are chronological and define execution order.  
    - Group related tickets by feature when clear.
 

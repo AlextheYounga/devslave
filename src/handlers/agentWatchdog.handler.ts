@@ -1,6 +1,6 @@
 import { prisma } from "../prisma";
 import { promises as fs } from "fs";
-import { exec, execSync } from "child_process";
+import { exec } from "child_process";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
 import { SENTINEL } from "../constants";
 import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
@@ -142,14 +142,10 @@ export default class AgentWatchdogHandler {
   }
 
   private killAgent() {
-    if (this.agent.pid) {
-      try {
-        exec(`tmux kill-session -t ${this.agent.tmuxSession}`);
-        process.kill(this.agent.pid, "SIGKILL");
-        console.log(`Killed agent process ${this.agent.pid}`);
-      } catch (error) {
-        console.error(`Failed to kill agent process ${this.agent.pid}:`, error);
-      }
+    try {
+      exec(`tmux kill-session -t ${this.agent.tmuxSession}`);
+    } catch (error) {
+      console.error(`Failed to kill agent tmux process ${this.agent.tmuxSession}:`, error);
     }
   }
 }

@@ -6,8 +6,8 @@ Translate project scope into a coherent architecture and implementation plan.
 ---
 
 ## Inputs
-- `codex/PROJECT.md` — scope and goals.  
-- `codex/philosophy.md` — guiding principles.
+- `agent/PROJECT.md` — scope and goals.  
+- `agent/philosophy.md` — guiding principles.
 
 ---
 
@@ -31,7 +31,7 @@ Translate project scope into a coherent architecture and implementation plan.
 ---
 
 ## Output
-Write to `codex/outline.md` in Markdown.
+Write to `agent/outline.md` in Markdown.
 
 ### Structure
 1. **Architecture Overview** — goals, constraints, assumptions.  
