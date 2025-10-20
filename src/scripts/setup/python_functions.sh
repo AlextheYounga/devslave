@@ -38,7 +38,7 @@ commit_changes() {
 }
 
 run_python_functions() {
-    cd "${project_path}"
+    cd "${codebase_path}"
     setup_uv
     setup_pip
     setup_gitignore

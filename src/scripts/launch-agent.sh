@@ -1,33 +1,59 @@
 #!/usr/bin/env bash
 
 # Args
-project_path="${1:-}"
-session_name="${2:-}"
-prompt="${3:-}"
+codebase_id=$1
+agent_id=$2
 
-if [[ -z "$project_path" || -z "$prompt" || -z "$session_name" ]]; then
-  echo "Usage: $0 <project_path> <prompt> <session_name>" >&2
+if [[ -z "$codebase_id" || -z "$agent_id" ]]; then
+  echo "Usage: $0 <codebase_id> <agent_id>" >&2
   exit 1
 fi
 
-script_dir="$(cd "$(dirname "$0")" && pwd)"
-repo_root="$(cd "${script_dir}/../.." && pwd)"
-
-run_codex() {
-  /root/.nvm/versions/node/v22.20.0/bin/codex \
-    --dangerously-bypass-approvals-and-sandbox --cd="$project_path" "$prompt"
+get_codebase_path_by_id() {
+    local codebase_id=$1
+    local codebase_path
+    
+    sql="SELECT path FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
+    codebase_path=$(sqlite3 $DB_ABSOLUTE_URL "$sql")
+    
+    if [[ -z "$codebase_path" ]]; then
+        echo "Error: Codebase with ID $codebase_id not found." >&2
+        return 1
+    fi
+    
+    echo "$codebase_path"
 }
 
-export -f run_codex
+get_tmux_session_by_agent_id() {
+    local agent_id=$1
+    local tmux_session_name
+    
+    sql="SELECT tmuxSession FROM agents WHERE id = '$agent_id' LIMIT 1;"
+    tmux_session_name=$(sqlite3 $DB_ABSOLUTE_URL "$sql")
+    
+    if [[ -z "$tmux_session_name" ]]; then
+        echo "Error: Agent with ID $agent_id not found." >&2
+        return 1
+    fi
+    
+    echo "$tmux_session_name"
+}
+
+# Paths
+scripts_dir="${AGENT_REPO}/src/scripts"
+codex_script="${scripts_dir}/agent/run_codex.sh"
+
+# Database queries
+codebase_path=$(get_codebase_path_by_id "$codebase_id")
+session_name=$(get_tmux_session_by_agent_id "$agent_id")
 
 launch_tmux_codex() {
-  # Start a detached tmux session with working directory set to project_path,
+  # Start a detached tmux session with working directory set to codebase_path,
   # and exec codex with proper argv (no manual string escaping needed).
-  tmux new-session -d -s "$session_name" -c "$project_path"
+  tmux new-session -d -s "$session_name" -c "$codebase_path"
   tmux setw -t "$session_name":0 monitor-silence 60
-  tmux set-hook -g alert-silence \
-    'run-shell "tmux kill-session -t #{session_name}"'
-  tmux send-keys -t "$session_name" "bash -c 'run_codex'" C-m
+  tmux set-hook -g alert-silence 'run-shell "tmux kill-session -t #{session_name}"'
+  tmux send-keys -t "$session_name" "/bin/bash $codex_script $codebase_id $agent_id" C-m
 }
 
 main() {

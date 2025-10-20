@@ -2,45 +2,70 @@
 set -euo pipefail
 
 # Args
-setup_type=${1:-}
-project_path=${2:-}
-agent_folder=${3:-"agent"}
+codebase_id=${1:-}
 
-if [[ -z "${setup_type}" || -z "${project_path}" ]]; then
-  echo "Usage: $0 <setup_type: node|python> <project_path> [agent_folder]" >&2
+if [[ -z "${codebase_id}" ]]; then
+  echo "Usage: $0 <codebase_id>" >&2
   exit 1
 fi
 
-script_dir="$(cd "$(dirname "$0")" && pwd)"
-repo_root="$(cd "${script_dir}/../.." && pwd)"
-stubs_folder="${script_dir}/stubs"
+get_codebase_by_id() {
+    local codebase_id=$1
+    local codebase_record
+    
+    sql="SELECT * FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
+    codebase_record=$(sqlite3 $DB_ABSOLUTE_URL "$sql")
+    
+    if [[ -z "$codebase_record" ]]; then
+        echo "Error: Codebase with ID $codebase_id not found." >&2
+        return 1
+    fi
+    
+    echo "$codebase_record"
+}
 
-source "${script_dir}/git/git_init.sh"
-source "${script_dir}/setup/node_functions.sh"
-source "${script_dir}/setup/python_functions.sh"
+# Paths
+scripts_dir="${AGENT_REPO}/src/scripts"
+stubs_folder="${scripts_dir}/stubs"
+
+# Source dependencies
+source "${scripts_dir}/setup/git_init.sh"
+source "${scripts_dir}/setup/setup/node_functions.sh"
+source "${scripts_dir}/setup/setup/python_functions.sh"
+
+# Database queries
+codebase=$(get_codebase_by_id "$codebase_id")
+codebase_data=$(echo "$codebase" | cut -d'|' -f4)
+setup_type=$(echo "$codebase_data" | jq -r '.setupType // "default"')
+master_prompt=$(echo "$codebase_data" | jq -r '.masterPrompt // ""')
+codebase_path=$(echo "$codebase" | cut -d'|' -f3)
 
 setup_agent_folder() {
     # Set up agent folder
-    mkdir -p "${project_path}"
-    mkdir -p "${project_path}/docs"
-    mkdir -p "${project_path}/${agent_folder}/tickets"
-    mkdir -p "${project_path}/${agent_folder}/scripts"
+    mkdir -p "${codebase_path}"
+    mkdir -p "${codebase_path}/docs"
+    mkdir -p "${codebase_path}/${AGENT_FOLDER}/tickets"
+    mkdir -p "${codebase_path}/${AGENT_FOLDER}/scripts"
 
-    prompts_dir="${repo_root}/src/prompts"
-    cp -R "${prompts_dir}/." "${project_path}/${agent_folder}/" || true
+    # Create PROJECT.md with master prompt
+    touch "${codebase_path}/${AGENT_FOLDER}/PROJECT.md"
+    cat master_prompt > "${codebase_path}/${AGENT_FOLDER}/PROJECT.md"
+
+    prompts_dir="${AGENT_REPO}/src/prompts"
+    cp -R "${prompts_dir}/." "${codebase_path}/${AGENT_FOLDER}/" || true
 
     # Adding scripts (if directory exists)
-    if [[ -d "${repo_root}/src/scripts/agent" ]]; then
-        cp -R "${repo_root}/src/scripts/agent/." "${project_path}/${agent_folder}/scripts"
+    if [[ -d "${AGENT_REPO}/src/scripts/agent" ]]; then
+        cp -R "${AGENT_REPO}/src/scripts/agent/." "${codebase_path}/${AGENT_FOLDER}/scripts"
     fi
 }
 
 setup_precommit() {
     # Add pre-commit config (no network; install only if pre-commit exists)
-    cp "${stubs_folder}/precommitconfig.yaml" "${project_path}/.pre-commit-config.yaml" || true
+    cp "${stubs_folder}/precommitconfig.yaml" "${codebase_path}/.pre-commit-config.yaml" || true
 
     # Move to project folder
-    cd "${project_path}"
+    cd "${codebase_path}"
 
     if command -v pre-commit >/dev/null 2>&1; then
         pre-commit install || true

@@ -61,7 +61,7 @@ commit_changes() {
 }
 
 run_node_functions() {
-    cd "${project_path}"
+    cd "${codebase_path}"
     setup_directory_structure
     setup_node
     setup_package_json

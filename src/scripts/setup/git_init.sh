@@ -1,7 +1,7 @@
 # Setup Git (only if not already initialized)
 git_init() {
     if [[ ! -d ".git" ]]; then
-        git -c init.defaultBranch=master init
+        git -c init.defaultBranch=$GIT_DEFAULT_BRANCH init
         echo "Initialized new git repository"
     else
         echo "Git repository already exists, skipping init"
@@ -9,12 +9,12 @@ git_init() {
 
     # Set git config only if not already configured
     if [[ -z "$(git config --get user.name 2>/dev/null || true)" ]]; then
-        git config user.name "Alex Younger Agent"
+        git config user.name $GIT_USERNAME
         echo "Set git user.name"
     fi
 
     if [[ -z "$(git config --get user.email 2>/dev/null || true)" ]]; then
-        git config user.email "thealexyounger@proton.me"
+        git config user.email $GIT_EMAIL
         echo "Set git user.email"
     fi
 
