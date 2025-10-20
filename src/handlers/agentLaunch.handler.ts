@@ -15,7 +15,7 @@ type AgentParams = {
   role: string;
 };
 
-export default class AgentProcessHandler {
+export default class AgentLaunchHandler {
   private db: PrismaClient;
   public executionId: string;
   public codebase: Codebase;

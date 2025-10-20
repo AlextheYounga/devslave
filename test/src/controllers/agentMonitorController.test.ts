@@ -17,7 +17,7 @@ function buildApp() {
   return app;
 }
 
-describe("POST /api/agent/status (AgentWatchdogController)", () => {
+describe("POST /api/agent/status (AgentMonitorController)", () => {
   const app = buildApp();
   let tempDir: string;
 

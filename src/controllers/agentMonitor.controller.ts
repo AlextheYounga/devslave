@@ -9,7 +9,7 @@ type RequestBody = {
   agentId: string;
 };
 
-export default class AgentWatchdogController {
+export default class AgentMonitorController {
   private db: PrismaClient;
   private req: Request;
   private res: Response;
@@ -49,7 +49,7 @@ export default class AgentWatchdogController {
 
       // Watch the agent until completion - this keeps the HTTP connection open
       const agentStatus = await watchdogHandler.watch();
-      
+
       const currentAgent = await this.db.agent.findUnique({
         where: { id: agentId },
       });
@@ -71,7 +71,7 @@ export default class AgentWatchdogController {
         },
       });
     } catch (error: any) {
-      console.error("Error in AgentWatchdogController:", error);
+      console.error("Error in AgentMonitorController:", error);
       new AgentFailed({
         ...this.data,
         error: error?.message ?? String(error),

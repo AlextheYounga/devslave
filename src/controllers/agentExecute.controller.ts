@@ -3,7 +3,8 @@ import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
 import { AgentFailed } from "../events";
 import type { Role } from "../constants";
-import AgentLaunchHandler from "../handlers/agentLaunch.handler";
+import AgentProcessHandler from "../handlers/agentLaunch.handler";
+import AgentWatchdogHandler from "../handlers/agentWatchdog.handler";
 
 type RequestBody = {
   executionId: string;
@@ -12,7 +13,7 @@ type RequestBody = {
   role: Role;
 };
 
-export default class AgentLaunchController {
+export default class AgentExecuteController {
   private db: PrismaClient;
   private req: Request;
   private res: Response;
@@ -41,23 +42,33 @@ export default class AgentLaunchController {
       }
 
       const agentParams = { prompt, role };
-      const agentHandler = new AgentLaunchHandler(
+      const agentHandler = new AgentProcessHandler(
         this.data.executionId, 
         codebase, 
         agentParams
       );
 
+      // Launch the agent process
       const agentLaunchInfo = await agentHandler.launch();
-      this.data = { ...this.data, ...agentLaunchInfo };
 
-      // Fire-and-forget: do not await watchdog completion; respond immediately
+      const agent = await this.db.agent.findUniqueOrThrow({
+        where: { id: agentLaunchInfo.agentId },
+      });
+
+      const watchdogHandler = new AgentWatchdogHandler(this.data.executionId, agent);
+
+        // Watch the agent until completion - this keeps the HTTP connection open
+      const agentStatus = await watchdogHandler.watch();
+
+      this.data = { ...this.data, ...agentLaunchInfo, ...agentStatus };
+
       return this.res.status(202).json({
         success: true,
-        message: "Agent started",
+        message: "Agent completed",
         data: this.data,
       });
     } catch (error: any) {
-      console.error("Error in AgentLaunchController:", error);
+      console.error("Error in AgentExecuteController:", error);
       new AgentFailed({
         ...this.data,
         error: error?.message ?? String(error),

@@ -65,7 +65,9 @@ describe("GitController", () => {
       // Mock execSync to return fixture script output
       (cp.execSync as unknown as jest.Mock).mockImplementation(
         (command: string, options?: any) => {
-          return Buffer.from("Mock git commit executed\nSuccessfully committed changes\n");
+          return Buffer.from(
+            "Mock git commit executed\nSuccessfully committed changes\n"
+          );
         }
       );
 
@@ -74,12 +76,10 @@ describe("GitController", () => {
         data: { name: "test-repo", path: tempDir },
       });
 
-      const res = await request(app)
-        .post("/api/commands/git/commit")
-        .send({
-          codebaseId: codebase.id,
-          message: "Test commit message",
-        });
+      const res = await request(app).post("/api/commands/git/commit").send({
+        codebaseId: codebase.id,
+        message: "Test commit message",
+      });
 
       expect(res.status).toBe(200);
       expect(res.body?.success).toBe(true);
@@ -90,16 +90,16 @@ describe("GitController", () => {
       expect(cp.execSync).toHaveBeenCalledWith(
         expect.stringMatching(/git_commit\.sh.*"Test commit message"/)
       );
-      expect(cp.execSync).toHaveBeenCalledWith(
-        expect.stringContaining(tempDir)
-      );
+      expect(cp.execSync).toHaveBeenCalledWith(expect.stringContaining(tempDir));
     });
 
     it("uses default commit message when message not provided", async () => {
       // Mock execSync to return fixture script output
       (cp.execSync as unknown as jest.Mock).mockImplementation(
         (command: string, options?: any) => {
-          return Buffer.from("Mock git commit executed\nSuccessfully committed changes\n");
+          return Buffer.from(
+            "Mock git commit executed\nSuccessfully committed changes\n"
+          );
         }
       );
 
@@ -107,11 +107,9 @@ describe("GitController", () => {
         data: { name: "test-repo", path: tempDir },
       });
 
-      const res = await request(app)
-        .post("/api/commands/git/commit")
-        .send({
-          codebaseId: codebase.id,
-        });
+      const res = await request(app).post("/api/commands/git/commit").send({
+        codebaseId: codebase.id,
+      });
 
       expect(res.status).toBe(200);
       expect(res.body?.success).toBe(true);
@@ -123,12 +121,10 @@ describe("GitController", () => {
     });
 
     it("returns 500 when codebase not found", async () => {
-      const res = await request(app)
-        .post("/api/commands/git/commit")
-        .send({
-          codebaseId: "non-existent-id",
-          message: "Test commit",
-        });
+      const res = await request(app).post("/api/commands/git/commit").send({
+        codebaseId: "non-existent-id",
+        message: "Test commit",
+      });
 
       expect(res.status).toBe(500);
       expect(res.body?.success).toBe(false);
@@ -141,7 +137,9 @@ describe("GitController", () => {
       // Mock execSync to return fixture script output
       (cp.execSync as unknown as jest.Mock).mockImplementation(
         (command: string, options?: any) => {
-          return Buffer.from("Mock git branch creation executed\nSuccessfully created branch\n");
+          return Buffer.from(
+            "Mock git branch creation executed\nSuccessfully created branch\n"
+          );
         }
       );
 
@@ -149,12 +147,10 @@ describe("GitController", () => {
         data: { name: "test-repo", path: tempDir },
       });
 
-      const res = await request(app)
-        .post("/api/commands/git/create-branch")
-        .send({
-          codebaseId: codebase.id,
-          name: "feature/new-feature",
-        });
+      const res = await request(app).post("/api/commands/git/create-branch").send({
+        codebaseId: codebase.id,
+        name: "feature/new-feature",
+      });
 
       expect(res.status).toBe(200);
       expect(res.body?.success).toBe(true);
@@ -165,18 +161,14 @@ describe("GitController", () => {
       expect(cp.execSync).toHaveBeenCalledWith(
         expect.stringMatching(/git_branch\.sh.*"feature\/new-feature"/)
       );
-      expect(cp.execSync).toHaveBeenCalledWith(
-        expect.stringContaining(tempDir)
-      );
+      expect(cp.execSync).toHaveBeenCalledWith(expect.stringContaining(tempDir));
     });
 
     it("returns 500 when codebase not found", async () => {
-      const res = await request(app)
-        .post("/api/commands/git/create-branch")
-        .send({
-          codebaseId: "non-existent-id",
-          name: "test-branch",
-        });
+      const res = await request(app).post("/api/commands/git/create-branch").send({
+        codebaseId: "non-existent-id",
+        name: "test-branch",
+      });
 
       expect(res.status).toBe(500);
       expect(res.body?.success).toBe(false);
@@ -195,17 +187,14 @@ describe("GitController", () => {
         data: { name: "test-repo", path: tempDir },
       });
 
-      const res = await request(app)
-        .post("/api/commands/git/commit")
-        .send({
-          codebaseId: codebase.id,
-          message: "Test commit",
-        });
+      const res = await request(app).post("/api/commands/git/commit").send({
+        codebaseId: codebase.id,
+        message: "Test commit",
+      });
 
       expect(res.status).toBe(500);
       expect(res.body?.success).toBe(false);
       expect(res.body?.error).toContain("Git command failed");
     });
-
   });
 });

@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import * as cp from "child_process";
-import AgentProcessHandler from "../../../src/handlers/agentProcess.handler";
+import AgentProcessHandler from "../../../src/handlers/agentLaunch.handler";
 import routes from "../../../src/routes";
 import prisma from "../../client";
 
@@ -42,7 +42,11 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
   const homeSessionsDir = () => path.join(process.env.HOME!, ".codex", "sessions");
   const expectLogFileMatches = (p: string) => {
     expect(p).toContain(homeSessionsDir());
-    expect(p.endsWith(`${sessionId}.jsonl`) || p.includes(`${sessionId}.jsonl`) || p.includes(`${sessionId}`)).toBe(true);
+    expect(
+      p.endsWith(`${sessionId}.jsonl`) ||
+        p.includes(`${sessionId}.jsonl`) ||
+        p.includes(`${sessionId}`)
+    ).toBe(true);
     expect(p.endsWith(".jsonl")).toBe(true);
   };
 
@@ -82,7 +86,7 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
     fs.mkdirSync(path.join(process.env.HOME!, ".codex"), { recursive: true });
 
     // Mock spawn to avoid actually running tmux; create a fake session file
-  // We will compute the created path dynamically after spawn runs; no fixed path
+    // We will compute the created path dynamically after spawn runs; no fixed path
     (cp.spawn as unknown as jest.Mock).mockImplementation(
       (command: any, args?: readonly string[], options?: any) => {
         // Mirror fixture behavior: create nested date-based rollout file
@@ -107,7 +111,7 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
 
   afterEach(async () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
-  jest.resetAllMocks();
+    jest.resetAllMocks();
     // Clean up mock log file if it exists
     try {
       const p = path.join(process.env.HOME!, ".codex", "sessions");
@@ -137,8 +141,8 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
     const data = res.body?.data;
     expect(data?.agentId).toBeDefined();
     expect(data?.tmuxSession).toMatch(/^agent_/);
-  expectLogFileMatches(data?.logFile);
-  expect(data?.sessionId).toBe(sessionId);
+    expectLogFileMatches(data?.logFile);
+    expect(data?.sessionId).toBe(sessionId);
 
     // Verify DB record persisted with expected fields
     const agent = await prisma.agent.findUnique({ where: { id: data.agentId } });
@@ -146,11 +150,11 @@ describe("POST /api/agent/launch (AgentLaunchController)", () => {
     expect(agent?.executionId).toBe("exec-123");
     expect(agent?.role).toBe("engineer");
     expect(agent?.tmuxSession).toMatch(/^agent_/);
-  expect(agent?.sessionId).toBe(sessionId);
-  expectLogFileMatches(agent?.logFile!);
+    expect(agent?.sessionId).toBe(sessionId);
+    expectLogFileMatches(agent?.logFile!);
 
     // Verify the mock log file was created
-  expect(fs.existsSync(data?.logFile)).toBe(true);
+    expect(fs.existsSync(data?.logFile)).toBe(true);
 
     // No lsof/pgrep/tmux expectations anymore; spawn is used and we stubbed it
   });

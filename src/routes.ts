@@ -2,7 +2,8 @@ import { Router, Request, Response } from 'express';
 import HealthController from './controllers/health.controller';
 import CodebaseSetupController from './controllers/codebaseSetup.controller';
 import AgentLaunchController from './controllers/agentLaunch.controller';
-import AgentWatchdogController from './controllers/agentWatchdog.controller';
+import AgentMonitorController from './controllers/agentMonitor.controller';
+import AgentExecuteController from './controllers/agentExecute.controller';
 import ScanTicketsController from './controllers/scanTickets.controller';
 import GitController from './controllers/git.controller';
 
@@ -26,14 +27,17 @@ router.post('/api/commands/git/create-branch', async (req: Request, res: Respons
     return new GitController().handleRequest(req, res);
 });
 
-// Launch Codex Agent endpoint
+// Agent Endpoints
 router.post('/api/agent/launch', async (req: Request, res: Response) => {
     return new AgentLaunchController(req, res).handleRequest();
 });
 
-// Get Agent Watchdog endpoint
-router.post('/api/agent/watch', async (req: Request, res: Response) => {
-    return new AgentWatchdogController(req, res).handleRequest();
+router.post('/api/agent/monitor', async (req: Request, res: Response) => {
+    return new AgentMonitorController(req, res).handleRequest();
+});
+
+router.post('/api/agent/execute', async (req: Request, res: Response) => {
+    return new AgentExecuteController(req, res).handleRequest();
 });
 
 // Scan tickets

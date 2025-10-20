@@ -29,7 +29,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     folderName = `test-setup-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     // The controller will create this path: os.tmpdir() + folderName
     tempDir = path.join(os.tmpdir(), folderName);
-    
+
     // Override SCRIPT_PATH to use test fixtures
     originalScriptPath = process.env.SCRIPT_PATH;
     process.env.SCRIPT_PATH = path.join(__dirname, "../../fixtures/scripts");
@@ -40,7 +40,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     if (fs.existsSync(tempDir)) {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
-    
+
     // Restore original SCRIPT_PATH
     if (originalScriptPath) {
       process.env.SCRIPT_PATH = originalScriptPath;
@@ -51,7 +51,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
   it("executes the setup script and returns 200 with codebase ID and stdout", async () => {
     const prompt = "This is a test project for unit testing.";
-    
+
     const res = await request(app)
       .post("/api/commands/codebase/setup")
       .send({
@@ -68,7 +68,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
     // Verify side effects on filesystem
     expect(fs.existsSync(path.join(tempDir, "agent"))).toBe(true);
-    
+
     // Verify PROJECT.md file is created with correct content
     const projectMdPath = path.join(tempDir, "agent", "PROJECT.md");
     expect(fs.existsSync(projectMdPath)).toBe(true);
@@ -78,14 +78,14 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
   it("saves codebase record to the database", async () => {
     const prompt = "Database test project description.";
-    
+
     const res = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        name: "test-project", 
-        folderName, 
+      .send({
+        name: "test-project",
+        folderName,
         prompt,
-        setup: "test" 
+        setup: "test",
       })
       .expect(200);
 
@@ -108,11 +108,11 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
     const res = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        name: "test-project", 
-        folderName, 
+      .send({
+        name: "test-project",
+        folderName,
         prompt,
-        setup: "test" 
+        setup: "test",
       })
       .expect(200);
 
@@ -133,16 +133,16 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
     const res = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        name: "test-project", 
-        folderName, 
+      .send({
+        name: "test-project",
+        folderName,
         prompt,
-        setup: "test" 
+        setup: "test",
       })
       .expect(200);
 
     expect(res.body.data.codebaseId).toBe(codebase.id);
-    
+
     const updatedCodebase = await prisma.codebase.findFirst({ where: { path: tempDir } });
     expect(updatedCodebase?.setup).toBe(true);
   });
@@ -153,11 +153,11 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     // First run should execute the script and mark setup=true in DB
     const first = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        name: "test-project", 
-        folderName, 
+      .send({
+        name: "test-project",
+        folderName,
         prompt,
-        setup: "test" 
+        setup: "test",
       })
       .expect(200);
 
@@ -170,11 +170,11 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     // Second run should skip script based on DB flag
     const second = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        name: "test-project", 
-        folderName, 
+      .send({
+        name: "test-project",
+        folderName,
         prompt,
-        setup: "test" 
+        setup: "test",
       })
       .expect(200);
 
@@ -192,11 +192,11 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
     const res = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        name: "test-project", 
-        folderName, 
+      .send({
+        name: "test-project",
+        folderName,
         prompt,
-        setup: "failing" 
+        setup: "failing",
       })
       .expect(500);
 
@@ -212,9 +212,9 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
   it("returns 400 when required fields are missing", async () => {
     const resNoName = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        folderName: "test-folder", 
-        prompt: "Test prompt"
+      .send({
+        folderName: "test-folder",
+        prompt: "Test prompt",
       })
       .expect(400);
 
@@ -223,9 +223,9 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
     const resNoFolder = await request(app)
       .post("/api/commands/codebase/setup")
-      .send({ 
-        name: "test-project", 
-        prompt: "Test prompt"
+      .send({
+        name: "test-project",
+        prompt: "Test prompt",
       })
       .expect(400);
 

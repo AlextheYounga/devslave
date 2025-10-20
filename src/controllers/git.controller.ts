@@ -9,8 +9,8 @@ dotenv.config();
 
 type RequestBody = {
   codebaseId: string;
-  message?: string;  // for commit
-  name?: string;     // for create-branch
+  message?: string; // for commit
+  name?: string; // for create-branch
   [key: string]: any;
 };
 
@@ -35,7 +35,7 @@ export default class GitController {
     try {
       // Determine command from URL path
       const command = this.getCommandFromPath(req.path);
-      
+
       if (command === "commit") {
         const codebaseId = this.data.codebaseId;
         const message = this.data.message;
@@ -61,7 +61,7 @@ export default class GitController {
           },
         });
       }
-      
+
       throw new Error(`Unknown command: ${command}`);
     } catch (error: any) {
       console.error("Error in GitController:", error);
@@ -74,34 +74,30 @@ export default class GitController {
   }
 
   private getCommandFromPath(path: string): string {
-    if (path.includes('/commit')) {
-      return 'commit';
+    if (path.includes("/commit")) {
+      return "commit";
     }
-    if (path.includes('/create-branch')) {
-      return 'create-branch';
+    if (path.includes("/create-branch")) {
+      return "create-branch";
     }
     throw new Error(`Unable to determine command from path: ${path}`);
   }
 
   async commit(codebaseId: string, message: string = "Automated commit") {
-    const codebase = await this.getCodebaseById(codebaseId);
+    const codebase = await this.db.codebase.findUniqueOrThrow({
+      where: { id: codebaseId },
+    });
     const scriptPath = `${paths.scripts}/git_commit.sh`;
     const output = execSync(`bash "${scriptPath}" "${codebase?.path}" "${message}"`);
     return output.toString();
   }
 
   async createBranch(codebaseId: string, branchName: string) {
-    const codebase = await this.getCodebaseById(codebaseId);
+    const codebase = await this.db.codebase.findUniqueOrThrow({
+      where: { id: codebaseId },
+    });
     const scriptPath = `${paths.scripts}/git_branch.sh`;
     const output = execSync(`bash "${scriptPath}" "${codebase?.path}" "${branchName}"`);
     return output.toString();
-  }
-
-  private async getCodebaseById(id: string) {
-    const codebase = await this.db.codebase.findUnique({ where: { id } });
-    if (!codebase) {
-      throw new Error(`Codebase with id ${id} not found`);
-    }
-    return codebase;
   }
 }
