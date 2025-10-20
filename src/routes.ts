@@ -31,8 +31,8 @@ router.post('/api/agent/launch', async (req: Request, res: Response) => {
     return new AgentLaunchController(req, res).handleRequest();
 });
 
-// Get Agent Status / Watchdog endpoint
-router.post('/api/agent/status', async (req: Request, res: Response) => {
+// Get Agent Watchdog endpoint
+router.post('/api/agent/watch', async (req: Request, res: Response) => {
     return new AgentWatchdogController(req, res).handleRequest();
 });
 

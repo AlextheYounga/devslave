@@ -47,7 +47,9 @@ export default class AgentWatchdogController {
 
       const watchdogHandler = new AgentWatchdogHandler(this.data.executionId, agent);
 
-      const agentStatus = await watchdogHandler.ping();
+      // Watch the agent until completion - this keeps the HTTP connection open
+      const agentStatus = await watchdogHandler.watch();
+      
       const currentAgent = await this.db.agent.findUnique({
         where: { id: agentId },
       });
@@ -59,10 +61,10 @@ export default class AgentWatchdogController {
         });
       }
 
-      // Fire-and-forget: do not await watchdog completion; respond immediately
-      return this.res.status(202).json({
+      // Return final completion status
+      return this.res.status(200).json({
         success: true,
-        message: `Agent status: ${currentAgent.status}`,
+        message: `Agent completed with status: ${currentAgent.status}`,
         data: {
           ...this.data,
           ...agentStatus.data,

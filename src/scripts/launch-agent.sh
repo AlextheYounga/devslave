@@ -10,13 +10,34 @@ if [[ -z "$project_path" || -z "$prompt" || -z "$session_name" ]]; then
   exit 1
 fi
 
-# Start a detached tmux session with working directory set to project_path,
-# and exec codex with proper argv (no manual string escaping needed).
-tmux new-session -d -s "$session_name" -c "$project_path" \
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+repo_root="$(cd "${script_dir}/../.." && pwd)"
+
+run_codex() {
   /root/.nvm/versions/node/v22.20.0/bin/codex \
-   --dangerously-bypass-approvals-and-sandbox --cd="$project_path" "$prompt"
+    --dangerously-bypass-approvals-and-sandbox --cd="$project_path" "$prompt"
+}
 
-# Get tmux pane status
-tmux_status=$(tmux list-panes -t "$session_name" -F "#{pane_active}:#{pane_pid}" | head -n 1)
+export -f run_codex
 
-echo "OK: ${tmux_status}"
+launch_tmux_codex() {
+  # Start a detached tmux session with working directory set to project_path,
+  # and exec codex with proper argv (no manual string escaping needed).
+  tmux new-session -d -s "$session_name" -c "$project_path"
+  tmux setw -t "$session_name":0 monitor-silence 60
+  tmux set-hook -g alert-silence \
+    'run-shell "tmux kill-session -t #{session_name}"'
+  tmux send-keys -t "$session_name" "bash -c 'run_codex'" C-m
+}
+
+main() {
+  launch_tmux_codex
+
+  # Get tmux pane status
+  tmux_status=$(tmux list-panes -t "$session_name" -F "#{pane_active}:#{pane_pid}" | head -n 1)
+
+  echo "OK: ${tmux_status}"
+}
+
+main
+
