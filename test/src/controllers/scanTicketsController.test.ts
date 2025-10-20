@@ -25,7 +25,7 @@ describe("POST /api/tickets/scan (ScanTicketsController)", () => {
   beforeEach(async () => {
     jest.setTimeout(10000);
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "test-scan-tickets-"));
-    
+
     // Create a codebase in the database
     const codebase = await prisma.codebase.create({
       data: {
@@ -68,7 +68,7 @@ describe("POST /api/tickets/scan (ScanTicketsController)", () => {
 
     it("scans and creates new tickets", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       // Create test ticket files
       fs.writeFileSync(
         path.join(ticketsDir, "001-first-ticket.md"),
@@ -110,7 +110,7 @@ status: in-progress
       expect(res.body.success).toBe(true);
       expect(res.body.message).toBe("Tickets scanned successfully");
       expect(res.body.data.tickets).toHaveLength(2);
-      
+
       // Verify the returned ticket data includes action
       expect(res.body.data.tickets[0]).toMatchObject({
         ticketId: "001",
@@ -119,7 +119,7 @@ status: in-progress
         action: "created",
       });
       expect(res.body.data.tickets[1]).toMatchObject({
-        ticketId: "002", 
+        ticketId: "002",
         title: "Second Ticket",
         status: "IN_PROGRESS",
         action: "created",
@@ -128,7 +128,7 @@ status: in-progress
       // Verify tickets were created in database
       const tickets = await prisma.ticket.findMany({
         where: { codebaseId },
-        orderBy: { ticketId: 'asc' },
+        orderBy: { ticketId: "asc" },
       });
 
       expect(tickets).toHaveLength(2);
@@ -148,7 +148,7 @@ status: in-progress
 
     it("detects status changes and fires events", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       // First, create a ticket in the database
       await prisma.ticket.create({
         data: {
@@ -204,7 +204,7 @@ status: closed
       });
 
       // Wait a bit for async event to be persisted
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify TicketStatusChanged event was created
       const statusChangeEvent = await prisma.events.findFirst({
@@ -215,7 +215,7 @@ status: closed
 
     it("skips files without required frontmatter", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       // Create invalid ticket files
       fs.writeFileSync(
         path.join(ticketsDir, "invalid-no-id.md"),
@@ -263,7 +263,7 @@ Valid content
       expect(res.body.data.tickets).toHaveLength(1);
       expect(res.body.data.tickets[0]).toMatchObject({
         ticketId: "003",
-        title: "Valid Ticket", 
+        title: "Valid Ticket",
         status: "OPEN",
         action: "created",
       });
@@ -278,7 +278,7 @@ Valid content
 
     it("handles various status string formats", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       fs.writeFileSync(
         path.join(ticketsDir, "001-ticket-hyphen.md"),
         `---
@@ -343,7 +343,7 @@ Content
 
     it("handles both numeric and string IDs correctly", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       // Create tickets with numeric and string IDs
       fs.writeFileSync(
         path.join(ticketsDir, "123-ticket-numeric.md"),
@@ -384,7 +384,7 @@ Content with string ID
 
     it("handles QA_CHANGES_REQUESTED status in different formats", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       fs.writeFileSync(
         path.join(ticketsDir, "001-ticket-underscore.md"),
         `---
@@ -437,7 +437,7 @@ Content
 
     it("defaults to OPEN status for unknown status values", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       fs.writeFileSync(
         path.join(ticketsDir, "001-ticket-unknown-status.md"),
         `---
@@ -463,7 +463,7 @@ Content
 
     it("filters non-markdown files", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       // Create various file types
       fs.writeFileSync(
         path.join(ticketsDir, "001-ticket.md"),
@@ -504,14 +504,14 @@ Content
         .expect(200);
 
       expect(res.body.data.tickets).toHaveLength(2); // Only .md files
-      
+
       const ticketIds = res.body.data.tickets.map((t: any) => t.ticketId);
       expect(ticketIds).toEqual(["001", "003"]);
     });
 
     it("handles empty content gracefully", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       fs.writeFileSync(
         path.join(ticketsDir, "001-empty-content.md"),
         `---
@@ -565,7 +565,7 @@ status: open
         .expect(500);
 
       // Wait a bit for async event to be persisted
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const failedEvent = await prisma.events.findFirst({
         where: { type: "ScanningTicketsFailed" },
@@ -584,7 +584,7 @@ status: open
 
     it("creates appropriate events for successful scan", async () => {
       const ticketsDir = path.join(tempDir, "agent", "tickets");
-      
+
       fs.writeFileSync(
         path.join(ticketsDir, "001-test-ticket.md"),
         `---
@@ -605,7 +605,7 @@ Content
         .expect(200);
 
       // Wait a bit for async events to be persisted
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Check for ScanningTicketsStarted event
       const startedEvent = await prisma.events.findFirst({

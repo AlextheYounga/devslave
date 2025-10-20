@@ -31,38 +31,12 @@ export default class ScanTicketsController {
     this.data = this.req.body;
   }
 
-  // Convert string status from frontmatter to TicketStatus enum
-  private mapStatus(status: string): TicketStatus {
-    const statusMap: Record<string, TicketStatus> = {
-      "OPEN": TicketStatus.OPEN,
-      "IN_PROGRESS": TicketStatus.IN_PROGRESS,
-      "QA_REVIEW": TicketStatus.QA_REVIEW,
-      "QA_CHANGES_REQUESTED": TicketStatus.QA_CHANGES_REQUESTED,
-      "CLOSED": TicketStatus.CLOSED,
-    };
-
-    // Normalize status: replace underscores with hyphens, uppercase, and trim
-    const normalizedStatus = status.toUpperCase().trim().replace(/_/g, "_").replace(/-/g, "_");
-    return statusMap[normalizedStatus] ?? TicketStatus.OPEN;
-  }
-
-  private createBranchName(ticketId: string) {
-    return `feat/ticket-${ticketId}`;
-  }
-
   async handleRequest() {
     try {
       const { codebaseId } = this.data as RequestBody;
       new ScanningTicketsStarted(this.data).publish();
 
-      const codebase = await this.db.codebase.findUnique({
-        where: { id: codebaseId },
-      });
-
-      if (!codebase) {
-        throw new Error(`Codebase with id ${codebaseId} not found`);
-      }
-
+      const codebase = await this.getCodebaseById(codebaseId);
       const ticketsFolder = path.join(codebase.path, `${AGENT_FOLDER}/tickets`);
 
       if (!existsSync(ticketsFolder)) {
@@ -79,107 +53,12 @@ export default class ScanTicketsController {
         });
       }
 
-      const ticketFiles = readdirSync(ticketsFolder).filter(
-        (file) => file.endsWith(".md") || file.endsWith(".markdown")
+      const ticketFiles = this.getTicketFiles(ticketsFolder);
+      const scannedTickets = await this.processTicketFiles(
+        ticketFiles,
+        ticketsFolder,
+        codebaseId
       );
-
-      const scannedTickets = [];
-
-      for (const ticketFile of ticketFiles) {
-        const ticketPath = path.join(ticketsFolder, ticketFile);
-        const ticketContent = readFileSync(ticketPath, "utf-8");
-        const { data: frontmatter, content } = matter(ticketContent);
-
-        // Skip files without required frontmatter
-        if (!frontmatter.id || !frontmatter.title) {
-          console.warn(`Skipping ${ticketFile}: missing required fields (id, title)`);
-          continue;
-        }
-
-        const ticketId = String(frontmatter.id);
-        const title = String(frontmatter.title);
-        const status = this.mapStatus(frontmatter.status || "open");
-        const description = content.trim() || null;
-
-        // Check if ticket exists
-        const existingTicket = await this.db.ticket.findFirst({
-          where: {
-            codebaseId,
-            ticketId,
-          },
-        });
-
-        let ticketRecord;
-        let action: "created" | "updated" | "unchanged";
-
-        if (!existingTicket) {
-          // Create new ticket
-          const branchName = this.createBranchName(ticketId);
-          ticketRecord = await this.db.ticket.create({
-            data: {
-              codebaseId,
-              ticketId,
-              title,
-              branchName,
-              description,
-              status,
-            },
-          });
-
-          action = "created";
-
-          new TicketCreated({
-            ...this.data,
-            ticket: {
-              id: ticketRecord.id,
-              ticketId: ticketRecord.ticketId,
-              title: ticketRecord.title,
-              status: ticketRecord.status,
-            },
-          }).publish();
-        } else {
-          // Check if status changed
-          if (existingTicket.status !== status) {
-            ticketRecord = await this.db.ticket.update({
-              where: { id: existingTicket.id },
-              data: {
-                title,
-                description,
-                status,
-              },
-            });
-
-            action = "updated";
-
-            new TicketStatusChanged({
-              ...this.data,
-              ticket: {
-                id: existingTicket.id,
-                ticketId: existingTicket.ticketId,
-                title,
-                oldStatus: existingTicket.status,
-                newStatus: status,
-              },
-            }).publish();
-          } else {
-            // Update title and description but no status change
-            ticketRecord = await this.db.ticket.update({
-              where: { id: existingTicket.id },
-              data: {
-                title,
-                description,
-              },
-            });
-
-            action = "unchanged";
-          }
-        }
-
-        scannedTickets.push({
-          ...ticketRecord,
-          action,
-        });
-      }
 
       new ScanningTicketsComplete({
         ...this.data,
@@ -209,6 +88,179 @@ export default class ScanTicketsController {
         success: false,
         error: error?.message ?? String(error),
       });
+    }
+  }
+
+  // Convert string status from frontmatter to TicketStatus enum
+  private mapStatus(status: string): TicketStatus {
+    const statusMap: Record<string, TicketStatus> = {
+      OPEN: TicketStatus.OPEN,
+      IN_PROGRESS: TicketStatus.IN_PROGRESS,
+      QA_REVIEW: TicketStatus.QA_REVIEW,
+      QA_CHANGES_REQUESTED: TicketStatus.QA_CHANGES_REQUESTED,
+      CLOSED: TicketStatus.CLOSED,
+    };
+
+    // Normalize status: replace underscores with hyphens, uppercase, and trim
+    const normalizedStatus = status
+      .toUpperCase()
+      .trim()
+      .replace(/_/g, "_")
+      .replace(/-/g, "_");
+    return statusMap[normalizedStatus] ?? TicketStatus.OPEN;
+  }
+
+  private createBranchName(ticketId: string) {
+    return `feat/ticket-${ticketId}`;
+  }
+
+  private async getCodebaseById(codebaseId: string) {
+    const codebase = await this.db.codebase.findUnique({
+      where: { id: codebaseId },
+    });
+
+    if (!codebase) {
+      throw new Error(`Codebase with id ${codebaseId} not found`);
+    }
+
+    return codebase;
+  }
+
+  private getTicketFiles(ticketsFolder: string): string[] {
+    return readdirSync(ticketsFolder).filter(
+      (file) => file.endsWith(".md") || file.endsWith(".markdown")
+    );
+  }
+
+  private async processTicketFiles(
+    ticketFiles: string[],
+    ticketsFolder: string,
+    codebaseId: string
+  ) {
+    const scannedTickets = [];
+
+    for (const ticketFile of ticketFiles) {
+      const ticketData = this.parseTicketFile(ticketsFolder, ticketFile);
+
+      if (!ticketData) {
+        continue;
+      }
+
+      const ticketRecord = await this.upsertTicket(ticketData, codebaseId);
+      scannedTickets.push(ticketRecord);
+    }
+
+    return scannedTickets;
+  }
+
+  private parseTicketFile(ticketsFolder: string, ticketFile: string) {
+    const ticketPath = path.join(ticketsFolder, ticketFile);
+    const ticketContent = readFileSync(ticketPath, "utf-8");
+    const { data: frontmatter, content } = matter(ticketContent);
+
+    // Skip files without required frontmatter
+    if (!frontmatter.id || !frontmatter.title) {
+      console.warn(`Skipping ${ticketFile}: missing required fields (id, title)`);
+      return null;
+    }
+
+    const ticketId = String(frontmatter.id);
+    const title = String(frontmatter.title);
+    const status = this.mapStatus(frontmatter.status || "open");
+    const description = content.trim() || null;
+
+    return { ticketId, title, status, description };
+  }
+
+  private async upsertTicket(ticketData: any, codebaseId: string) {
+    const { ticketId, title, status, description } = ticketData;
+
+    const existingTicket = await this.db.ticket.findFirst({
+      where: {
+        codebaseId,
+        ticketId,
+      },
+    });
+
+    if (!existingTicket) {
+      return await this.createNewTicket(ticketData, codebaseId);
+    } else {
+      return await this.updateExistingTicket(existingTicket, ticketData);
+    }
+  }
+
+  private async createNewTicket(ticketData: any, codebaseId: string) {
+    const { ticketId, title, status, description } = ticketData;
+    const branchName = this.createBranchName(ticketId);
+
+    const ticketRecord = await this.db.ticket.create({
+      data: {
+        codebaseId,
+        ticketId,
+        title,
+        branchName,
+        description,
+        status,
+      },
+    });
+
+    new TicketCreated({
+      ...this.data,
+      ticket: {
+        id: ticketRecord.id,
+        ticketId: ticketRecord.ticketId,
+        title: ticketRecord.title,
+        status: ticketRecord.status,
+      },
+    }).publish();
+
+    return {
+      ...ticketRecord,
+      action: "created" as const,
+    };
+  }
+
+  private async updateExistingTicket(existingTicket: any, ticketData: any) {
+    const { title, status, description } = ticketData;
+
+    if (existingTicket.status !== status) {
+      const ticketRecord = await this.db.ticket.update({
+        where: { id: existingTicket.id },
+        data: {
+          title,
+          description,
+          status,
+        },
+      });
+
+      new TicketStatusChanged({
+        ...this.data,
+        ticket: {
+          id: existingTicket.id,
+          ticketId: existingTicket.ticketId,
+          title,
+          oldStatus: existingTicket.status,
+          newStatus: status,
+        },
+      }).publish();
+
+      return {
+        ...ticketRecord,
+        action: "updated" as const,
+      };
+    } else {
+      const ticketRecord = await this.db.ticket.update({
+        where: { id: existingTicket.id },
+        data: {
+          title,
+          description,
+        },
+      });
+
+      return {
+        ...ticketRecord,
+        action: "unchanged" as const,
+      };
     }
   }
 }
