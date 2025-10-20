@@ -1,12 +1,12 @@
 import request from "supertest";
 import express from "express";
 import cors from "cors";
-import * as fs from "fs";
-import * as path from "path";
-import * as os from "os";
+import { exec } from "child_process";
+import { promisify } from "util";
 import routes from "../../../src/routes";
 import prisma from "../../client";
-import { SENTINEL } from "../../../src/constants";
+
+const execAsync = promisify(exec);
 
 // Build an in-memory Express app that mirrors server.ts
 function buildApp() {
@@ -17,122 +17,114 @@ function buildApp() {
   return app;
 }
 
-describe("POST /api/agent/status (AgentMonitorController)", () => {
+describe("POST /api/agent/:id/monitor (AgentMonitorController)", () => {
   const app = buildApp();
-  let tempDir: string;
 
   beforeAll(() => {
     jest.setTimeout(30000);
   });
 
   beforeEach(async () => {
-    // Fresh temp dir and clean Agents for deterministic assertions
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "test-watchdog-"));
+    // Clean Agents for deterministic assertions
     await prisma.agent.deleteMany();
   });
 
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  it("returns 202 and RUNNING status when session log has no sentinel", async () => {
-    // Prepare a JSONL log without the sentinel
-    const logPath = path.join(tempDir, `session-${Date.now()}.jsonl`);
-    const jsonl = JSON.stringify({ step: 1, msg: "working" }) + "\n"; // one valid JSON line
-    fs.writeFileSync(logPath, jsonl, "utf-8");
-
-    // Seed an Agent pointing at the log; pid unset so watchdog won't try to kill anything
+  it("monitors agent and updates status from LAUNCHED to RUNNING to COMPLETED", async () => {
+    // Create a mock tmux session name
+    const mockSessionName = `test-session-${Date.now()}`;
+    
+    // Seed an Agent with a tmux session
     const agent = await prisma.agent.create({
       data: {
-        executionId: "exec-run",
+        executionId: "exec-monitor",
         role: "engineer",
         status: "LAUNCHED",
-        logFile: logPath,
-        tmuxSession: null,
+        tmuxSession: mockSessionName,
       },
     });
 
-    const res = await request(app)
-      .post("/api/agent/status")
-      .send({
-        executionId: "exec-run",
-        agentId: agent.id,
-      })
-      .expect(202);
-
-    expect(res.body?.success).toBe(true);
-    expect(res.body?.message).toContain("Agent status: RUNNING");
-    expect(res.body?.data?.agentId ?? res.body?.data?.agent?.id).toBeDefined();
-
-    // Verify DB updated to RUNNING and context parsed with only valid JSON lines
-    const current = await prisma.agent.findUnique({ where: { id: agent.id } });
-    expect(current?.status).toBe("RUNNING");
-    const context = (current?.context as any[]) ?? [];
-    expect(Array.isArray(context)).toBe(true);
-    expect(context.length).toBe(1);
-    expect(context[0]?.step).toBe(1);
-  });
-
-  it("returns 202 and COMPLETED status when session log contains sentinel", async () => {
-    // Prepare a JSONL log with the sentinel to indicate completion
-    const logPath = path.join(tempDir, `session-${Date.now()}-done.jsonl`);
-    const lines = [
-      JSON.stringify({ step: 1, msg: "phase A" }),
-      SENTINEL, // not JSON; should be ignored by parser but used for completion detection
-    ].join("\n");
-    fs.writeFileSync(logPath, lines + "\n", "utf-8");
-
-    const agent = await prisma.agent.create({
-      data: {
-        executionId: "exec-done",
-        role: "engineer",
-        status: "LAUNCHED",
-        logFile: logPath,
-        tmuxSession: null,
-      },
+    // Mock the tmux has-session command to simulate session lifecycle
+    const originalExec = require("child_process").exec;
+    let callCount = 0;
+    const mockExec = jest.fn((cmd: string, callback: any) => {
+      callCount++;
+      if (cmd.includes(`tmux has-session -t ${mockSessionName}`)) {
+        // First few calls: session exists (agent is running)
+        // Last call: session doesn't exist (agent completed)
+        if (callCount <= 2) {
+          callback(null, "session exists");
+        } else {
+          callback(new Error("session not found"), "");
+        }
+      } else {
+        originalExec(cmd, callback);
+      }
     });
+    
+    require("child_process").exec = mockExec;
 
-    const res = await request(app)
-      .post("/api/agent/status")
-      .send({
-        executionId: "exec-done",
-        agentId: agent.id,
-      })
-      .expect(202);
+    // Start monitoring - this should complete when the mock session "dies"
+    const monitorPromise = request(app)
+      .post(`/api/agent/${agent.id}/monitor`)
+      .expect(200);
+
+    const res = await monitorPromise;
 
     expect(res.body?.success).toBe(true);
-    expect(res.body?.message).toContain("Agent status: COMPLETED");
+    expect(res.body?.message).toContain("Agent completed with status: COMPLETED");
 
-    const current = await prisma.agent.findUnique({ where: { id: agent.id } });
-    expect(current?.status).toBe("COMPLETED");
-    const context = (current?.context as any[]) ?? [];
-    expect(context.length).toBe(1);
-    expect(context[0]?.msg).toBe("phase A");
+    // Verify DB updated to COMPLETED
+    const finalAgent = await prisma.agent.findUnique({ where: { id: agent.id } });
+    expect(finalAgent?.status).toBe("COMPLETED");
+
+    // Restore original exec
+    require("child_process").exec = originalExec;
   });
 
-  it("returns 400 when agentId or executionId missing (watchdog-negative)", async () => {
-    const res1 = await request(app)
-      .post("/api/agent/status")
-      .send({ agentId: "abc" })
-      .expect(400);
-    expect(res1.body?.success).toBe(false);
-    expect(res1.body?.error).toContain("agentId and executionId are required");
-
-    const res2 = await request(app)
-      .post("/api/agent/status")
-      .send({ executionId: "exec-x" })
-      .expect(400);
-    expect(res2.body?.success).toBe(false);
-    expect(res2.body?.error).toContain("agentId and executionId are required");
-  });
-
-  it("returns 400 when agent does not exist", async () => {
+  it("returns 500 when agent does not exist", async () => {
     const res = await request(app)
-      .post("/api/agent/status")
-      .send({ executionId: "exec-404", agentId: "non-existent" })
-      .expect(400);
+      .post("/api/agent/non-existent-id/monitor")
+      .expect(500);
 
     expect(res.body?.success).toBe(false);
-    expect(res.body?.error).toContain("Valid agent is required");
+    expect(res.body?.error).toBeDefined();
+  });
+
+  it("handles agent without tmux session gracefully", async () => {
+    // Create agent without tmux session
+    const agent = await prisma.agent.create({
+      data: {
+        executionId: "exec-no-tmux",
+        role: "engineer", 
+        status: "LAUNCHED",
+        tmuxSession: null,
+      },
+    });
+
+    // Mock tmux command to fail immediately for null session
+    const originalExec = require("child_process").exec;
+    const mockExec = jest.fn((cmd: string, callback: any) => {
+      if (cmd.includes("tmux has-session -t null")) {
+        callback(new Error("session not found"), "");
+      } else {
+        originalExec(cmd, callback);
+      }
+    });
+    
+    require("child_process").exec = mockExec;
+
+    const res = await request(app)
+      .post(`/api/agent/${agent.id}/monitor`)
+      .expect(200);
+
+    expect(res.body?.success).toBe(true);
+    expect(res.body?.message).toContain("Agent completed with status: COMPLETED");
+
+    // Should immediately mark as completed since no session exists
+    const finalAgent = await prisma.agent.findUnique({ where: { id: agent.id } });
+    expect(finalAgent?.status).toBe("COMPLETED");
+
+    // Restore original exec
+    require("child_process").exec = originalExec;
   });
 });

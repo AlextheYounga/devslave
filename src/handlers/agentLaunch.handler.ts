@@ -32,27 +32,34 @@ export default class AgentLaunchHandler {
   }
 
   async launch() {
-    const projectPath = this.codebase.path;
-    const prompt = this.params.prompt;
+    const codebaseId = this.codebase.id;
     const scriptFile = `${paths.scripts}/launch-agent.sh`;
     const agentRecord = await this.createAgentRecord();
     this.tmuxSession = `agent_${agentRecord.id}`;
+    await this.updateAgentRecord(agentRecord.id, {
+      tmuxSession: this.tmuxSession,
+    });
 
-    console.log(
-      `[AgentProcessHandler] Executing command: bash ${scriptFile} ${projectPath} ${this.tmuxSession} ${prompt}`
-    );
+    const commandArgs = [scriptFile, codebaseId, agentRecord.id];
+    console.log(`[AgentProcessHandler] Executing command: bash ${commandArgs.join(" ")}`);
 
     // Snapshot baseline of session files as close as possible to launch time
     this.logFiles = this.getAllLogFiles();
 
-    spawn("bash", [scriptFile, projectPath, this.tmuxSession, prompt], {
+    spawn("bash", commandArgs, {
       detached: true,
       stdio: "ignore",
     }).unref(); // Allow parent to exit without waiting
 
+    new AgentLaunched(this.eventData).publish();
+
     const logFile = await this.getAgentLogFile();
     const sessionId = this.extractSessionId(logFile!);
-    await this.updateAgentRecord(agentRecord.id, logFile!, sessionId);
+    await this.updateAgentRecord(agentRecord.id, {
+      logFile: logFile,
+      sessionId: sessionId,
+      status: AgentStatus.LAUNCHED,
+    });
 
     return {
       agentId: agentRecord.id,
@@ -136,28 +143,15 @@ export default class AgentLaunchHandler {
     return record;
   }
 
-  private async updateAgentRecord(
-    id: string,
-    logFile: string,
-    sessionId: string | undefined
-  ) {
+  private async updateAgentRecord(id: string, data: any) {
     this.eventData = {
       ...this.eventData,
-      logFile: logFile,
-      sessionId: sessionId ?? null,
-      tmuxSession: this.tmuxSession ?? null,
+      ...data,
     };
-
-    new AgentLaunched(this.eventData).publish();
 
     await this.db.agent.update({
       where: { id: id },
-      data: {
-        logFile: logFile,
-        sessionId: sessionId ?? null,
-        tmuxSession: this.tmuxSession ?? null,
-        status: AgentStatus.LAUNCHED,
-      },
+      data: data,
     });
   }
 

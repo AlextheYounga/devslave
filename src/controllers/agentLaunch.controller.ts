@@ -29,11 +29,18 @@ export default class AgentLaunchController {
     try {
       const { prompt, codebaseId, executionId, role } = this.data as RequestBody;
 
-      const codebase = await this.db.codebase.findUniqueOrThrow({
+      if (!prompt || !codebaseId || !executionId || !role) {
+        return this.res.status(400).json({
+          success: false,
+          error: "prompt, valid codebaseId, role, and executionId are required",
+        });
+      }
+
+      const codebase = await this.db.codebase.findUnique({
         where: { id: codebaseId },
       });
 
-      if (!prompt || !codebaseId || !codebase || !executionId || !role) {
+      if (!codebase) {
         return this.res.status(400).json({
           success: false,
           error: "prompt, valid codebaseId, role, and executionId are required",
