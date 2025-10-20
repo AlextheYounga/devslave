@@ -111,6 +111,7 @@ export default class CodebaseSetupController {
     const scriptOutput = execSync(`bash "${scriptFile}" "${codebaseId}"`, {
       stdio: "pipe",
       encoding: "utf-8",
+      env: { ...process.env }, // Pass current environment to script
     });
     return scriptOutput;
   }

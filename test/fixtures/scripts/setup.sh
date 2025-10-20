@@ -2,14 +2,43 @@
 set -euo pipefail
 
 # Args
-setup_type=$1
-project_path=$2
-agent_folder=${3:-"agent"}
+codebase_id=${1:-}
 
-if [[ -z "${setup_type}" || -z "${project_path}" ]]; then
-  echo "Usage: $0 <setup_type: node|python|test|failing> <project_path> [agent_folder]" >&2
+if [[ -z "${codebase_id}" ]]; then
+  echo "Usage: $0 <codebase_id>" >&2
   exit 1
 fi
+
+get_codebase_by_id() {
+    local codebase_id=$1
+    local codebase_record
+    
+    # Use test database path from DB_ABSOLUTE_URL env var
+    local test_db_path="$DB_ABSOLUTE_URL"
+    sql="SELECT * FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
+    codebase_record=$(sqlite3 "$test_db_path" "$sql")
+    
+    if [[ -z "$codebase_record" ]]; then
+        echo "Error: Codebase with ID $codebase_id not found." >&2
+        return 1
+    fi
+    
+    echo "$codebase_record"
+}
+
+# Database queries
+codebase=$(get_codebase_by_id "$codebase_id")
+codebase_data=$(echo "$codebase" | cut -d'|' -f5)
+
+# Handle NULL or empty data field by providing default JSON
+if [[ -z "$codebase_data" || "$codebase_data" == "NULL" ]]; then
+    codebase_data='{"setupType": "test", "masterPrompt": ""}'
+fi
+
+setup_type=$(echo "$codebase_data" | jq -r '.setupType // "test"')
+master_prompt=$(echo "$codebase_data" | jq -r '.masterPrompt // ""')
+project_path=$(echo "$codebase" | cut -d'|' -f3)
+agent_folder="agent"
 
 echo "Setting up ${setup_type} project at: ${project_path}"
 
@@ -19,6 +48,9 @@ setup_agent_folder() {
     mkdir -p "${project_path}/docs"
     mkdir -p "${project_path}/${agent_folder}/tickets"
     mkdir -p "${project_path}/${agent_folder}/scripts"
+    
+    # Create PROJECT.md with master prompt content (using printf to avoid trailing newline)
+    printf "%s" "${master_prompt}" > "${project_path}/${agent_folder}/PROJECT.md"
     
     # Create a mock git_commit.sh script that doesn't actually commit
     cat > "${project_path}/${agent_folder}/scripts/git_commit.sh" << 'EOF'

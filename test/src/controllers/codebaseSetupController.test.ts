@@ -219,7 +219,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
       .expect(400);
 
     expect(resNoName.body?.success).toBe(false);
-    expect(resNoName.body?.error).toBe("name and folderName are required");
+    expect(resNoName.body?.error).toBe("name, folderName, and prompt are required");
 
     const resNoFolder = await request(app)
       .post("/api/commands/codebase/setup")
@@ -230,24 +230,27 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
       .expect(400);
 
     expect(resNoFolder.body?.success).toBe(false);
-    expect(resNoFolder.body?.error).toBe("name and folderName are required");
+    expect(resNoFolder.body?.error).toBe("name, folderName, and prompt are required");
   });
 
-  it("works without prompt parameter (optional field)", async () => {
+  it("works with all required parameters", async () => {
     const res = await request(app)
       .post("/api/commands/codebase/setup")
       .send({
         name: "test-project",
         folderName,
+        prompt: "Default prompt for testing",
         setup: "node",
       })
       .expect(200);
 
     expect(res.body?.success).toBe(true);
 
-    // Verify PROJECT.md is created but may be empty when no prompt provided
+    // Verify PROJECT.md is created with correct content
     const projectMdPath = path.join(tempDir, "agent", "PROJECT.md");
     expect(fs.existsSync(projectMdPath)).toBe(true);
+    const projectContent = fs.readFileSync(projectMdPath, "utf-8");
+    expect(projectContent).toBe("Default prompt for testing");
   });
 
   it("creates PROJECT.md with multi-line prompt content", async () => {
@@ -291,13 +294,9 @@ This is a multi-line prompt with:
         prompt,
         setup: "node",
       })
-      .expect(200);
+      .expect(400);
 
-    expect(res.body?.success).toBe(true);
-
-    const projectMdPath = path.join(tempDir, "agent", "PROJECT.md");
-    expect(fs.existsSync(projectMdPath)).toBe(true);
-    const projectContent = fs.readFileSync(projectMdPath, "utf-8");
-    expect(projectContent).toBe("");
+    expect(res.body?.success).toBe(false);
+    expect(res.body?.error).toBe("name, folderName, and prompt are required");
   });
 });
