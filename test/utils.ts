@@ -1,11 +1,11 @@
 import prisma from "./client";
 
-export function refreshDatabase() {
+export async function refreshDatabase() {
   if (process.env.NODE_ENV === "test") {
     // Delete in order to respect foreign key constraints
-    prisma.events.deleteMany();
-    prisma.ticket.deleteMany();
-    prisma.agent.deleteMany();
-    prisma.codebase.deleteMany();
+    await prisma.events.deleteMany();
+    await prisma.agent.deleteMany();
+    await prisma.ticket.deleteMany();
+    await prisma.codebase.deleteMany();
   }
 }

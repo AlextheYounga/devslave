@@ -14,7 +14,7 @@ beforeAll(async () => {
 
 if (noRefreshDB === false) {
   beforeEach(async () => {
-    refreshDatabase();
+    await refreshDatabase();
   });
 } else {
   console.log("Not refreshing database after each test.");
