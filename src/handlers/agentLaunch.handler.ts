@@ -119,7 +119,7 @@ export default class AgentLaunchHandler {
       data: {
         executionId: this.executionId,
         role: this.params?.role ?? null,
-        inputs: this.params,
+        prompt: this.params.prompt,
       },
     });
 

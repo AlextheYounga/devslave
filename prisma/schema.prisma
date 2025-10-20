@@ -28,9 +28,8 @@ model Agent {
   tmuxSession String?
   role        String?
   logFile     String?
+  prompt      String?
   status      AgentStatus @default(PREPARING)
-  inputs      Json?
-  context     Json?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 

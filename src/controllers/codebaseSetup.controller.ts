@@ -40,18 +40,20 @@ export default class CodebaseSetupController {
     try {
       const { name, folderName, prompt } = this.data as RequestBody;
 
-      if (!name || !folderName) {
+      if (!name || !folderName || !prompt) {
         return this.res.status(400).json({
           success: false,
-          error: "name and folderName are required",
+          error: "name, folderName, and prompt are required",
         });
       }
 
       new CodebaseSetupStarted(this.data).publish();
       const projectPath = path.join(paths.devWorkspace, folderName);
+      
+      // Save codebase to DB first so setup script can find it
+      const codebase = await this.saveCodebase(projectPath, prompt);
 
       // Idempotency: use DB flag to determine if setup already completed
-      const codebase = await this.saveCodebase(name, projectPath);
       if (codebase.setup && fs.existsSync(projectPath)) {
         new CodebaseAlreadySetup(this.data).publish();
         return this.res.status(200).json({
@@ -64,12 +66,8 @@ export default class CodebaseSetupController {
         });
       }
 
-      // Create PROJECT.md file from prompt
-      fs.mkdirSync(`${projectPath}/${AGENT_FOLDER}`, { recursive: true });
-      const projectMdPath = path.join(projectPath, `/${AGENT_FOLDER}/PROJECT.md`);
-      fs.writeFileSync(projectMdPath, prompt || "", { encoding: "utf-8" });
-
-      const scriptOutput = await this.runSetupScript(projectPath);
+      // Setup script handles PROJECT.md creation and all setup logic
+      const scriptOutput = await this.runSetupScript(codebase.id);
 
       // Update codebase to mark setup as completed
       await this.db.codebase.update({
@@ -106,21 +104,31 @@ export default class CodebaseSetupController {
     }
   }
 
-  private async runSetupScript(projectPath: string) {
-    const { setup = "node" } = this.data as RequestBody;
+  private async runSetupScript(codebaseId: string) {
     const scriptFile = `${paths.scripts}/setup.sh`;
 
     // Execute via bash for portability and proper error codes; quote args
-    const scriptOutput = execSync(`bash "${scriptFile}" "${setup}" "${projectPath}"`, {
+    const scriptOutput = execSync(`bash "${scriptFile}" "${codebaseId}"`, {
       stdio: "pipe",
       encoding: "utf-8",
     });
     return scriptOutput;
   }
 
-  private async saveCodebase(name: string, projectPath: string) {
-    const existing = await this.db.codebase.findFirst({ where: { path: projectPath } });
+  private async saveCodebase(projectPath: string, prompt: string) {
+    const existing = await this.db.codebase.findFirst({
+      where: { path: projectPath },
+    });
     if (existing) return existing;
-    return await this.db.codebase.create({ data: { name, path: projectPath } });
+    return await this.db.codebase.create({
+      data: {
+        name: this.data.name,
+        path: projectPath,
+        data: {
+          masterPrompt: prompt,
+          setupType: this.data.setup || "default",
+        },
+      },
+    });
   }
 }

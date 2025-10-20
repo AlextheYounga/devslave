@@ -2,7 +2,7 @@ FROM debian:bookworm-slim
 
 # Install dependencies
 RUN apt-get update && apt-get install -y curl ca-certificates gnupg \
-    git zip unzip nano tree rsync sqlite3 tmux htop openssh-server lsof \
+    git zip unzip nano tree rsync sqlite3 tmux htop openssh-server lsof jq \
     && apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -71,6 +71,20 @@ RUN npm install -g prisma
 # Prepare directory structure before copying
 RUN mkdir -p /app/agent /app/dev \
     && chmod 775 /app/dev
+
+# Set up global environment variables
+RUN echo 'export AGENT_REPO=${AGENT_REPO}' >> /etc/bash.bashrc \
+    && echo 'export DEV_WORKSPACE=${DEV_WORKSPACE}' >> /etc/bash.bashrc \
+    && echo 'export DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}' >> /etc/bash.bashrc \
+    && echo 'export GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}' >> /etc/bash.bashrc \
+    && echo 'export GIT_USERNAME=${GIT_USERNAME}' >> /etc/bash.bashrc \
+    && echo 'export GIT_EMAIL=${GIT_EMAIL}' >> /etc/bash.bashrc \
+    && echo 'AGENT_REPO=${AGENT_REPO}' >> /etc/environment \
+    && echo 'DEV_WORKSPACE=${DEV_WORKSPACE}' >> /etc/environment \
+    && echo 'DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}' >> /etc/environment \
+    && echo 'GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}' >> /etc/environment \
+    && echo 'GIT_USERNAME=${GIT_USERNAME}' >> /etc/environment \
+    && echo 'GIT_EMAIL=${GIT_EMAIL}' >> /etc/environment
 
 WORKDIR /app/agent
 
