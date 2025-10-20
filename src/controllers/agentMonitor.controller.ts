@@ -2,12 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
 import { AgentFailed } from "../events";
-import AgentWatchdogHandler from "../handlers/agentWatchdog.handler";
-
-type RequestBody = {
-  executionId: string;
-  agentId: string;
-};
+import AgentMonitorHandler from "../handlers/agentMonitor.handler";
 
 export default class AgentMonitorController {
   private db: PrismaClient;
@@ -19,36 +14,22 @@ export default class AgentMonitorController {
     this.db = prisma;
     this.req = req;
     this.res = res;
-    this.data = this.req.body;
+    this.data = {};
   }
 
   async handleRequest() {
     try {
-      const { agentId, executionId } = this.data as RequestBody;
+      // Get agentId from request url
+      const agentId = this.req.params.id!;
 
-      // Validate inputs before DB lookup
-      if (!agentId || !executionId) {
-        return this.res.status(400).json({
-          success: false,
-          error: "agentId and executionId are required",
-        });
-      }
-
-      const agent = await this.db.agent.findUnique({
+      const agent = await this.db.agent.findUniqueOrThrow({
         where: { id: agentId },
       });
 
-      if (!agent) {
-        return this.res.status(400).json({
-          success: false,
-          error: "Valid agent is required",
-        });
-      }
-
-      const watchdogHandler = new AgentWatchdogHandler(this.data.executionId, agent);
+      const agentMonitor = new AgentMonitorHandler(agent);
 
       // Watch the agent until completion - this keeps the HTTP connection open
-      const agentStatus = await watchdogHandler.watch();
+      const agentStatus = await agentMonitor.watch();
 
       const currentAgent = await this.db.agent.findUnique({
         where: { id: agentId },

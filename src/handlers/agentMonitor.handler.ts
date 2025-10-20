@@ -6,20 +6,18 @@ import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
 
 const execAsync = promisify(exec);
 
-export default class AgentWatchdogHandler {
+export default class AgentMonitorHandler {
   private db: PrismaClient;
-  public executionId: string;
   public agent: Agent;
   public status: AgentStatus = AgentStatus.LAUNCHED;
   private pollInterval = 2000; // Check every 2 seconds
   private eventData: any;
 
-  constructor(executionId: string, agent: Agent) {
+  constructor(agent: Agent) {
     this.db = prisma;
-    this.executionId = executionId;
     this.agent = agent;
     this.status = agent.status as AgentStatus;
-    this.eventData = { executionId, agentId: agent.id };
+    this.eventData = { agentId: agent.id };
   }
 
   async watch(): Promise<AgentCompleted | AgentFailed> {

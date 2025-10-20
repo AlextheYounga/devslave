@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
-import { paths } from "../constants";
-import { execSync } from "child_process";
-import { prisma } from "../prisma";
-import { PrismaClient } from "@prisma/client";
+import GitHandler from "../handlers/git.handler";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -15,31 +12,27 @@ type RequestBody = {
 };
 
 export default class GitController {
-  private db: PrismaClient;
   private req: Request;
   private res: Response;
   private data: any;
+  private git: GitHandler;
 
-  constructor() {
-    this.db = prisma;
-    this.req = {} as Request;
-    this.res = {} as Response;
-    this.data = {};
-  }
-
-  async handleRequest(req: Request, res: Response) {
+  constructor(req: Request, res: Response) {
     this.req = req;
     this.res = res;
+    this.git = new GitHandler();
     this.data = this.req.body as RequestBody;
+  }
 
+  async handleRequest() {
     try {
       // Determine command from URL path
-      const command = this.getCommandFromPath(req.path);
+      const command = this.getCommandFromPath(this.req.path);
 
       if (command === "commit") {
         const codebaseId = this.data.codebaseId;
         const message = this.data.message;
-        const output = await this.commit(codebaseId, message);
+        const output = await this.git.commit(codebaseId, message);
         return this.res.status(200).json({
           success: true,
           data: {
@@ -52,7 +45,7 @@ export default class GitController {
       if (command === "create-branch") {
         const codebaseId = this.data.codebaseId;
         const branchName = this.data.name;
-        const output = await this.createBranch(codebaseId, branchName);
+        const output = await this.git.createBranch(codebaseId, branchName);
         return this.res.status(200).json({
           success: true,
           data: {
@@ -81,23 +74,5 @@ export default class GitController {
       return "create-branch";
     }
     throw new Error(`Unable to determine command from path: ${path}`);
-  }
-
-  async commit(codebaseId: string, message: string = "Automated commit") {
-    const codebase = await this.db.codebase.findUniqueOrThrow({
-      where: { id: codebaseId },
-    });
-    const scriptPath = `${paths.scripts}/git_commit.sh`;
-    const output = execSync(`bash "${scriptPath}" "${codebase?.path}" "${message}"`);
-    return output.toString();
-  }
-
-  async createBranch(codebaseId: string, branchName: string) {
-    const codebase = await this.db.codebase.findUniqueOrThrow({
-      where: { id: codebaseId },
-    });
-    const scriptPath = `${paths.scripts}/git_branch.sh`;
-    const output = execSync(`bash "${scriptPath}" "${codebase?.path}" "${branchName}"`);
-    return output.toString();
   }
 }

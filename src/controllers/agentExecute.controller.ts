@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { AgentFailed } from "../events";
 import type { Role } from "../constants";
 import AgentProcessHandler from "../handlers/agentLaunch.handler";
-import AgentWatchdogHandler from "../handlers/agentWatchdog.handler";
+import AgentMonitorHandler from "../handlers/agentMonitor.handler";
 
 type RequestBody = {
   executionId: string;
@@ -55,7 +55,7 @@ export default class AgentExecuteController {
         where: { id: agentLaunchInfo.agentId },
       });
 
-      const watchdogHandler = new AgentWatchdogHandler(this.data.executionId, agent);
+      const watchdogHandler = new AgentMonitorHandler(agent);
 
         // Watch the agent until completion - this keeps the HTTP connection open
       const agentStatus = await watchdogHandler.watch();

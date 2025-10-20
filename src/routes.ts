@@ -32,7 +32,7 @@ router.post('/api/agent/launch', async (req: Request, res: Response) => {
     return new AgentLaunchController(req, res).handleRequest();
 });
 
-router.post('/api/agent/monitor', async (req: Request, res: Response) => {
+router.post('/api/agent/:id/monitor', async (req: Request, res: Response) => {
     return new AgentMonitorController(req, res).handleRequest();
 });
 
