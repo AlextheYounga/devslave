@@ -26,9 +26,8 @@ export default class AgentMonitorController {
         where: { id: agentId },
       });
 
-      const agentMonitor = new AgentMonitorHandler(agent);
-
       // Watch the agent until completion - this keeps the HTTP connection open
+      const agentMonitor = new AgentMonitorHandler(agent);
       const agentStatus = await agentMonitor.watch();
 
       const currentAgent = await this.db.agent.findUnique({

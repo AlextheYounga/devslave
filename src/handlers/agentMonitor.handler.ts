@@ -1,16 +1,16 @@
 import { prisma } from "../prisma";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { readFileSync, writeFile, writeFileSync } from "fs";
+import { createHash } from "crypto";
+import { execSync } from "child_process";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
 import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
-
-const execAsync = promisify(exec);
 
 export default class AgentMonitorHandler {
   private db: PrismaClient;
   public agent: Agent;
   public status: AgentStatus = AgentStatus.LAUNCHED;
-  private pollInterval = 2000; // Check every 2 seconds
+  private pollInterval = 5000; // Check every 5 seconds
+  private contentHash: string | undefined;
   private eventData: any;
 
   constructor(agent: Agent) {
@@ -22,26 +22,26 @@ export default class AgentMonitorHandler {
 
   async watch(): Promise<AgentCompleted | AgentFailed> {
     const prevStatus = this.status;
-    
+
     // Publish initial RUNNING event
     this.status = AgentStatus.RUNNING;
     await this.updateAgentRecord();
-    
-    const runningEvent = new AgentRunning({
+
+    new AgentRunning({
       ...this.eventData,
       status: AgentStatus.RUNNING,
       previousStatus: prevStatus,
-    });
-    runningEvent.publish();
+    }).publish();
 
-    // Poll tmux session until it dies
-    while (await this.isSessionAlive()) {
+    // Poll tmux session until it goes idle
+    while (await this.isSessionActive()) {
       await this.sleep(this.pollInterval);
     }
 
-    // Session is dead - agent completed
+    // Session is idle - agent completed
     this.status = AgentStatus.COMPLETED;
     await this.updateAgentRecord();
+    this.killTmux();
 
     const completedEvent = new AgentCompleted({
       ...this.eventData,
@@ -49,21 +49,53 @@ export default class AgentMonitorHandler {
       previousStatus: AgentStatus.RUNNING,
     });
     completedEvent.publish();
-    
+
     return completedEvent;
   }
 
-  private async isSessionAlive(): Promise<boolean> {
+  private async isSessionActive(): Promise<boolean> {
     try {
-      await execAsync(`tmux has-session -t ${this.agent.tmuxSession}`);
+      this.capturePaneContent();
+      const newHash = this.hashPaneContent();
+
+      // No change in content - assume session is dead
+      if (this.contentHash && this.contentHash === newHash) {
+        console.log("Tmux session appears idle.");
+        return false;
+      }
+
+      this.contentHash = newHash;
+      console.log("Tmux session is still active.");
       return true;
-    } catch {
+    } catch(error) {
+      console.error("Error checking tmux session:", error);
+      this.killTmux();
       return false;
     }
   }
 
+  private capturePaneContent() {
+    const paneFile = `/tmp/agent_${this.agent.id}_pane.txt`;
+    execSync(`touch ${paneFile}`);
+    execSync(`tmux capture-pane -p -t ${this.agent.tmuxSession}:0 > ${paneFile}`);
+  }
+
+  private hashPaneContent() {
+    const content = readFileSync(`/tmp/agent_${this.agent.id}_pane.txt`, "utf-8");
+    const hash = createHash("sha256").update(content).digest("hex");
+    return hash;
+  }
+
   private async sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private killTmux() {
+    try {
+      execSync(`tmux kill-session -t ${this.agent.tmuxSession}`, { stdio: 'ignore' });
+    } catch {
+      // Session might already be dead, which is fine
+    }
   }
 
   private async updateAgentRecord(): Promise<void> {

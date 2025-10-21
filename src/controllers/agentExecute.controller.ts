@@ -3,7 +3,7 @@ import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
 import { AgentFailed } from "../events";
 import type { Role } from "../constants";
-import AgentProcessHandler from "../handlers/agentLaunch.handler";
+import AgentLaunchHandler from "../handlers/agentLaunch.handler";
 import AgentMonitorHandler from "../handlers/agentMonitor.handler";
 
 type RequestBody = {
@@ -42,7 +42,7 @@ export default class AgentExecuteController {
       }
 
       const agentParams = { prompt, role };
-      const agentHandler = new AgentProcessHandler(
+      const agentHandler = new AgentLaunchHandler(
         this.data.executionId, 
         codebase, 
         agentParams
@@ -55,14 +55,13 @@ export default class AgentExecuteController {
         where: { id: agentLaunchInfo.agentId },
       });
 
-      const watchdogHandler = new AgentMonitorHandler(agent);
-
-        // Watch the agent until completion - this keeps the HTTP connection open
-      const agentStatus = await watchdogHandler.watch();
-
+      // Watch the agent until completion - this keeps the HTTP connection open
+      const agentMonitor = new AgentMonitorHandler(agent);
+      const agentStatus = await agentMonitor.watch();
+      
       this.data = { ...this.data, ...agentLaunchInfo, ...agentStatus };
 
-      return this.res.status(202).json({
+      return this.res.status(200).json({
         success: true,
         message: "Agent completed",
         data: this.data,
