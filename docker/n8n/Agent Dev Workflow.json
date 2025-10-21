@@ -6,8 +6,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -1568,
-        -768
+        -1936,
+        -944
       ],
       "id": "31c4b57a-7928-4c7d-ae2c-4db746e10a58",
       "name": "When clicking ‘Execute workflow’"
@@ -20,8 +20,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1328,
-        -768
+        -1712,
+        -944
       ],
       "id": "6cd7cc16-4fed-4797-b5c6-d2c836dbedef",
       "name": "Check App is Running"
@@ -34,8 +34,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1344,
-        528
+        -1248,
+        -80
       ],
       "id": "f4ae5d6d-db29-4f71-b560-3028046a5e49",
       "name": "Scan Tickets"
@@ -48,8 +48,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -896,
-        560
+        -800,
+        0
       ],
       "id": "c7378a84-13d5-4d5c-b3e0-fa0b1bf2e649",
       "name": "Cleanup Job"
@@ -82,8 +82,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -1120,
-        464
+        -1024,
+        -144
       ],
       "id": "28747963-a08f-4471-b5ec-7529d63d755a",
       "name": "Tickets Remaining?"
@@ -96,8 +96,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -896,
-        320
+        -800,
+        -240
       ],
       "id": "cec7c26f-2d80-45f1-869a-718bb9d0fe42",
       "name": "Setup Git Branch",
@@ -115,8 +115,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -672,
-        560
+        -576,
+        0
       ],
       "id": "1b131ec3-81aa-40fa-8d56-4902cbb09c3e",
       "name": "Compress Project",
@@ -136,8 +136,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -448,
-        560
+        -352,
+        0
       ],
       "id": "de443197-ecf0-44f3-bfc4-7573296faa82",
       "name": "Download Project",
@@ -150,37 +150,9 @@
     },
     {
       "parameters": {
-        "url": "http://app:3000/api/agent/launch",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -640,
-        288
-      ],
-      "id": "c1abee89-38dd-4c63-9274-e58a64811a0c",
-      "name": "Launch Developer Agent"
-    },
-    {
-      "parameters": {
-        "url": "http://app:3000/api/agent/launch",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        464,
-        288
-      ],
-      "id": "60202cfc-1291-4f70-9466-e9ae94837515",
-      "name": "Launch QA Agent"
-    },
-    {
-      "parameters": {
         "resource": "file",
         "operation": "download",
-        "path": "/app/agent/src/prompts/templates/outline.md",
+        "path": "=/app/dev/{{ $('Setup Codebase').item.json.data.folderName }}/agent/outline.md",
         "binaryPropertyName": "fileData",
         "options": {
           "fileName": "outline.md"
@@ -189,8 +161,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        816,
-        -784
+        -368,
+        -944
       ],
       "id": "25ebfe4d-032f-48f1-90c8-acb52c4ce981",
       "name": "Get Outline",
@@ -212,8 +184,8 @@
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        1264,
-        -784
+        80,
+        -944
       ],
       "id": "76f2ef47-862a-448b-bca6-83a9a8463557",
       "name": "Markdown"
@@ -228,8 +200,8 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        1040,
-        -784
+        -144,
+        -944
       ],
       "id": "82cc2b6c-d70e-4427-a2b3-0f43b7e33d9c",
       "name": "Extract from File"
@@ -242,8 +214,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        240,
-        288
+        -352,
+        -320
       ],
       "id": "46e25227-6135-4f00-b555-9bb2c7c24c54",
       "name": "Commit Dev Work",
@@ -256,28 +228,14 @@
     },
     {
       "parameters": {
-        "url": "http://app:3000/api/agent/launch",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -1344,
-        -256
-      ],
-      "id": "a5a714f2-b3d5-46ff-aa89-8bf81e94cc36",
-      "name": "Launch Project Manager"
-    },
-    {
-      "parameters": {
         "command": "echo \"Project Manager Started\"",
         "cwd": "/dev"
       },
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        1360,
-        288
+        96,
+        -320
       ],
       "id": "ec50b570-60ef-49d1-9908-f19e2a925167",
       "name": "Commit QA Work",
@@ -296,8 +254,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        2032,
-        368
+        768,
+        -240
       ],
       "id": "7ad344fc-1262-4457-a70f-242f62bda749",
       "name": "Merge Branch to Develop",
@@ -313,8 +271,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2464,
-        592
+        992,
+        -80
       ],
       "id": "c1e62dde-3dd9-43e3-8bdd-4bc02d80fad9",
       "name": "Next Ticket"
@@ -327,8 +285,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        1584,
-        288
+        320,
+        -320
       ],
       "id": "f7e0389f-57d2-47ac-a91c-23c258b8c33f",
       "name": "Check Passes QA?",
@@ -367,282 +325,26 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1808,
-        368
+        544,
+        -240
       ],
       "id": "304ac997-fac9-4198-a5db-6b8000f5f920",
       "name": "Fails QA?"
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
-              "leftValue": "={{ $json.data.data.status }}",
-              "rightValue": "COMPLETED",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        368,
-        -768
-      ],
-      "id": "c31c705a-6674-4d0c-bd98-81bb37f9164c",
-      "name": "Planning Agent Finished"
-    },
-    {
-      "parameters": {
         "content": "# Architect Agent",
-        "height": 80,
+        "height": 96,
         "width": 288
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        32,
-        -944
+        -912,
+        -1104
       ],
       "typeVersion": 1,
       "id": "ff278ed4-4109-4dcc-8dc1-8c2ee7dcbb8a",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        -80,
-        -768
-      ],
-      "id": "9e6d796b-dce4-4d10-9d14-f375c424ad91",
-      "name": "Planning Agent Delay",
-      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/agent/status",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n\"executionId\": \"{{ $json.data.executionId }}\",\n\"agentId\": \"{{ $json.data.agentId }}\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        144,
-        -832
-      ],
-      "id": "8669cf76-6598-4d7b-b493-d6f8e6b0afb4",
-      "name": "Ping Planning Agent"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/agent/status",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ $json }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -896,
-        -320
-      ],
-      "id": "9a429ace-d57c-4289-b19d-c116b97a7ecd",
-      "name": "Ping PM Agent"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        -1120,
-        -256
-      ],
-      "id": "71ceed55-ec44-4c96-8df2-e8e2d077715a",
-      "name": "PM Delay",
-      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
-              "leftValue": "",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        -672,
-        -256
-      ],
-      "id": "2feacff0-328b-40bb-9c3f-e48054a1a644",
-      "name": "PM Agent Finished?"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        -432,
-        288
-      ],
-      "id": "b431cf2d-c970-4c30-8eca-4dd4ef86b977",
-      "name": "Dev Delay",
-      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/agent/status",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ $json }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -208,
-        224
-      ],
-      "id": "d1484563-8598-4494-b7c2-9b36bf273279",
-      "name": "Ping Dev Agent"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
-              "leftValue": "",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        16,
-        288
-      ],
-      "id": "fa6f4392-3426-4363-adc7-88484bca7dcc",
-      "name": "Dev Agent Finished?"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        688,
-        288
-      ],
-      "id": "533f1ad7-e207-4177-95d0-c57d4d99c356",
-      "name": "QA Delay",
-      "webhookId": "0987e81b-5688-497c-97cb-e28fa50ca021"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/agent/status",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ $json }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        912,
-        224
-      ],
-      "id": "83f14823-ba51-4cc4-93da-41f442d358ce",
-      "name": "Ping QA Agent"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "18c3f58a-c43e-44ae-933f-1c668215cedb",
-              "leftValue": "",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1136,
-        288
-      ],
-      "id": "e776882a-140f-43ab-95bd-a6962731962c",
-      "name": "QA Agent Finished?"
     },
     {
       "parameters": {
@@ -652,8 +354,8 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -1056,
-        -432
+        -1360,
+        -736
       ],
       "typeVersion": 1,
       "id": "f421df73-5388-4f2d-886c-3e9a86a7821c",
@@ -667,8 +369,8 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -272,
-        80
+        -640,
+        -352
       ],
       "typeVersion": 1,
       "id": "fcafdc26-7b23-4237-ba1d-8d6266a16349",
@@ -682,8 +384,8 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        864,
-        80
+        -176,
+        -416
       ],
       "typeVersion": 1,
       "id": "a9612620-d3ee-4621-bad4-e31e785a320b",
@@ -694,8 +396,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -1936,
-        -240
+        -1920,
+        -640
       ],
       "id": "818c5884-a166-4b22-bc10-698c5aa26e91",
       "name": "Move to PM Stage"
@@ -703,13 +405,13 @@
     {
       "parameters": {
         "command": "echo \"QA Reviewing\"",
-        "cwd": "={{ $('Project Start Params').first().json.projectPath }}"
+        "cwd": "={{ $('Project Start Params1').first().json.projectPath }}"
       },
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -432,
-        -176
+        -1040,
+        -640
       ],
       "id": "52f379dc-21f0-4ad3-a48b-abaffce6229a",
       "name": "PM Git Commit",
@@ -750,8 +452,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1520,
-        -720
+        304,
+        -944
       ],
       "id": "4c57be2e-5a1d-4a9c-8a24-6026c0d2ac9c",
       "name": "Sprint Planning Form Confirmation",
@@ -801,8 +503,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -1120,
-        -976
+        -1936,
+        -1168
       ],
       "id": "1513b4c7-a7c7-4851-8e7d-f0aee6f1bf4c",
       "name": "Project Start Form",
@@ -820,26 +522,11 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -672,
-        -768
+        -1264,
+        -944
       ],
       "id": "1b4565e2-70ee-4617-86d9-fa23d59aea47",
       "name": "Setup Codebase"
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"{{ $json.Name }}\",\n  \"folderName\": \"{{ $json['Project Folder'] }}\",\n  \"setup\": \"{{ $json['Setup Type'] }}\",\n  \"prompt\": \"{{ $json['Master Prompt'] }}\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -912,
-        -976
-      ],
-      "id": "bd333540-8807-4365-bf19-c83c98c5356e",
-      "name": "Project Start Params"
     },
     {
       "parameters": {
@@ -871,8 +558,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -224,
-        -176
+        -816,
+        -640
       ],
       "id": "3c5fe103-f2de-4082-89ea-7f40fdf18fe1",
       "name": "Tickets Review Confirmation Form",
@@ -883,8 +570,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -1936,
-        528
+        -1920,
+        -80
       ],
       "id": "79c832b5-949c-43b0-ac50-0165c934535e",
       "name": "Move to Development Stage"
@@ -908,8 +595,8 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.3,
       "position": [
-        -1568,
-        -256
+        -1488,
+        -640
       ],
       "id": "63c26a2c-7177-4d76-8b18-3f278ad70393",
       "name": "On Outline Confirmation",
@@ -934,30 +621,12 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.3,
       "position": [
-        -1568,
-        528
+        -1472,
+        -80
       ],
       "id": "4f041e73-4918-4031-991b-1013104b0a4c",
       "name": "On Tickets Confirmation",
       "webhookId": "a4170261-8a52-4723-9d4d-aadb72f59110"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/agent/launch",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n  \"prompt\": \"{{ $json.architect_prompt }}\",\n  \"role\": \"architect\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -304,
-        -768
-      ],
-      "id": "ef87ab64-cf88-449d-9751-3d112fa87628",
-      "name": "Launch Architect"
     },
     {
       "parameters": {
@@ -976,11 +645,105 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -496,
-        -768
+        -1040,
+        -944
       ],
       "id": "40dc50e4-2296-4a70-b649-085023467156",
       "name": "Architect Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/execute",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n  \"prompt\": \"{{ $json.architect_prompt }}\",\n  \"role\": \"architect\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -816,
+        -944
+      ],
+      "id": "ef87ab64-cf88-449d-9751-3d112fa87628",
+      "name": "Run Architect Agent"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/api/agent/launch",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -576,
+        -240
+      ],
+      "id": "c1abee89-38dd-4c63-9274-e58a64811a0c",
+      "name": "Run Developer Agent"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/api/agent/launch",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1264,
+        -640
+      ],
+      "id": "a5a714f2-b3d5-46ff-aa89-8bf81e94cc36",
+      "name": "Run Project Manager"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/api/agent/launch",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        -320
+      ],
+      "id": "60202cfc-1291-4f70-9466-e9ae94837515",
+      "name": "Run QA Agent"
+    },
+    {
+      "parameters": {
+        "command": "=bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $json.data.codebaseId }}\" \"Finished architect outline\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -944
+      ],
+      "id": "9680771e-67df-45bf-8a60-96cb6188e2f0",
+      "name": "Architect Git Commit",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"{{ $json.Name }}\",\n  \"folderName\": \"{{ $json['Project Folder'] }}\",\n  \"setup\": \"{{ $json['Setup Type'] }}\",\n  \"prompt\": \"{{ $json['Master Prompt'] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1712,
+        -1168
+      ],
+      "id": "bd333540-8807-4365-bf19-c83c98c5356e",
+      "name": "Project Start Params1"
     },
     {
       "parameters": {
@@ -991,29 +754,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1104,
-        -768
+        -1488,
+        -944
       ],
       "id": "7f46393f-3159-4cf6-a34d-56738c69089b",
-      "name": "Test Params"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/commands/git/commit",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n\"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n\"message\": \"architect outline completed\",\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        608,
-        -784
-      ],
-      "id": "8d18b777-61f9-4aef-88f7-9cc8a7d4d92d",
-      "name": "Architect Git Commit"
+      "name": "Project Start Params"
     }
   ],
   "pinData": {},
@@ -1033,7 +778,7 @@
       "main": [
         [
           {
-            "node": "Test Params",
+            "node": "Project Start Params",
             "type": "main",
             "index": 0
           }
@@ -1084,7 +829,7 @@
       "main": [
         [
           {
-            "node": "Launch Developer Agent",
+            "node": "Run Developer Agent",
             "type": "main",
             "index": 0
           }
@@ -1096,28 +841,6 @@
         [
           {
             "node": "Download Project",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Launch Developer Agent": {
-      "main": [
-        [
-          {
-            "node": "Dev Delay",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Launch QA Agent": {
-      "main": [
-        [
-          {
-            "node": "QA Delay",
             "type": "main",
             "index": 0
           }
@@ -1161,18 +884,7 @@
       "main": [
         [
           {
-            "node": "Launch QA Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Launch Project Manager": {
-      "main": [
-        [
-          {
-            "node": "PM Delay",
+            "node": "Run QA Agent",
             "type": "main",
             "index": 0
           }
@@ -1227,7 +939,7 @@
       "main": [
         [
           {
-            "node": "Launch Developer Agent",
+            "node": "Run Developer Agent",
             "type": "main",
             "index": 0
           }
@@ -1235,166 +947,6 @@
         [
           {
             "node": "Merge Branch to Develop",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Planning Agent Finished": {
-      "main": [
-        [
-          {
-            "node": "Architect Git Commit",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Planning Agent Delay",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Planning Agent Delay": {
-      "main": [
-        [
-          {
-            "node": "Ping Planning Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ping Planning Agent": {
-      "main": [
-        [
-          {
-            "node": "Planning Agent Finished",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ping PM Agent": {
-      "main": [
-        [
-          {
-            "node": "PM Agent Finished?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "PM Delay": {
-      "main": [
-        [
-          {
-            "node": "Ping PM Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "PM Agent Finished?": {
-      "main": [
-        [
-          {
-            "node": "PM Git Commit",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "PM Delay",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Dev Delay": {
-      "main": [
-        [
-          {
-            "node": "Ping Dev Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ping Dev Agent": {
-      "main": [
-        [
-          {
-            "node": "Dev Agent Finished?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Dev Agent Finished?": {
-      "main": [
-        [
-          {
-            "node": "Commit Dev Work",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Dev Delay",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "QA Delay": {
-      "main": [
-        [
-          {
-            "node": "Ping QA Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ping QA Agent": {
-      "main": [
-        [
-          {
-            "node": "QA Agent Finished?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "QA Agent Finished?": {
-      "main": [
-        [
-          {
-            "node": "Commit QA Work",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "QA Delay",
             "type": "main",
             "index": 0
           }
@@ -1427,7 +979,7 @@
       "main": [
         [
           {
-            "node": "Project Start Params",
+            "node": "Project Start Params1",
             "type": "main",
             "index": 0
           }
@@ -1445,11 +997,6 @@
         ]
       ]
     },
-    "Project Start Params": {
-      "main": [
-        []
-      ]
-    },
     "Tickets Review Confirmation Form": {
       "main": [
         [
@@ -1465,7 +1012,7 @@
       "main": [
         [
           {
-            "node": "Launch Project Manager",
+            "node": "Run Project Manager",
             "type": "main",
             "index": 0
           }
@@ -1483,33 +1030,55 @@
         ]
       ]
     },
-    "Launch Architect": {
-      "main": [
-        [
-          {
-            "node": "Planning Agent Delay",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Architect Prompt": {
       "main": [
         [
           {
-            "node": "Launch Architect",
+            "node": "Run Architect Agent",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Test Params": {
+    "Run Architect Agent": {
       "main": [
         [
           {
-            "node": "Setup Codebase",
+            "node": "Architect Git Commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Developer Agent": {
+      "main": [
+        [
+          {
+            "node": "Commit Dev Work",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Project Manager": {
+      "main": [
+        [
+          {
+            "node": "PM Git Commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run QA Agent": {
+      "main": [
+        [
+          {
+            "node": "Commit QA Work",
             "type": "main",
             "index": 0
           }
@@ -1526,13 +1095,29 @@
           }
         ]
       ]
+    },
+    "Project Start Params1": {
+      "main": [
+        []
+      ]
+    },
+    "Project Start Params": {
+      "main": [
+        [
+          {
+            "node": "Setup Codebase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "28459608-6408-49b3-8365-58bb1abb79b4",
+  "versionId": "bf42819d-8405-4e99-8183-d8b3fd5453b0",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
