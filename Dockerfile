@@ -7,14 +7,15 @@ RUN apt-get update && apt-get install -y curl ca-certificates gnupg \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure SSH for simple access
+# Configure SSH for simple access and environment variable support
 RUN mkdir /var/run/sshd \
     && echo 'root:dev' | chpasswd \
     && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
     && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
     && echo 'ListenAddress 0.0.0.0' >> /etc/ssh/sshd_config \
-    && echo 'Port 2222' >> /etc/ssh/sshd_config
+    && echo 'Port 2222' >> /etc/ssh/sshd_config \
+    && echo 'PermitUserEnvironment yes' >> /etc/ssh/sshd_config
 
 # Install nvm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
@@ -28,7 +29,7 @@ ENV PATH="/.venv/bin:${PATH}"
 
 # Install PHP & Composer (herd-lite)
 ENV TERM=xterm
-RUN apt-get update && apt-get install -y --no-install-recommends procps && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y --no-install-recommends procps && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://php.new/install/linux/8.4 -o /tmp/install_php.sh \
     && sed -i 's/^clear/# clear/' /tmp/install_php.sh \
     && bash /tmp/install_php.sh
@@ -72,19 +73,9 @@ RUN npm install -g prisma
 RUN mkdir -p /app/agent /app/dev \
     && chmod 775 /app/dev
 
-# Set up global environment variables
-RUN echo 'export AGENT_REPO=${AGENT_REPO}' >> /etc/bash.bashrc \
-    && echo 'export DEV_WORKSPACE=${DEV_WORKSPACE}' >> /etc/bash.bashrc \
-    && echo 'export DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}' >> /etc/bash.bashrc \
-    && echo 'export GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}' >> /etc/bash.bashrc \
-    && echo 'export GIT_USERNAME=${GIT_USERNAME}' >> /etc/bash.bashrc \
-    && echo 'export GIT_EMAIL=${GIT_EMAIL}' >> /etc/bash.bashrc \
-    && echo 'AGENT_REPO=${AGENT_REPO}' >> /etc/environment \
-    && echo 'DEV_WORKSPACE=${DEV_WORKSPACE}' >> /etc/environment \
-    && echo 'DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}' >> /etc/environment \
-    && echo 'GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}' >> /etc/environment \
-    && echo 'GIT_USERNAME=${GIT_USERNAME}' >> /etc/environment \
-    && echo 'GIT_EMAIL=${GIT_EMAIL}' >> /etc/environment
+# Copy environment setup script (will be executed at runtime)
+COPY docker/app/setup-env.sh /usr/local/bin/setup-env.sh
+RUN chmod +x /usr/local/bin/setup-env.sh
 
 WORKDIR /app/agent
 
