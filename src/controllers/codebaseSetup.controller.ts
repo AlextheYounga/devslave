@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { paths, AGENT_FOLDER } from "../constants";
+import { paths } from "../constants";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";

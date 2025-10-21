@@ -38,29 +38,29 @@ fi
 setup_type=$(echo "$codebase_data" | jq -r '.setupType // "test"')
 master_prompt=$(echo "$codebase_data" | jq -r '.masterPrompt // ""')
 project_path=$(echo "$codebase" | cut -d'|' -f3)
-agent_folder="agent"
+AGENT_FOLDER_NAME="agent"
 
 echo "Setting up ${setup_type} project at: ${project_path}"
 
 # Mock function for test setup
-setup_agent_folder() {
+setup_AGENT_FOLDER_NAME() {
     mkdir -p "${project_path}"
     mkdir -p "${project_path}/docs"
-    mkdir -p "${project_path}/${agent_folder}/tickets"
-    mkdir -p "${project_path}/${agent_folder}/scripts"
+    mkdir -p "${project_path}/${AGENT_FOLDER_NAME}/tickets"
+    mkdir -p "${project_path}/${AGENT_FOLDER_NAME}/scripts"
     
     # Create PROJECT.md with master prompt content (using printf to avoid trailing newline)
-    printf "%s" "${master_prompt}" > "${project_path}/${agent_folder}/PROJECT.md"
+    printf "%s" "${master_prompt}" > "${project_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
     
     # Create a mock git_commit.sh script that doesn't actually commit
-    cat > "${project_path}/${agent_folder}/scripts/git_commit.sh" << 'EOF'
+    cat > "${project_path}/${AGENT_FOLDER_NAME}/scripts/git_commit.sh" << 'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 commit_message="${1:-Auto commit}"
 echo "Mock commit: ${commit_message}"
 EOF
     
-    chmod +x "${project_path}/${agent_folder}/scripts/git_commit.sh"
+    chmod +x "${project_path}/${AGENT_FOLDER_NAME}/scripts/git_commit.sh"
 }
 
 main() {
@@ -69,7 +69,7 @@ main() {
         exit 1
     fi
     
-    setup_agent_folder
+    setup_AGENT_FOLDER_NAME
     
     if [[ "${setup_type}" == "node" ]]; then
         echo "Running node setup functions"

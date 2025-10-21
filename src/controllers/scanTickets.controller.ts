@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../prisma";
 import { PrismaClient, TicketStatus } from "@prisma/client";
-import { AGENT_FOLDER } from "../constants";
+import { AGENT_FOLDER_NAME } from "../constants";
 import { readdirSync, readFileSync, existsSync } from "fs";
 import path from "path";
 import matter from "gray-matter";
@@ -37,7 +37,7 @@ export default class ScanTicketsController {
       new ScanningTicketsStarted(this.data).publish();
 
       const codebase = await this.getCodebaseById(codebaseId);
-      const ticketsFolder = path.join(codebase.path, `${AGENT_FOLDER}/tickets`);
+      const ticketsFolder = path.join(codebase.path, `${AGENT_FOLDER_NAME}/tickets`);
 
       if (!existsSync(ticketsFolder)) {
         new ScanningTicketsComplete({

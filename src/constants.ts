@@ -2,7 +2,7 @@ import * as path from "path";
 import * as os from "os";
 
 export const SENTINEL = "<<!_SESSION_DONE_!>>"
-export const AGENT_FOLDER="agent"
+export const AGENT_FOLDER_NAME="agent"
 
 const repoRoot = path.resolve(__dirname, "../");
 const scriptsPath = process.env.SCRIPT_PATH || path.join(repoRoot, "src", "scripts")
