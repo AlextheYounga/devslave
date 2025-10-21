@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Paths
+scripts_dir="${AGENT_REPO}/src/scripts"
+stubs_folder="${scripts_dir}/stubs"
+
 setup_directory_structure() {
     mkdir -p src
     mkdir -p tests
@@ -9,24 +13,25 @@ setup_directory_structure() {
 setup_node() {
     # Setup nvm and Node.js
     if [[ -f ~/.nvm/nvm.sh ]]; then
-    source ~/.nvm/nvm.sh
+        # shellcheck disable=SC1090
+        source ~/.nvm/nvm.sh
     
-    # Create .nvmrc if it doesn't exist
-    if [[ ! -f .nvmrc ]]; then
-        echo "lts/*" > .nvmrc
-        echo "Created .nvmrc file"
-    else
-        echo ".nvmrc already exists, skipping"
-    fi
+        # Create .nvmrc if it doesn't exist
+        if [[ ! -f .nvmrc ]]; then
+            echo "lts/*" > .nvmrc
+            echo "Created .nvmrc file"
+        else
+            echo ".nvmrc already exists, skipping"
+        fi
     
-    # Install Node.js if not already installed for this version
-    if ! nvm which "$(cat .nvmrc)" >/dev/null 2>&1; then
-        nvm install
-        echo "Installed Node.js version $(cat .nvmrc)"
-    else
-        nvm use
-        echo "Node.js version $(cat .nvmrc) already installed"
-    fi
+        # Install Node.js if not already installed for this version
+        if ! nvm which "$(cat .nvmrc)" >/dev/null 2>&1; then
+            nvm install
+            echo "Installed Node.js version $(cat .nvmrc)"
+        else
+            nvm use
+            echo "Node.js version $(cat .nvmrc) already installed"
+        fi
     else
         cho "Warning: nvm not found at ~/.nvm/nvm.sh, skipping Node.js setup"
     fi
@@ -61,7 +66,6 @@ commit_changes() {
 }
 
 run_node_functions() {
-    cd "${codebase_path}"
     setup_directory_structure
     setup_node
     setup_package_json

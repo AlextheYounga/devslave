@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Paths
+scripts_dir="${AGENT_REPO}/src/scripts"
+stubs_folder="${scripts_dir}/stubs"
 
 setup_uv() {
     # Setup uv
@@ -38,7 +41,6 @@ commit_changes() {
 }
 
 run_python_functions() {
-    cd "${codebase_path}"
     setup_uv
     setup_pip
     setup_gitignore

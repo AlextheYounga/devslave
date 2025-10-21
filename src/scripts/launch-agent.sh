@@ -14,7 +14,7 @@ get_codebase_path_by_id() {
     local codebase_path
     
     sql="SELECT path FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
-    codebase_path=$(sqlite3 $DB_ABSOLUTE_URL "$sql")
+    codebase_path=$(sqlite3 "$DB_ABSOLUTE_URL" "$sql")
     
     if [[ -z "$codebase_path" ]]; then
         echo "Error: Codebase with ID $codebase_id not found." >&2
@@ -29,7 +29,7 @@ get_tmux_session_by_agent_id() {
     local tmux_session_name
     
     sql="SELECT tmuxSession FROM agents WHERE id = '$agent_id' LIMIT 1;"
-    tmux_session_name=$(sqlite3 $DB_ABSOLUTE_URL "$sql")
+    tmux_session_name=$(sqlite3 "$DB_ABSOLUTE_URL" "$sql")
     
     if [[ -z "$tmux_session_name" ]]; then
         echo "Error: Agent with ID $agent_id not found." >&2
@@ -48,11 +48,7 @@ codebase_path=$(get_codebase_path_by_id "$codebase_id")
 session_name=$(get_tmux_session_by_agent_id "$agent_id")
 
 launch_tmux_codex() {
-  # Start a detached tmux session with working directory set to codebase_path,
-  # and exec codex with proper argv (no manual string escaping needed).
   tmux new-session -d -s "$session_name" -c "$codebase_path"
-  tmux setw -t "$session_name":0 monitor-silence 60
-  tmux set-hook -g alert-silence 'run-shell "tmux kill-session -t #{session_name}"'
   tmux send-keys -t "$session_name" "/bin/bash $codex_script $codebase_id $agent_id" C-m
 }
 
