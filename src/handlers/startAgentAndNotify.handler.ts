@@ -19,7 +19,7 @@ export default class StartAgentAndNotifyHandler {
 
   constructor(params: StartAgentWithCallbackParams) {
     this.params = params;
-    this.callbackUrl = params.callbackUrl;
+    this.callbackUrl = this.dockerUrlContext(params.callbackUrl);
   }
 
   async handle(): Promise<void> {
@@ -70,5 +70,13 @@ export default class StartAgentAndNotifyHandler {
         error: error instanceof Error ? error.message : "Unknown error",
       }).publish();
     }
+  }
+
+  private dockerUrlContext(url: string): string {
+    // If webhook URL is pointing to N8N, we should use the Docker internal hostname
+    if (url.startsWith("http://localhost:5678")) {
+      return url.replace("http://localhost:5678", "http://n8n:5678");
+    }
+    return url;
   }
 }

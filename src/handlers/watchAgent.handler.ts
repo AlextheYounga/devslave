@@ -37,6 +37,7 @@ export default class WatchAgentHandler {
     let publishableEvent = new AgentRunning(this.eventData);
     const agent = await this.db.agent.findUniqueOrThrow({ where: { id: this.agentId } });
     const prevStatus = agent.status;
+    this.status = prevStatus;
     new AgentMonitoringStarted(this.eventData).publish();
 
     this.tmuxSession = agent.tmuxSession;
@@ -46,18 +47,17 @@ export default class WatchAgentHandler {
 
     // Infinite loop to monitor agent status
     while (true) {
-      await this.checkAgentStatus();
-      const nextStatus = this.status;
+      this.status = await this.checkAgentStatus();
       this.eventData = {
         ...this.eventData,
-        status: nextStatus,
+        status: this.status,
         previousStatus: prevStatus,
       };
 
       if (this.status === AgentStatus.RUNNING) {
         publishableEvent = new AgentRunning(this.eventData);
         // Publish event only on transition
-        if (prevStatus !== nextStatus) {
+        if (prevStatus !== this.status) {
           publishableEvent.publish();
           await this.updateAgentRecord();
         }
@@ -87,12 +87,10 @@ export default class WatchAgentHandler {
     };
   }
 
-  private async checkAgentStatus(): Promise<void> {
+  private async checkAgentStatus(): Promise<AgentStatus> {
     try {
       const sessionAlive = await this.isSessionAlive();
-      if (!sessionAlive) {
-        this.status = AgentStatus.FAILED;
-      }
+      if (!sessionAlive) return AgentStatus.FAILED;
 
       const paneFile = this.capturePaneContent();
       const newHash = this.hashPaneContent(paneFile);
@@ -100,14 +98,14 @@ export default class WatchAgentHandler {
       if (this.isContentUnchanged(newHash)) {
         // No change in content - assume session is idle
         console.log("Tmux session appears idle.");
-        this.status = AgentStatus.COMPLETED;
+        return AgentStatus.COMPLETED;
       }
 
       console.log("Tmux session is still active.");
-      this.status = AgentStatus.RUNNING;
+      return AgentStatus.RUNNING;
     } catch (error) {
       console.error("Error checking tmux session:", error);
-      this.status = AgentStatus.FAILED;
+      return AgentStatus.FAILED;
     }
   }
 

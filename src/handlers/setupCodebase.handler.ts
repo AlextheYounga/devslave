@@ -38,13 +38,16 @@ export default class SetupCodebaseHandler {
 
       // Save codebase to DB first so setup script can find it
       const codebase = await this.saveCodebase(projectPath, this.params.prompt);
+      const eventData = {
+        ...this.params,
+        codebaseId: codebase.id,
+      }
 
       // Idempotency: use DB flag to determine if setup already completed
       if (codebase.setup && fs.existsSync(projectPath)) {
         new CodebaseAlreadySetup(this.params).publish();
         return {
-          ...this.params,
-          codebaseId: codebase.id,
+          ...eventData,
           stdout: "codebase already set up, skipping initialization",
         };
       }
@@ -59,13 +62,12 @@ export default class SetupCodebaseHandler {
       });
 
       new CodebaseSetupCompleted({
-        ...this.params,
-        codebaseId: codebase.id,
+        ...eventData,
         stdout: scriptOutput,
       }).publish();
 
       return {
-        ...this.params,
+        ...eventData,
         stdout: scriptOutput,
       };
     } catch (error: any) {
