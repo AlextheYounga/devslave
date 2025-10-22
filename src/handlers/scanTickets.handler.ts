@@ -148,7 +148,7 @@ export default class ScanTicketsHandler {
   }
 
   private async upsertTicket(ticketData: any, codebaseId: string) {
-    const { ticketId, title, status, description } = ticketData;
+    const { ticketId } = ticketData;
 
     const existingTicket = await this.db.ticket.findFirst({
       where: {
