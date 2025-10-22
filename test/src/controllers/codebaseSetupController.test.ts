@@ -17,7 +17,7 @@ function buildApp() {
   return app;
 }
 
-describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
+describe("POST /api/codebase/setup (SetupCodebaseController)", () => {
   const app = buildApp();
   let tempDir: string;
   let folderName: string;
@@ -53,7 +53,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     const prompt = "This is a test project for unit testing.";
 
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -80,7 +80,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     const prompt = "Database test project description.";
 
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -107,7 +107,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     const prompt = "Duplicate test project.";
 
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -132,7 +132,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     const prompt = "Rerun test project.";
 
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -152,7 +152,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
     // First run should execute the script and mark setup=true in DB
     const first = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -169,7 +169,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
     // Second run should skip script based on DB flag
     const second = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -191,7 +191,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     const prompt = "Failing test project.";
 
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -211,7 +211,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
   it("returns 400 when required fields are missing", async () => {
     const resNoName = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         folderName: "test-folder",
         prompt: "Test prompt",
@@ -222,7 +222,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
     expect(resNoName.body?.error).toBe("name, folderName, and prompt are required");
 
     const resNoFolder = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         prompt: "Test prompt",
@@ -235,7 +235,7 @@ describe("POST /api/commands/codebase/setup (SetupCodebaseController)", () => {
 
   it("works with all required parameters", async () => {
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -266,7 +266,7 @@ This is a multi-line prompt with:
 2. Validate content preservation`;
 
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
@@ -287,7 +287,7 @@ This is a multi-line prompt with:
     const prompt = "";
 
     const res = await request(app)
-      .post("/api/commands/codebase/setup")
+      .post("/api/codebase/setup")
       .send({
         name: "test-project",
         folderName,
