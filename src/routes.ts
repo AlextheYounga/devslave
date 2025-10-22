@@ -1,54 +1,49 @@
 import { Router, Request, Response } from 'express';
 import HealthController from './controllers/health.controller';
-import GetCodebaseController from './controllers/getCodebase.controller';
-import CodebaseSetupController from './controllers/codebaseSetup.controller';
-import AgentLaunchController from './controllers/agentLaunch.controller';
-import AgentMonitorController from './controllers/agentMonitor.controller';
-import AgentStatusController from './controllers/agentStatus.controller';
-import AgentRunSyncController from './controllers/agentRunSync.controller';
-import AgentRunAsyncController from './controllers/agentRunSync.controller';
-import ScanTicketsController from './controllers/scanTickets.controller';
+import CodebaseController from './controllers/codebase.controller';
+import AgentController from './controllers/agent.controller';
+import TicketsController from './controllers/tickets.controller';
 
 const router = Router();
 
 // Health check
 router.get('/health', async (req: Request, res: Response) => {
-    return new HealthController(req, res).handleRequest();
+    return new HealthController(req, res).check();
 });
 
 // Codebase endpoints
 router.get('/api/codebase/:id', async (req: Request, res: Response) => {
-    return new GetCodebaseController(req, res).handleRequest();
+    return new CodebaseController(req, res).get();
 });
 
 router.post('/api/codebase/setup', async (req: Request, res: Response) => {
-    return new CodebaseSetupController(req, res).handleRequest();
+    return new CodebaseController(req, res).setup();
 });
 
 // Agent Endpoints
-router.post('/api/agent/launch', async (req: Request, res: Response) => {
-    return new AgentLaunchController(req, res).handleRequest();
+router.post('/api/agent/start', async (req: Request, res: Response) => {
+    return new AgentController(req, res).start();
 });
 
-router.post('/api/agent/:id/monitor', async (req: Request, res: Response) => {
-    return new AgentMonitorController(req, res).handleRequest();
+router.post('/api/agent/:id/watch', async (req: Request, res: Response) => {
+    return new AgentController(req, res).watch();
 });
 
 router.get('/api/agent/:id/status', async (req: Request, res: Response) => {
-    return new AgentStatusController(req, res).handleRequest();
+    return new AgentController(req, res).ping();
 });
 
-router.post('/api/agent/run-sync', async (req: Request, res: Response) => {
-    return new AgentRunSyncController(req, res).handleRequest();
+router.post('/api/agent/execute', async (req: Request, res: Response) => {
+    return new AgentController(req, res).startAndWait();
 });
 
-router.post('/api/agent/run-async', async (req: Request, res: Response) => {
-    return new AgentRunAsyncController(req, res).handleRequest();
+router.post('/api/agent/execute-async', async (req: Request, res: Response) => {
+    return new AgentController(req, res).startAndNotify();
 });
 
-// Scan tickets
+// Ticket endpoints
 router.post('/api/tickets/scan', async (req: Request, res: Response) => {
-    return new ScanTicketsController(req, res).handleRequest();
+    return new TicketsController(req, res).scan();
 });
 
 export default router;
