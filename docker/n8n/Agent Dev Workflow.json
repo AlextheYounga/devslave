@@ -131,6 +131,7 @@
       "parameters": {
         "resource": "file",
         "operation": "download",
+        "path": "/test.md",
         "options": {}
       },
       "type": "n8n-nodes-base.ssh",
@@ -392,17 +393,6 @@
       "name": "Sticky Note4"
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        -1920,
-        -528
-      ],
-      "id": "818c5884-a166-4b22-bc10-698c5aa26e91",
-      "name": "Move to PM Stage"
-    },
-    {
       "parameters": {
         "resume": "form",
         "formTitle": "Start New Project",
@@ -511,7 +501,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        48,
+        -400,
         -528
       ],
       "id": "3c5fe103-f2de-4082-89ea-7f40fdf18fe1",
@@ -524,7 +514,7 @@
       "typeVersion": 1,
       "position": [
         -1936,
-        64
+        80
       ],
       "id": "79c832b5-949c-43b0-ac50-0165c934535e",
       "name": "Move to Development Stage"
@@ -632,39 +622,12 @@
     },
     {
       "parameters": {
-        "url": "http://app:3000/api/codebase/",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -1024,
-        -528
-      ],
-      "id": "84513fc6-0f47-4fa4-a86c-dbd33c0c5e30",
-      "name": "Get Codebase"
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1248,
-        -528
-      ],
-      "id": "10f5d0a6-9713-4e36-8d66-fc23cbbc39f0",
-      "name": "Get CodebaseID"
-    },
-    {
-      "parameters": {
-        "command": "=bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $json.data.codebaseId }}\" \"Finished project sprint planning\""
+        "command": "=bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $('PM Webhook').item.json.data.codebaseId }}\" \"Finished project sprint planning\""
       },
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -176,
+        -624,
         -528
       ],
       "id": "004aa5cf-c0b8-450b-9b72-02574a1678ca",
@@ -682,7 +645,7 @@
         "url": "http://app:3000/api/agent/execute-async",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n  \"prompt\": \"{{ $json.architect_prompt }}\",\n  \"role\": \"architect\",\n  \"debugMode\": \"{{ $('Setup Codebase').item.json.data.debugMode }}\"\n}",
+        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n  \"prompt\": \"{{ $json.architect_prompt }}\",\n  \"role\": \"architect\",\n  \"debugMode\": {{ $('Setup Codebase').item.json.data.debugMode }}\n}",
         "options": {
           "timeout": 10000
         }
@@ -720,7 +683,7 @@
         "url": "http://app:3000/api/agent/execute-async",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n  \"prompt\": \"{{ $json.architect_prompt }}\",\n  \"role\": \"manager\"\n}",
+        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"codebaseId\": \"{{ $('PM Webhook').item.json.body.codebaseId }}\",\n  \"prompt\": \"{{ $json.pm_prompt }}\",\n  \"role\": \"manager\"\n}",
         "options": {
           "timeout": 10000
         }
@@ -728,7 +691,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -624,
+        -1072,
         -528
       ],
       "id": "ccc6dd5c-6645-4de5-8af1-43780ea03126",
@@ -745,7 +708,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -400,
+        -848,
         -528
       ],
       "id": "65379720-9625-4834-8358-e69c623b685a",
@@ -755,7 +718,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"{{ $json.Name }}\",\n  \"folderName\": \"{{ $json['Project Folder'] }}\",\n  \"setup\": \"{{ $json['Setup Type'] }}\",\n  \"prompt\": \"{{ $json['Master Prompt'] }}\",\n  \"debugMode\": \"{{ $json['Debug Mode'][0] == \"Debug Mode\"}}\",\n}",
+        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"{{ $json.Name }}\",\n  \"folderName\": \"{{ $json['Project Folder'] }}\",\n  \"setup\": \"{{ $json['Setup Type'] }}\",\n  \"prompt\": \"{{ $json['Master Prompt'] }}\",\n  \"debugMode\": {{ $json['Debug Mode'][0] == \"Debug Mode\"}},\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
@@ -773,7 +736,7 @@
           "assignments": [
             {
               "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
-              "name": "architect_prompt",
+              "name": "pm_prompt",
               "value": "You are an expert software project manager. Please read agent/onboarding/project-manager.md to get started",
               "type": "string"
             }
@@ -784,26 +747,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -816,
+        -1264,
         -528
       ],
       "id": "69323c38-284d-417d-bde5-533e0523f751",
       "name": "PM Prompt"
-    },
-    {
-      "parameters": {
-        "path": "8ce66692-5b28-4ad1-99de-ced12abe5d75",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        -1472,
-        -528
-      ],
-      "id": "6480f46a-fa83-4294-8899-c722303cd036",
-      "name": "PM Start Webhook",
-      "webhookId": "8ce66692-5b28-4ad1-99de-ced12abe5d75"
     },
     {
       "parameters": {
@@ -819,6 +767,46 @@
       "id": "ebc815b6-d4a6-46e3-9f24-1d11da26ad36",
       "name": "Dev Flow Start Webhook",
       "webhookId": "8ce66692-5b28-4ad1-99de-ced12abe5d75"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8ce66692-5b28-4ad1-99de-ced12abe5d75",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1472,
+        -528
+      ],
+      "id": "6480f46a-fa83-4294-8899-c722303cd036",
+      "name": "PM Webhook",
+      "webhookId": "8ce66692-5b28-4ad1-99de-ced12abe5d75"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook-test/8ce66692-5b28-4ad1-99de-ced12abe5d75",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "codebaseId",
+              "value": "={{ $json.codebaseId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1904,
+        -528
+      ],
+      "id": "87a1f57f-523c-4386-b18f-c4b2b2d6f6a1",
+      "name": "Move to PM Stage"
     }
   ],
   "pinData": {},
@@ -1101,28 +1089,6 @@
         ]
       ]
     },
-    "Get Codebase": {
-      "main": [
-        [
-          {
-            "node": "PM Prompt",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get CodebaseID": {
-      "main": [
-        [
-          {
-            "node": "Get Codebase",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "PM Git Commit": {
       "main": [
         [
@@ -1200,22 +1166,22 @@
         ]
       ]
     },
-    "PM Start Webhook": {
+    "Dev Flow Start Webhook": {
       "main": [
         [
           {
-            "node": "Get CodebaseID",
+            "node": "Scan Tickets",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Dev Flow Start Webhook": {
+    "PM Webhook": {
       "main": [
         [
           {
-            "node": "Scan Tickets",
+            "node": "PM Prompt",
             "type": "main",
             "index": 0
           }
@@ -1227,7 +1193,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "eeadc05d-c232-43c0-9024-3c9306a176f7",
+  "versionId": "c4781e5f-3e0c-4990-a149-35b5e6f95784",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
