@@ -35,12 +35,13 @@ commit_changes() {
     if git diff --cached --quiet; then
         echo "No changes to commit"
     else
-        git commit -m "chore: add python setup" --no-gpg-sign || true
-        echo "Committed Node.js setup changes"
+        git commit -m "build: add python setup" --no-gpg-sign || true
     fi
 }
 
 run_python_functions() {
+    local codebase_path="$1"
+    cd "$codebase_path" || exit 1
     setup_uv
     setup_pip
     setup_gitignore

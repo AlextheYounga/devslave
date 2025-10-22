@@ -3,6 +3,9 @@ set -euo pipefail
 
 # Setup Git (only if not already initialized)
 git_init() {
+    local codebase_path="$1"
+    cd "$codebase_path" || exit 1
+    
     if [[ ! -d ".git" ]]; then
         git -c init.defaultBranch="$GIT_DEFAULT_BRANCH" init
         echo "Initialized new git repository"
@@ -38,4 +41,14 @@ git_init() {
             git commit -m "initial commit" --no-gpg-sign || true
         fi
     fi
+
+    # Create a develop branch if it doesn't exist
+    if ! git show-ref --verify --quiet "refs/heads/develop"; then
+        git checkout -b develop
+        echo "Created 'develop' branch"
+    else
+        echo "'develop' branch already exists, skipping creation"
+    fi
+
+    git switch "$GIT_DEFAULT_BRANCH"
 }

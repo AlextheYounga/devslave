@@ -31,11 +31,17 @@ stubs_folder="${scripts_dir}/stubs"
 
 # Source dependencies
 # shellcheck disable=SC1091
-source "$scripts_dir/setup/setup_git.sh"
+source "$scripts_dir/setup/git_init.sh"
 # shellcheck disable=SC1091
 source "$scripts_dir/setup/node_functions.sh"
 # shellcheck disable=SC1091
 source "$scripts_dir/setup/python_functions.sh"
+# shellcheck disable=SC1091
+source "$scripts_dir/setup/laravel_functions.sh"
+# shellcheck disable=SC1091
+source "$scripts_dir/setup/rust_functions.sh"
+# shellcheck disable=SC1091
+source "$scripts_dir/setup/vue_functions.sh"
 
 # Database queries
 codebase=$(get_codebase_by_id "$codebase_id")
@@ -50,12 +56,27 @@ setup_type=$(echo "$codebase_data" | jq -r '.setupType // "default"')
 master_prompt=$(echo "$codebase_data" | jq -r '.masterPrompt // ""')
 codebase_path=$(echo "$codebase" | cut -d'|' -f3)
 
+run_language_specific_functions() {
+    if [[ "${setup_type}" == "node" ]]; then
+        run_node_functions "$codebase_path"
+    elif [[ "${setup_type}" == "python" ]]; then
+        run_python_functions "$codebase_path"
+    elif [[ "${setup_type}" == "rust" ]]; then
+        run_rust_functions "$codebase_path"
+    elif [[ "${setup_type}" == "laravel" ]]; then
+        run_laravel_functions "$codebase_path"
+    elif [[ "${setup_type}" == "vue" ]]; then
+        run_vue_functions "$codebase_path"
+    else
+        echo "No specific setup functions for setupType: ${setup_type}, skipping."
+    fi
+}
+
 setup_project_directory() {
     # Set up agent folder
     mkdir -p "${codebase_path}"
     mkdir -p "${codebase_path}/docs"
     mkdir -p "${codebase_path}/${AGENT_FOLDER_NAME}/tickets"
-    mkdir -p "${codebase_path}/${AGENT_FOLDER_NAME}/scripts"
 
     # Create PROJECT.md with master prompt
     touch "${codebase_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
@@ -63,11 +84,6 @@ setup_project_directory() {
 
     prompts_dir="${AGENT_REPO}/src/prompts"
     cp -R "${prompts_dir}/." "${codebase_path}/${AGENT_FOLDER_NAME}/" || true
-
-    # Adding scripts (if directory exists)
-    if [[ -d "${AGENT_REPO}/src/scripts/agent" ]]; then
-        cp -R "${AGENT_REPO}/src/scripts/agent/." "${codebase_path}/${AGENT_FOLDER_NAME}/scripts"
-    fi
 }
 
 setup_precommit() {
@@ -80,22 +96,21 @@ setup_precommit() {
 }
 
 main() {
+    # Set up codebase directory
+    mkdir -p "${codebase_path}"
+    cd "$codebase_path" || exit 1
+
+    git_init "$codebase_path"
+    run_language_specific_functions
     setup_project_directory
 
     # Move to project folder
-    cd "$codebase_path" || exit 1
+    
 
     setup_precommit
-    git_init
+    
 
-    if [[ "${setup_type}" == "node" ]]; then
-        run_node_functions
-    elif [[ "${setup_type}" == "python" ]]; then
-        run_python_functions
-    else
-        echo "Unknown setup type: ${setup_type}" >&2
-        exit 1
-    fi
+
     
     echo "Project setup completed successfully"
 }

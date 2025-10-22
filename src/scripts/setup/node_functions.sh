@@ -10,36 +10,11 @@ setup_directory_structure() {
     mkdir -p tests
 }
 
-setup_node() {
-    # Setup nvm and Node.js
-    if [[ -f ~/.nvm/nvm.sh ]]; then
-        # shellcheck disable=SC1090
-        source ~/.nvm/nvm.sh
-    
-        # Create .nvmrc if it doesn't exist
-        if [[ ! -f .nvmrc ]]; then
-            echo "lts/*" > .nvmrc
-            echo "Created .nvmrc file"
-        else
-            echo ".nvmrc already exists, skipping"
-        fi
-    
-        # Install Node.js if not already installed for this version
-        if ! nvm which "$(cat .nvmrc)" >/dev/null 2>&1; then
-            nvm install
-            echo "Installed Node.js version $(cat .nvmrc)"
-        else
-            nvm use
-            echo "Node.js version $(cat .nvmrc) already installed"
-        fi
-    else
-        cho "Warning: nvm not found at ~/.nvm/nvm.sh, skipping Node.js setup"
-    fi
-}
-
 setup_package_json() {
     if [[ ! -f package.json ]]; then
-        npm init -y
+        npm init --init-author-name="Alex Younger" --yes
+        npm install --save-dev jest
+        npm install inquirer chalk
         echo "Created package.json"
     else
         echo "package.json already exists, skipping npm init"
@@ -60,14 +35,17 @@ commit_changes() {
     if git diff --cached --quiet; then
         echo "No changes to commit"
     else
-        git commit -m "chore: add node setup" --no-gpg-sign || true
+        git commit -m "build: add node setup" --no-gpg-sign || true
         echo "Committed Node.js setup changes"
     fi
 }
 
 run_node_functions() {
+    # Node is already installed at the global level at v22. See Dockerfile.
+    local codebase_path="$1"
+    cd "$codebase_path" || exit 1
+    
     setup_directory_structure
-    setup_node
     setup_package_json
     setup_gitignore
     commit_changes
