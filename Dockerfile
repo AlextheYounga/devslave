@@ -57,6 +57,11 @@ RUN git clone https://github.com/gitleaks/gitleaks.git /tmp/gitleaks && \
     go build -o /usr/local/bin/gitleaks && \
     rm -rf /tmp/gitleaks
 
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Install pre-commit
 RUN uv pip install pre-commit
 
