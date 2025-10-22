@@ -7,6 +7,7 @@ import { join } from "path";
 import { homedir } from "os";
 import { AgentPreparing, AgentLaunched } from "../events";
 import { Role, paths } from "../constants";
+import { createId } from "@paralleldrive/cuid2";
 dotenv.config();
 
 type StartAgentParams = {
@@ -14,6 +15,7 @@ type StartAgentParams = {
   codebaseId: string;
   prompt: string;
   role: Role;
+  debugMode?: boolean;
 };
 
 export default class StartAgentHandler {
@@ -29,6 +31,7 @@ export default class StartAgentHandler {
   }
 
   async handle() {
+    if (this.params.debugMode) return this.debugResponse();
     const codebaseId = this.params.codebaseId;
     const scriptFile = `${paths.scripts}/launch-agent.sh`;
     const agentRecord = await this.createAgentRecord();
@@ -155,5 +158,16 @@ export default class StartAgentHandler {
 
   private killTmuxFailSafe() {
     exec(`tmux kill-session -t ${this.tmuxSession}`);
+  }
+
+  private debugResponse() {
+    const id = createId();
+    return {
+      agentId: id,
+      codebaseId: this.params.codebaseId,
+      logFile: "debug-file.jsonl",
+      sessionId: "debug-session-id",
+      tmuxSession: `agent_${id}`,
+    };
   }
 }

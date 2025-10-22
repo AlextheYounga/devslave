@@ -11,6 +11,7 @@ type StartAgentWithCallbackParams = {
   codebaseId: string;
   prompt: string;
   role: Role;
+  debugMode?: boolean;
 };
 
 export default class StartAgentAndNotifyHandler {
@@ -26,9 +27,15 @@ export default class StartAgentAndNotifyHandler {
     // Start the agent process
     const agentHandler = new StartAgentHandler(this.params);
     const startAgentResult = await agentHandler.handle();
-    const agentId = startAgentResult.agentId;
+    
+    if (this.params.debugMode) {
+      // In debug mode, we do not watch the agent; just send back the start result
+      await this.sendCallback(startAgentResult);
+      return;
+    }
 
     // Watch the agent until completion
+    const agentId = startAgentResult.agentId;
     const watchHandler = new WatchAgentHandler(agentId);
     const result = await watchHandler.handle();
 
