@@ -13,7 +13,7 @@ type RequestBody = {
   role: Role;
 };
 
-export default class AgentExecuteController {
+export default class AgentRunSyncController {
   private db: PrismaClient;
   private req: Request;
   private res: Response;
@@ -57,7 +57,7 @@ export default class AgentExecuteController {
 
       // Watch the agent until completion - this keeps the HTTP connection open
       const agentMonitor = new AgentMonitorHandler(agent);
-      const agentStatus = await agentMonitor.watch();
+      const agentStatus = await agentMonitor.monitor();
       
       this.data = { ...this.data, ...agentLaunchInfo, ...agentStatus };
 

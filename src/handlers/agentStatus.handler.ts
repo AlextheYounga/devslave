@@ -1,15 +1,14 @@
 import { prisma } from "../prisma";
 import { readFileSync } from "fs";
 import { createHash } from "crypto";
-import { execSync } from "child_process";
+import { exec, execSync } from "child_process";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
-import { AgentMonitoringStarted, AgentRunning, AgentCompleted, AgentFailed } from "../events";
+import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
 
-export default class AgentMonitorHandler {
+export default class AgentStatusHandler {
   private db: PrismaClient;
   public agent: Agent;
   public status: AgentStatus = AgentStatus.LAUNCHED;
-  private pollInterval = 5000; // Check every 5 seconds
   private contentHash: string | undefined;
   private eventData: any;
 
@@ -17,72 +16,44 @@ export default class AgentMonitorHandler {
     this.db = prisma;
     this.agent = agent;
     this.status = agent.status as AgentStatus;
-    this.eventData = { agentId: agent.id };
+    this.eventData = {
+      executionId: agent.executionId,
+      agentId: agent.id,
+    };
   }
 
-  async monitor(): Promise<AgentCompleted | AgentFailed> {
-    const prevStatus = this.status;
+  async ping(): Promise<AgentCompleted | AgentRunning | AgentFailed> {
     let publishableEvent = new AgentRunning(this.eventData);
-    new AgentMonitoringStarted(this.eventData).publish();
+    const prevStatus = this.status;
+    const nextStatus = await this.getAgentStatus();
 
-    // Infinite loop to monitor agent status
-    while (true) {
-      await this.checkAgentStatus();
-      const nextStatus = this.status;
-      this.eventData = {
-        ...this.eventData,
-        status: nextStatus,
-        previousStatus: prevStatus,
-      };
+    this.eventData = {
+      ...this.eventData,
+      status: nextStatus,
+      previousStatus: prevStatus ?? null,
+    };
 
-      if (this.status === AgentStatus.RUNNING) {
+    switch (nextStatus) {
+      case AgentStatus.RUNNING:
         publishableEvent = new AgentRunning(this.eventData);
-        // Publish event only on transition
-        if (prevStatus !== nextStatus) {
-          publishableEvent.publish();
-          await this.updateAgentRecord();
-        }
-      }
-      if (this.status === AgentStatus.COMPLETED) {
-        publishableEvent = new AgentCompleted(this.eventData);
         break;
-      }
-      if (this.status === AgentStatus.FAILED) {
+      case AgentStatus.COMPLETED:
+        publishableEvent = new AgentCompleted(this.eventData);
+        this.killAgent();
+        break;
+      case AgentStatus.FAILED:
+        this.killAgent();
         publishableEvent = new AgentFailed(this.eventData);
         break;
-      }
-
-      await this.sleep(this.pollInterval);
     }
 
-    const finishEvent = publishableEvent.publish();
-    await this.updateAgentRecord();
-    this.killAgent();
-    return finishEvent;
-  }
-
-  private async checkAgentStatus(): Promise<void> {
-    try {
-      const sessionAlive = await this.isSessionAlive();
-      if (!sessionAlive) {
-        this.status = AgentStatus.FAILED;
-      }
-
-      const paneFile = this.capturePaneContent();
-      const newHash = this.hashPaneContent(paneFile);
-
-      if (this.isContentUnchanged(newHash)) {
-        // No change in content - assume session is idle
-        console.log("Tmux session appears idle.");
-        this.status = AgentStatus.COMPLETED;
-      }
-
-      console.log("Tmux session is still active.");
-      this.status = AgentStatus.RUNNING;
-    } catch (error) {
-      console.error("Error checking tmux session:", error);
-      this.status = AgentStatus.FAILED;
+    // Publish event only on transition
+    if (prevStatus !== nextStatus) {
+      this.status = nextStatus;
+      publishableEvent.publish();
+      await this.updateAgentRecord();
     }
+    return publishableEvent;
   }
 
   private async isSessionAlive(): Promise<boolean> {
@@ -91,6 +62,28 @@ export default class AgentMonitorHandler {
       return true;
     } catch (error) {
       return false;
+    }
+  }
+
+  private async getAgentStatus(): Promise<AgentStatus> {
+    try {
+      const sessionAlive = await this.isSessionAlive();
+      if (!sessionAlive) return AgentStatus.FAILED;
+
+      const paneFile = this.capturePaneContent();
+      const newHash = this.hashPaneContent(paneFile);
+
+      if (this.isContentUnchanged(newHash)) {
+        // No change in content - assume session is idle
+        console.log("Tmux session appears idle.");
+        return AgentStatus.COMPLETED;
+      }
+
+      console.log("Tmux session is still active.");
+      return AgentStatus.RUNNING;
+    } catch (error) {
+      console.error("Error checking tmux session:", error);
+      return AgentStatus.FAILED;
     }
   }
 
@@ -113,10 +106,6 @@ export default class AgentMonitorHandler {
     // Content has changed - update content hash for next run
     this.contentHash = newHash;
     return false;
-  }
-
-  private async sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private killAgent() {

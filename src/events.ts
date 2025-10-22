@@ -86,7 +86,13 @@ export class AgentFailed extends BaseEvent {
   }
 }
 
-export class WatchdogStarted extends BaseEvent {
+export class AgentMonitoringStarted extends BaseEvent {
+  constructor(data?: Record<string, any>, parentId?: string) {
+    super({ data }, parentId);
+  }
+}
+
+export class AgentCallbackRequestSent extends BaseEvent {
   constructor(data?: Record<string, any>, parentId?: string) {
     super({ data }, parentId);
   }

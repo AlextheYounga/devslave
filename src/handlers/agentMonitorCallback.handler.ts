@@ -3,24 +3,32 @@ import { readFileSync } from "fs";
 import { createHash } from "crypto";
 import { execSync } from "child_process";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
-import { AgentMonitoringStarted, AgentRunning, AgentCompleted, AgentFailed } from "../events";
+import {
+  AgentCallbackRequestSent,
+  AgentMonitoringStarted,
+  AgentRunning,
+  AgentCompleted,
+  AgentFailed,
+} from "../events";
 
-export default class AgentMonitorHandler {
+export default class AgentMonitorCallbackHandler {
   private db: PrismaClient;
   public agent: Agent;
+  public callbackUrl: string;
   public status: AgentStatus = AgentStatus.LAUNCHED;
   private pollInterval = 5000; // Check every 5 seconds
   private contentHash: string | undefined;
   private eventData: any;
 
-  constructor(agent: Agent) {
+  constructor(agent: Agent, callbackUrl: string) {
     this.db = prisma;
     this.agent = agent;
     this.status = agent.status as AgentStatus;
+    this.callbackUrl = callbackUrl;
     this.eventData = { agentId: agent.id };
   }
 
-  async monitor(): Promise<AgentCompleted | AgentFailed> {
+  async monitorWithHook(): Promise<void> {
     const prevStatus = this.status;
     let publishableEvent = new AgentRunning(this.eventData);
     new AgentMonitoringStarted(this.eventData).publish();
@@ -55,10 +63,46 @@ export default class AgentMonitorHandler {
       await this.sleep(this.pollInterval);
     }
 
-    const finishEvent = publishableEvent.publish();
+    publishableEvent.publish();
     await this.updateAgentRecord();
+    
+    // Send webhook callback for completion or failure
+    if (publishableEvent instanceof AgentCompleted || publishableEvent instanceof AgentFailed) {
+      await this.sendCallback(publishableEvent);
+    }
+    
     this.killAgent();
-    return finishEvent;
+  }
+
+  private async sendCallback(event: AgentCompleted | AgentFailed): Promise<void> {
+    try {
+      const response = await fetch(this.callbackUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(event.data),
+      });
+
+      new AgentCallbackRequestSent({
+        ...this.eventData,
+        callbackUrl: this.callbackUrl,
+        statusCode: response.status,
+        success: response.ok,
+      }).publish();
+
+      if (!response.ok) {
+        console.error(`Callback request failed: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error sending callback:', error);
+      new AgentCallbackRequestSent({
+        ...this.eventData,
+        callbackUrl: this.callbackUrl,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }).publish();
+    }
   }
 
   private async checkAgentStatus(): Promise<void> {

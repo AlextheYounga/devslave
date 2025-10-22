@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
 import { AgentFailed } from "../events";
-import AgentMonitorHandler from "../handlers/agentMonitor.handler";
+import AgentStatusHandler from "../handlers/agentStatus.handler";
 
-export default class AgentMonitorController {
+export default class AgentStatusController {
   private db: PrismaClient;
   private req: Request;
   private res: Response;
@@ -14,44 +14,40 @@ export default class AgentMonitorController {
     this.db = prisma;
     this.req = req;
     this.res = res;
-    this.data = {};
+    this.data = { agentId: req.params.id! };
   }
 
   async handleRequest() {
     try {
-      // Get agentId from request url
       const agentId = this.req.params.id!;
-
-      const agent = await this.db.agent.findUniqueOrThrow({
+      const agent = await this.db.agent.findUnique({
         where: { id: agentId },
       });
 
-      // Watch the agent until completion - this keeps the HTTP connection open
-      const agentMonitor = new AgentMonitorHandler(agent);
-      const agentStatus = await agentMonitor.monitor();
-
-      const currentAgent = await this.db.agent.findUnique({
-        where: { id: agentId },
-      });
-
-      if (!currentAgent) {
-        return this.res.status(500).json({
+      if (!agent) {
+        return this.res.status(400).json({
           success: false,
-          error: "Agent disappeared from database",
+          error: "Valid agent is required",
         });
       }
 
-      // Return final completion status
-      return this.res.status(200).json({
+      const statusHandler = new AgentStatusHandler(agent);
+      const agentStatus = await statusHandler.ping();
+      const currentAgent = await this.db.agent.findUniqueOrThrow({
+        where: { id: agentId },
+      });
+
+      // Fire-and-forget: do not await watchdog completion; respond immediately
+      return this.res.status(202).json({
         success: true,
-        message: `Agent completed with status: ${currentAgent.status}`,
+        message: `Agent status: ${currentAgent.status}`,
         data: {
           ...this.data,
           ...agentStatus.data,
         },
       });
     } catch (error: any) {
-      console.error("Error in AgentMonitorController:", error);
+      console.error("Error in AgentStatusController:", error);
       new AgentFailed({
         ...this.data,
         error: error?.message ?? String(error),
