@@ -1,0 +1,129 @@
+import fs from "fs";
+import os from "os";
+import path from "path";
+import prisma from "../../client";
+import { AgentStatus } from "@prisma/client";
+
+const uniqueId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+jest.mock("child_process", () => {
+  const actual = jest.requireActual("child_process");
+  return {
+    ...actual,
+    spawn: jest.fn(),
+    exec: jest.fn(),
+  };
+});
+
+describe("StartAgentHandler", () => {
+  const cp = require("child_process");
+  const spawnMock = cp.spawn as jest.Mock;
+  const execMock = cp.exec as jest.Mock;
+
+  const sessionId = "123e4567-e89b-12d3-a456-426614174000";
+  let StartAgentHandler: typeof import("../../../src/handlers/startAgent.handler").default;
+
+  let originalHome: string | undefined;
+  let tempHome: string;
+  const originalScriptPath = process.env.SCRIPT_PATH;
+
+  const buildParams = () => ({
+    executionId: `exec-${uniqueId()}`,
+    codebaseId: "codebase-abc",
+    prompt: "Run task",
+    role: "developer" as const,
+  });
+
+  const logDirFor = (home: string) =>
+    path.join(home, ".codex", "sessions", "2024", "01", "01");
+
+  const createLogFile = (home: string, agentId: string) => {
+    const dir = logDirFor(home);
+    fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, `rollout-${agentId}-${sessionId}.jsonl`);
+    fs.writeFileSync(file, "", "utf-8");
+    return file;
+  };
+
+  beforeAll(async () => {
+    process.env.SCRIPT_PATH = path.join("test", "fixtures", "scripts");
+    originalHome = process.env.HOME;
+    tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "agent-home-"));
+    process.env.HOME = tempHome;
+    await jest.isolateModulesAsync(async () => {
+      StartAgentHandler = (await import("../../../src/handlers/startAgent.handler")).default;
+    });
+  });
+
+  afterAll(() => {
+    if (originalScriptPath) {
+      process.env.SCRIPT_PATH = originalScriptPath;
+    } else {
+      delete process.env.SCRIPT_PATH;
+    }
+    if (originalHome) {
+      process.env.HOME = originalHome;
+    } else {
+      delete process.env.HOME;
+    }
+    try {
+      fs.rmSync(tempHome, { recursive: true, force: true });
+    } catch {
+      // ignore cleanup errors
+    }
+  });
+
+  beforeEach(() => {
+    spawnMock.mockReset();
+    execMock.mockReset();
+    fs.mkdirSync(path.join(process.env.HOME!, ".codex"), { recursive: true });
+  });
+
+  afterEach(() => {
+    try {
+      fs.rmSync(path.join(process.env.HOME!, ".codex"), { recursive: true, force: true });
+    } catch {
+      // ignore cleanup errors
+    }
+  });
+
+  it("creates agent record, launches process, and captures new log file", async () => {
+    // ensure handler sees a single new log file after spawn
+    spawnMock.mockImplementationOnce((_command: string, args: string[], _options: any) => {
+      const agentId = args[2];
+      if (agentId) {
+        createLogFile(tempHome, agentId);
+      }
+      return {
+        unref: () => undefined,
+      };
+    });
+
+    const params = buildParams();
+    const handler = new StartAgentHandler(params);
+    const result = await handler.handle();
+
+    expect(result.agentId).toBeDefined();
+    expect(result.tmuxSession).toBe(`agent_${result.agentId}`);
+    expect(result.sessionId).toBe(sessionId);
+    expect(result.logFile).toBeDefined();
+    const logFile = result.logFile!;
+    expect(logFile).toContain(path.join(tempHome, ".codex", "sessions"));
+    expect(logFile.endsWith(".jsonl")).toBe(true);
+
+    expect(spawnMock).toHaveBeenCalledWith(
+      "bash",
+      [expect.stringContaining("launch-agent.sh"), params.codebaseId, result.agentId],
+      expect.objectContaining({ detached: true, stdio: "ignore" })
+    );
+
+    const agent = await prisma.agent.findUniqueOrThrow({
+      where: { id: result.agentId },
+    });
+
+    expect(agent.executionId).toBe(params.executionId);
+    expect(agent.status).toBe(AgentStatus.LAUNCHED);
+    expect(agent.sessionId).toBe(sessionId);
+    expect(agent.logFile).toBe(logFile);
+  });
+});
