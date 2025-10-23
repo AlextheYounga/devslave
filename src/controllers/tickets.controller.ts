@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { validateRequiredFields } from "../utils/validation";
-import ScanTicketsHandler from "../handlers/scanTickets.handler";
+import ScanAllTicketsHandler from "../handlers/scanAllTickets.handler";
+import ScanTicketHandler from "../handlers/scanTicket.handler";
 
 export default class TicketsController {
   private req: Request;
@@ -11,6 +12,26 @@ export default class TicketsController {
     this.req = req;
     this.res = res;
     this.data = this.req.body;
+  }
+
+  async scanTicket() {
+    try {
+      const ticketId = this.req.params.id!;
+      const scanTicketsHandler = new ScanTicketHandler(ticketId);
+      const ticket = await scanTicketsHandler.handle();
+
+      return this.res.status(200).json({
+        success: true,
+        message: `Tickets scanned successfully`,
+        data: { ticket }
+      });
+    } catch (error: any) {
+      console.error("Error in TicketsController->scan:", error);
+      return this.res.status(500).json({
+        success: false,
+        error: error?.message ?? String(error),
+      });
+    }
   }
 
   async scan() {
@@ -25,7 +46,7 @@ export default class TicketsController {
       }
 
       // Scan tickets
-      const scanTicketsHandler = new ScanTicketsHandler(this.data);
+      const scanTicketsHandler = new ScanAllTicketsHandler(this.data);
       const result = await scanTicketsHandler.handle();
 
       return this.res.status(200).json({

@@ -1,0 +1,516 @@
+{
+  "name": "Architect Agent Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "f37e5350-d9fb-4d1d-bda1-86b5076352fd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        96,
+        0
+      ],
+      "id": "0ebc8212-02d6-4d6f-8663-d09b1a060d10",
+      "name": "Check App is Running"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "path": "=/app/dev/{{ $('Setup Codebase').item.json.data.folderName }}/agent/outline.md",
+        "binaryPropertyName": "fileData",
+        "options": {
+          "fileName": "outline.md"
+        }
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        96
+      ],
+      "id": "816e50d2-0239-4e46-b0df-f27c2ef1774a",
+      "name": "Get Outline",
+      "alwaysOutputData": false,
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.outlineData }}",
+        "destinationKey": "outlineHtml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        96
+      ],
+      "id": "e5919f90-b5e0-441e-8bde-0480e582605b",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "fileData",
+        "destinationKey": "outlineData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        96
+      ],
+      "id": "05489426-c465-4c93-be9c-899af0011dcc",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Start New Project",
+        "formDescription": "Enter the project details below",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "placeholder": "My New Project",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Project Folder",
+              "placeholder": "mynewproject",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Setup Type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "node"
+                  },
+                  {
+                    "option": "python"
+                  },
+                  {
+                    "option": "laravel"
+                  },
+                  {
+                    "option": "vue"
+                  },
+                  {
+                    "option": "rust"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Master Prompt",
+              "fieldType": "textarea",
+              "placeholder": "Obey me"
+            },
+            {
+              "fieldLabel": "Debug Mode",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Debug Mode"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        0
+      ],
+      "id": "dfc18fa4-b785-4475-9ab9-7d36b0be68c1",
+      "name": "Project Start Form",
+      "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/codebase/setup",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "1e85f656-1587-4295-bb3f-cbd2552b50d8",
+      "name": "Setup Codebase"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "architect_prompt",
+              "value": "You are an engineering architect. Please read agent/onboarding/architect.md to get started",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        0
+      ],
+      "id": "aa00d6d4-22de-4855-95cc-8f6d2c483a62",
+      "name": "Architect Prompt"
+    },
+    {
+      "parameters": {
+        "command": "=bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $json.data.codebaseId }}\" \"Finished architect outline\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -96
+      ],
+      "id": "1960a32e-335a-46c7-85f7-509b8731c7c5",
+      "name": "Architect Git Commit",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Outline Created Confirmation",
+        "formDescription": "The outline has been created.",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "html",
+              "elementName": "Outline ",
+              "html": "<div style=\"border: 1px solid #ccc; padding: 10px; background: #f9f9f9;\">\n    {{ $json.outlineHtml }} \n</div>"
+            },
+            {
+              "fieldName": "codebaseId",
+              "fieldType": "hiddenField",
+              "fieldValue": "=\"{{ $('Setup Codebase').item.json.data.codebaseId }}\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2336,
+        96
+      ],
+      "id": "f3eda188-3817-41d1-868b-7bc8b6f7ad35",
+      "name": "Outline Confirmation Form",
+      "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/execute-async",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "=\"{{ $execution.id }}\""
+            },
+            {
+              "name": "callbackUrl",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "codebaseId",
+              "value": "={{ $('Setup Codebase').item.json.data.codebaseId }}"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.architect_prompt }}"
+            },
+            {
+              "name": "role",
+              "value": "architect"
+            },
+            {
+              "name": "debugMode",
+              "value": "={{ $('Setup Codebase').item.json.data.debugMode }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1216,
+        0
+      ],
+      "id": "5e0625dc-6de4-4a02-8fd2-eb0786a81049",
+      "name": "Launch Architect Agent"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "webhookSuffix": ""
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "4416a8f3-0c28-4fa1-9a20-cb79c703392c",
+      "name": "Wait For Architect",
+      "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0fb5033-fa3f-46f2-abde-35878b78aa1f",
+              "name": "executionId",
+              "value": "={{ $execution.id  }}",
+              "type": "string"
+            },
+            {
+              "id": "32ac396b-206e-4943-8079-8da298c29bf9",
+              "name": "name",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "d3384658-5546-41d2-9f80-35160e75c5f0",
+              "name": "folderName",
+              "value": "={{ $json['Project Folder'] }}",
+              "type": "string"
+            },
+            {
+              "id": "1385b5a4-455b-4c83-a699-fae86f3b56d9",
+              "name": "setup",
+              "value": "={{ $json['Setup Type'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a8982f7c-0e8a-41cc-bd2b-cc7a92f80b47",
+              "name": "prompt",
+              "value": "={{ $json['Master Prompt'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e410e8d5-2368-47de-aadd-0e7a2ff8fc8a",
+              "name": "debugMode",
+              "value": "={{ $json['Debug Mode'][0] == \"Debug Mode\" }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        0
+      ],
+      "id": "60a18b07-9b3e-490d-baec-258022c60e78",
+      "name": "Project Start Params"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Check App is Running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check App is Running": {
+      "main": [
+        [
+          {
+            "node": "Project Start Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Outline": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Outline Confirmation Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Start Form": {
+      "main": [
+        [
+          {
+            "node": "Project Start Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Codebase": {
+      "main": [
+        [
+          {
+            "node": "Architect Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Architect Prompt": {
+      "main": [
+        [
+          {
+            "node": "Launch Architect Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Architect Git Commit": {
+      "main": [
+        []
+      ]
+    },
+    "Outline Confirmation Form": {
+      "main": [
+        []
+      ]
+    },
+    "Launch Architect Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait For Architect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Architect": {
+      "main": [
+        [
+          {
+            "node": "Architect Git Commit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Outline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Start Params": {
+      "main": [
+        [
+          {
+            "node": "Setup Codebase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62ca8666-d87d-4b50-8da5-2180a81f71c1",
+  "meta": {
+    "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
+  },
+  "id": "KYr9qUNw7SWH6aqA",
+  "tags": []
+}

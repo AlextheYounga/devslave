@@ -1,5 +1,5 @@
 import { prisma } from "../prisma";
-import { PrismaClient, TicketStatus } from "@prisma/client";
+import { PrismaClient, Ticket, TicketStatus } from "@prisma/client";
 import { AGENT_FOLDER_NAME } from "../constants";
 import { readdirSync, readFileSync, existsSync } from "fs";
 import path from "path";
@@ -19,10 +19,10 @@ type ScanTicketsParams = {
 
 type ScannedTicketsResult = {
   tickets: any[];
-  nextTicket: any | null;
+  nextTicket: Ticket | null;
 };
 
-export default class ScanTicketsHandler {
+export default class ScanAllTicketsHandler {
   private db: PrismaClient;
   private params: ScanTicketsParams;
 
@@ -121,7 +121,7 @@ export default class ScanTicketsHandler {
         continue;
       }
 
-      const ticketRecord = await this.upsertTicket(ticketData, codebaseId);
+      const ticketRecord = await this.upsertTicket(ticketData, codebaseId, ticketFile);
       scannedTickets.push(ticketRecord);
     }
 
@@ -147,7 +147,7 @@ export default class ScanTicketsHandler {
     return { ticketId, title, status, description };
   }
 
-  private async upsertTicket(ticketData: any, codebaseId: string) {
+  private async upsertTicket(ticketData: any, codebaseId: string, ticketFile: string) {
     const { ticketId } = ticketData;
 
     const existingTicket = await this.db.ticket.findFirst({
@@ -158,13 +158,13 @@ export default class ScanTicketsHandler {
     });
 
     if (!existingTicket) {
-      return await this.createNewTicket(ticketData, codebaseId);
+      return await this.createNewTicket(ticketData, codebaseId, ticketFile);
     } else {
       return await this.updateExistingTicket(existingTicket, ticketData);
     }
   }
 
-  private async createNewTicket(ticketData: any, codebaseId: string) {
+  private async createNewTicket(ticketData: any, codebaseId: string, ticketFile: string) {
     const { ticketId, title, status, description } = ticketData;
     const branchName = this.createBranchName(ticketId);
 
@@ -175,6 +175,7 @@ export default class ScanTicketsHandler {
         title,
         branchName,
         description,
+        ticketFile,
         status,
       },
     });

@@ -1,5 +1,5 @@
 {
-  "name": "Agent Dev Workflow",
+  "name": "Master Dev Workflow",
   "nodes": [
     {
       "parameters": {},
@@ -29,30 +29,29 @@
     {
       "parameters": {
         "url": "http://app:3000/api/tickets/scan",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "={{ $execution.id }}"
+            },
+            {
+              "name": "codebaseId",
+              "value": "={{ $json.body.codebaseId }}"
+            }
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1296,
-        80
+        -1712,
+        -256
       ],
       "id": "f4ae5d6d-db29-4f71-b560-3028046a5e49",
       "name": "Scan Tickets"
-    },
-    {
-      "parameters": {
-        "url": "http://app:3000/health",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -848,
-        144
-      ],
-      "id": "c7378a84-13d5-4d5c-b3e0-fa0b1bf2e649",
-      "name": "Cleanup Job"
     },
     {
       "parameters": {
@@ -60,30 +59,31 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict",
+            "typeValidation": "loose",
             "version": 2
           },
           "conditions": [
             {
               "id": "c1121ca2-dddc-4144-8b50-66a61d597f2d",
-              "leftValue": "tickets",
+              "leftValue": "={{ $json.data.nextTicket }}",
               "rightValue": "",
               "operator": {
-                "type": "array",
-                "operation": "notEmpty",
+                "type": "object",
+                "operation": "exists",
                 "singleValue": true
               }
             }
           ],
           "combinator": "and"
         },
+        "looseTypeValidation": true,
         "options": {}
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -1072,
-        0
+        -1488,
+        -336
       ],
       "id": "28747963-a08f-4471-b5ec-7529d63d755a",
       "name": "Tickets Remaining?"
@@ -96,8 +96,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -848,
-        -96
+        -1264,
+        -432
       ],
       "id": "cec7c26f-2d80-45f1-869a-718bb9d0fe42",
       "name": "Setup Git Branch",
@@ -115,8 +115,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -624,
-        144
+        -1264,
+        -240
       ],
       "id": "1b131ec3-81aa-40fa-8d56-4902cbb09c3e",
       "name": "Compress Project",
@@ -137,8 +137,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -400,
-        144
+        -1040,
+        -240
       ],
       "id": "de443197-ecf0-44f3-bfc4-7573296faa82",
       "name": "Download Project",
@@ -162,7 +162,7 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        32,
+        80,
         -944
       ],
       "id": "25ebfe4d-032f-48f1-90c8-acb52c4ce981",
@@ -185,7 +185,7 @@
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        480,
+        528,
         -944
       ],
       "id": "76f2ef47-862a-448b-bca6-83a9a8463557",
@@ -201,7 +201,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        256,
+        304,
         -944
       ],
       "id": "82cc2b6c-d70e-4427-a2b3-0f43b7e33d9c",
@@ -215,8 +215,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -400,
-        -160
+        -368,
+        -496
       ],
       "id": "46e25227-6135-4f00-b555-9bb2c7c24c54",
       "name": "Commit Dev Work",
@@ -235,8 +235,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        48,
-        -160
+        304,
+        -496
       ],
       "id": "ec50b570-60ef-49d1-9908-f19e2a925167",
       "name": "Commit QA Work",
@@ -255,8 +255,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        720,
-        -96
+        976,
+        -432
       ],
       "id": "7ad344fc-1262-4457-a70f-242f62bda749",
       "name": "Merge Branch to Develop",
@@ -272,8 +272,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        944,
-        80
+        1200,
+        -256
       ],
       "id": "c1e62dde-3dd9-43e3-8bdd-4bc02d80fad9",
       "name": "Next Ticket"
@@ -286,8 +286,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        272,
-        -160
+        528,
+        -496
       ],
       "id": "f7e0389f-57d2-47ac-a91c-23c258b8c33f",
       "name": "Check Passes QA?",
@@ -297,100 +297,6 @@
           "name": "SSH Password account"
         }
       }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "6c4ccc88-9c8b-4336-8858-403210fd3ab2",
-              "leftValue": "qa",
-              "rightValue": "passed",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        496,
-        -96
-      ],
-      "id": "304ac997-fac9-4198-a5db-6b8000f5f920",
-      "name": "Fails QA?"
-    },
-    {
-      "parameters": {
-        "content": "# Architect Agent",
-        "height": 80,
-        "width": 288
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -624,
-        -1120
-      ],
-      "typeVersion": 1,
-      "id": "ff278ed4-4109-4dcc-8dc1-8c2ee7dcbb8a",
-      "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "content": "# Project Manager Agent",
-        "height": 80,
-        "width": 416
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -1040,
-        -656
-      ],
-      "typeVersion": 1,
-      "id": "f421df73-5388-4f2d-886c-3e9a86a7821c",
-      "name": "Sticky Note2"
-    },
-    {
-      "parameters": {
-        "content": "# Dev Agent\n",
-        "height": 80,
-        "width": 208
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -656,
-        -208
-      ],
-      "typeVersion": 1,
-      "id": "fcafdc26-7b23-4237-ba1d-8d6266a16349",
-      "name": "Sticky Note3"
-    },
-    {
-      "parameters": {
-        "content": "# QA Agent",
-        "height": 80,
-        "width": 192
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        480,
-        -240
-      ],
-      "typeVersion": 1,
-      "id": "a9612620-d3ee-4621-bad4-e31e785a320b",
-      "name": "Sticky Note4"
     },
     {
       "parameters": {
@@ -419,6 +325,15 @@
                   },
                   {
                     "option": "python"
+                  },
+                  {
+                    "option": "laravel"
+                  },
+                  {
+                    "option": "vue"
+                  },
+                  {
+                    "option": "rust"
                   }
                 ]
               }
@@ -446,7 +361,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -1504,
+        -1488,
         -944
       ],
       "id": "1513b4c7-a7c7-4851-8e7d-f0aee6f1bf4c",
@@ -465,7 +380,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1072,
+        -1040,
         -944
       ],
       "id": "1b4565e2-70ee-4617-86d9-fa23d59aea47",
@@ -501,23 +416,12 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -400,
-        -528
+        -576,
+        -720
       ],
       "id": "3c5fe103-f2de-4082-89ea-7f40fdf18fe1",
       "name": "Tickets Review Confirmation Form",
       "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        -1936,
-        80
-      ],
-      "id": "79c832b5-949c-43b0-ac50-0165c934535e",
-      "name": "Move to Development Stage"
     },
     {
       "parameters": {
@@ -536,39 +440,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -864,
+        -816,
         -944
       ],
       "id": "40dc50e4-2296-4a70-b649-085023467156",
       "name": "Architect Prompt"
-    },
-    {
-      "parameters": {
-        "url": "http://app:3000/api/agent/launch",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -624,
-        -96
-      ],
-      "id": "c1abee89-38dd-4c63-9274-e58a64811a0c",
-      "name": "Run Developer Agent"
-    },
-    {
-      "parameters": {
-        "url": "http://app:3000/api/agent/launch",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -176,
-        -160
-      ],
-      "id": "60202cfc-1291-4f70-9466-e9ae94837515",
-      "name": "Run QA Agent"
     },
     {
       "parameters": {
@@ -577,7 +453,7 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -192,
+        -144,
         -944
       ],
       "id": "9680771e-67df-45bf-8a60-96cb6188e2f0",
@@ -613,7 +489,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        704,
+        752,
         -944
       ],
       "id": "4c57be2e-5a1d-4a9c-8a24-6026c0d2ac9c",
@@ -627,8 +503,8 @@
       "type": "n8n-nodes-base.ssh",
       "typeVersion": 1,
       "position": [
-        -624,
-        -528
+        -800,
+        -720
       ],
       "id": "004aa5cf-c0b8-450b-9b72-02574a1678ca",
       "name": "PM Git Commit",
@@ -644,8 +520,34 @@
         "method": "POST",
         "url": "http://app:3000/api/agent/execute-async",
         "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"codebaseId\": \"{{ $('Setup Codebase').item.json.data.codebaseId }}\",\n  \"prompt\": \"{{ $json.architect_prompt }}\",\n  \"role\": \"architect\",\n  \"debugMode\": {{ $('Setup Codebase').item.json.data.debugMode }}\n}",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "=\"{{ $execution.id }}\""
+            },
+            {
+              "name": "callbackUrl",
+              "value": "=\"{{ $execution.resumeUrl }}\""
+            },
+            {
+              "name": "codebaseId",
+              "value": "=\"{{ $('Setup Codebase').item.json.data.codebaseId }}\""
+            },
+            {
+              "name": "prompt",
+              "value": "=\"{{ $json.architect_prompt }}\""
+            },
+            {
+              "name": "role",
+              "value": "architect"
+            },
+            {
+              "name": "debugMode",
+              "value": "={{ $('Setup Codebase').item.json.data.debugMode }}"
+            }
+          ]
+        },
         "options": {
           "timeout": 10000
         }
@@ -653,7 +555,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -640,
+        -592,
         -944
       ],
       "id": "ef87ab64-cf88-449d-9751-3d112fa87628",
@@ -670,32 +572,12 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -416,
+        -368,
         -944
       ],
       "id": "3f9a073f-723b-49e5-8fb5-4d06b0a09b3c",
       "name": "Wait For Architect",
       "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/agent/execute-async",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"codebaseId\": \"{{ $('PM Webhook').item.json.body.codebaseId }}\",\n  \"prompt\": \"{{ $json.pm_prompt }}\",\n  \"role\": \"manager\"\n}",
-        "options": {
-          "timeout": 10000
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -1072,
-        -528
-      ],
-      "id": "ccc6dd5c-6645-4de5-8af1-43780ea03126",
-      "name": "Launch PM Agent"
     },
     {
       "parameters": {
@@ -708,8 +590,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -848,
-        -528
+        -1024,
+        -720
       ],
       "id": "65379720-9625-4834-8358-e69c623b685a",
       "name": "Wait for PM Agent",
@@ -717,14 +599,52 @@
     },
     {
       "parameters": {
-        "mode": "raw",
-        "jsonOutput": "={\n  \"executionId\": \"{{ $execution.id }}\",\n  \"name\": \"{{ $json.Name }}\",\n  \"folderName\": \"{{ $json['Project Folder'] }}\",\n  \"setup\": \"{{ $json['Setup Type'] }}\",\n  \"prompt\": \"{{ $json['Master Prompt'] }}\",\n  \"debugMode\": {{ $json['Debug Mode'][0] == \"Debug Mode\"}},\n}",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0fb5033-fa3f-46f2-abde-35878b78aa1f",
+              "name": "executionId",
+              "value": "={{ $execution.id  }}",
+              "type": "string"
+            },
+            {
+              "id": "32ac396b-206e-4943-8079-8da298c29bf9",
+              "name": "name",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "d3384658-5546-41d2-9f80-35160e75c5f0",
+              "name": "folderName",
+              "value": "={{ $json['Project Folder'] }}",
+              "type": "string"
+            },
+            {
+              "id": "1385b5a4-455b-4c83-a699-fae86f3b56d9",
+              "name": "setup",
+              "value": "={{ $json['Setup Type'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a8982f7c-0e8a-41cc-bd2b-cc7a92f80b47",
+              "name": "prompt",
+              "value": "={{ $json['Master Prompt'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e410e8d5-2368-47de-aadd-0e7a2ff8fc8a",
+              "name": "debugMode",
+              "value": "={{ $json['Debug Mode'][0] == \"Debug Mode\" }}",
+              "type": "boolean"
+            }
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1296,
+        -1264,
         -944
       ],
       "id": "bd333540-8807-4365-bf19-c83c98c5356e",
@@ -747,22 +667,23 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1264,
-        -528
+        -1472,
+        -720
       ],
       "id": "69323c38-284d-417d-bde5-533e0523f751",
       "name": "PM Prompt"
     },
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "8ce66692-5b28-4ad1-99de-ced12abe5d75",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -1536,
-        80
+        -1936,
+        -256
       ],
       "id": "ebc815b6-d4a6-46e3-9f24-1d11da26ad36",
       "name": "Dev Flow Start Webhook",
@@ -777,8 +698,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -1472,
-        -528
+        -1936,
+        -720
       ],
       "id": "6480f46a-fa83-4294-8899-c722303cd036",
       "name": "PM Webhook",
@@ -787,7 +708,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://localhost:5678/webhook-test/8ce66692-5b28-4ad1-99de-ced12abe5d75",
+        "url": "http://localhost:5678/webhook/8ce66692-5b28-4ad1-99de-ced12abe5d75",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -802,11 +723,299 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1904,
-        -528
+        976,
+        -944
       ],
       "id": "87a1f57f-523c-4386-b18f-c4b2b2d6f6a1",
       "name": "Move to PM Stage"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/8ce66692-5b28-4ad1-99de-ced12abe5d75",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "codebaseId",
+              "value": "={{ $json.codebaseId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -352,
+        -720
+      ],
+      "id": "1fbac83a-44d4-422d-a342-787c14fa3224",
+      "name": "Move to Dev Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/execute-async",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "=\"{{ $execution.id }}\""
+            },
+            {
+              "name": "callbackUrl",
+              "value": "=\"{{ $execution.resumeUrl }}\""
+            },
+            {
+              "name": "codebaseId",
+              "value": "=\"{{ $('PM Webhook').first().json.body.codebaseId }}\""
+            },
+            {
+              "name": "prompt",
+              "value": "=\"{{ $json.pm_prompt }}\""
+            },
+            {
+              "name": "role",
+              "value": "manager"
+            },
+            {
+              "name": "debugMode",
+              "value": "={{ $('Debug Mode?').first().json.debugMode }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1248,
+        -720
+      ],
+      "id": "d0e040af-11f3-4c2c-afae-e4faf0112efa",
+      "name": "Launch PM Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "debugMode",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1696,
+        -720
+      ],
+      "id": "1de32638-0602-4c6a-b034-302af8297104",
+      "name": "Debug Mode?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c4ccc88-9c8b-4336-8858-403210fd3ab2",
+              "leftValue": "qa",
+              "rightValue": "passed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        -432
+      ],
+      "id": "304ac997-fac9-4198-a5db-6b8000f5f920",
+      "name": "Passes QA?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "dev_prompt",
+              "value": "You are an expert senior software engineer. Please read agent/onboarding/engineer.md to get started",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -816,
+        -432
+      ],
+      "id": "4a7531d6-7735-40a3-af50-2ec306bf2d8b",
+      "name": "Dev Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/execute-async",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "=\"{{ $execution.id }}\""
+            },
+            {
+              "name": "callbackUrl",
+              "value": "=\"{{ $execution.resumeUrl }}\""
+            },
+            {
+              "name": "codebaseId",
+              "value": "=\"{{ $('Dev Flow Start Webhook').first().json.body.codebaseId }}\""
+            },
+            {
+              "name": "prompt",
+              "value": "=\"{{ $json.dev_prompt }}\""
+            },
+            {
+              "name": "role",
+              "value": "developer"
+            },
+            {
+              "name": "debugMode",
+              "value": "={{ $('Dev Debug Mode?').first().json.debugMode }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -592,
+        -432
+      ],
+      "id": "c5709da8-385c-49fb-ba72-d9a06cc5da19",
+      "name": "Launch Dev Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "debugMode",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1040,
+        -432
+      ],
+      "id": "39a299b2-250a-4d0d-94e2-c7bb64a0cb25",
+      "name": "Dev Debug Mode?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "qa_prompt",
+              "value": "You are an expert quality assurance engineer. Please read agent/onboarding/qa.md to get started",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        -496
+      ],
+      "id": "0389fecf-63db-4371-8963-bceeae6cab13",
+      "name": "QA Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/execute-async",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "=\"{{ $execution.id }}\""
+            },
+            {
+              "name": "callbackUrl",
+              "value": "=\"{{ $execution.resumeUrl }}\""
+            },
+            {
+              "name": "codebaseId",
+              "value": "=\"{{ $('Dev Flow Start Webhook').first().json.body.codebaseId }}\""
+            },
+            {
+              "name": "prompt",
+              "value": "=\"{{ $json.qa_prompt }}\""
+            },
+            {
+              "name": "role",
+              "value": "qa"
+            },
+            {
+              "name": "debugMode",
+              "value": "={{ $('Dev Debug Mode?').first().json.debugMode }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        -496
+      ],
+      "id": "99a0146d-ee2e-45dd-91c9-3b91a2733822",
+      "name": "Launch QA Agent"
     }
   ],
   "pinData": {},
@@ -844,17 +1053,6 @@
         ]
       ]
     },
-    "Cleanup Job": {
-      "main": [
-        [
-          {
-            "node": "Compress Project",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Tickets Remaining?": {
       "main": [
         [
@@ -866,7 +1064,7 @@
         ],
         [
           {
-            "node": "Cleanup Job",
+            "node": "Compress Project",
             "type": "main",
             "index": 0
           }
@@ -877,7 +1075,7 @@
       "main": [
         [
           {
-            "node": "Run Developer Agent",
+            "node": "Dev Debug Mode?",
             "type": "main",
             "index": 0
           }
@@ -932,7 +1130,7 @@
       "main": [
         [
           {
-            "node": "Run QA Agent",
+            "node": "QA Prompt",
             "type": "main",
             "index": 0
           }
@@ -976,25 +1174,7 @@
       "main": [
         [
           {
-            "node": "Fails QA?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fails QA?": {
-      "main": [
-        [
-          {
-            "node": "Run Developer Agent",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Merge Branch to Develop",
+            "node": "Passes QA?",
             "type": "main",
             "index": 0
           }
@@ -1027,7 +1207,7 @@
       "main": [
         [
           {
-            "node": "Move to Development Stage",
+            "node": "Move to Dev Workflow",
             "type": "main",
             "index": 0
           }
@@ -1039,28 +1219,6 @@
         [
           {
             "node": "Launch Architect Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Run Developer Agent": {
-      "main": [
-        [
-          {
-            "node": "Commit Dev Work",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Run QA Agent": {
-      "main": [
-        [
-          {
-            "node": "Commit QA Work",
             "type": "main",
             "index": 0
           }
@@ -1122,17 +1280,6 @@
         ]
       ]
     },
-    "Launch PM Agent": {
-      "main": [
-        [
-          {
-            "node": "Wait for PM Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Wait for PM Agent": {
       "main": [
         [
@@ -1181,7 +1328,102 @@
       "main": [
         [
           {
+            "node": "Debug Mode?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch PM Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait for PM Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Debug Mode?": {
+      "main": [
+        [
+          {
             "node": "PM Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Passes QA?": {
+      "main": [
+        [
+          {
+            "node": "Merge Branch to Develop",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Launch Dev Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev Prompt": {
+      "main": [
+        [
+          {
+            "node": "Launch Dev Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Dev Agent": {
+      "main": [
+        [
+          {
+            "node": "Commit Dev Work",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev Debug Mode?": {
+      "main": [
+        [
+          {
+            "node": "Dev Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA Prompt": {
+      "main": [
+        [
+          {
+            "node": "Launch QA Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch QA Agent": {
+      "main": [
+        [
+          {
+            "node": "Commit QA Work",
             "type": "main",
             "index": 0
           }
@@ -1189,11 +1431,11 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c4781e5f-3e0c-4990-a149-35b5e6f95784",
+  "versionId": "45ef21e1-6777-4acc-b83e-80ec167dfe05",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

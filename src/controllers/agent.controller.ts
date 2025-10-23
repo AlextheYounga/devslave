@@ -117,7 +117,7 @@ export default class AgentController {
 
   async startAndNotify() {
     try {
-      const requiredFields = ["prompt", "codebaseId", "executionId", "role"];
+      const requiredFields = ["prompt", "codebaseId", "callbackUrl", "executionId", "role"];
       const validation = validateRequiredFields(this.data, requiredFields);
       if (!validation.isValid) {
         return this.res.status(400).json({

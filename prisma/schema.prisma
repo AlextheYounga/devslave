@@ -75,6 +75,7 @@ model Ticket {
   branchName  String
   title       String
   description String?
+  ticketFile  String
   status      TicketStatus @default(OPEN)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt

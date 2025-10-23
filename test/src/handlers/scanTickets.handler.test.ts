@@ -3,7 +3,7 @@ import os from "os";
 import path from "path";
 import { TicketStatus } from "@prisma/client";
 import prisma from "../../client";
-import ScanTicketsHandler from "../../../src/handlers/scanTickets.handler";
+import ScanTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
 import { AGENT_FOLDER_NAME } from "../../../src/constants";
 
 describe("ScanTicketsHandler", () => {

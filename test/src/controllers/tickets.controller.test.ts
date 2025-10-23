@@ -1,5 +1,5 @@
 import TicketsController from "../../../src/controllers/tickets.controller";
-import ScanTicketsHandler from "../../../src/handlers/scanTickets.handler";
+import ScanTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
 
 jest.mock("../../../src/handlers/scanTickets.handler");
 

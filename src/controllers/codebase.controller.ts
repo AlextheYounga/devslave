@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { validateRequiredFields } from "../utils/validation";
 import GetCodebaseHandler from "../handlers/getCodebase.handler";
+import GetAllCodebasesHandler from "../handlers/getAllCodebases.handler";
 import SetupCodebaseHandler from "../handlers/setupCodebase.handler";
 
 export default class CodebaseController {
@@ -23,6 +24,26 @@ export default class CodebaseController {
         success: true,
         message: "Codebase retrieved successfully",
         data: { codebase },
+      });
+    } catch (error: any) {
+      console.error("Error in CodebaseController->scan:", error);
+      return this.res.status(500).json({
+        success: false,
+        error: error?.message ?? String(error),
+      });
+    }
+  }
+
+    async getAll() {
+    try {
+      const codebases = await new GetAllCodebasesHandler().handle();
+
+      return this.res.status(200).json({
+        success: true,
+        message: "Codebase retrieved successfully",
+        data: {
+          codebases,
+        },
       });
     } catch (error: any) {
       console.error("Error in CodebaseController->scan:", error);

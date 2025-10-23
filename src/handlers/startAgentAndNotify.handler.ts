@@ -50,6 +50,7 @@ export default class StartAgentAndNotifyHandler {
 
   private async sendCallback(data: any): Promise<void> {
     try {
+      console.log(`Sending callback to ${this.callbackUrl} with data:`, data);
       const response = await fetch(this.callbackUrl, {
         method: "POST",
         headers: {
@@ -81,8 +82,8 @@ export default class StartAgentAndNotifyHandler {
 
   private dockerUrlContext(url: string): string {
     // If webhook URL is pointing to N8N, we should use the Docker internal hostname
-    if (url.startsWith("http://localhost:5678")) {
-      return url.replace("http://localhost:5678", "http://n8n:5678");
+    if (url.includes("localhost:5678")) {
+      return url.replace("localhost:5678", "n8n:5678");
     }
     return url;
   }

@@ -1,0 +1,872 @@
+{
+  "name": "Dev Agent Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/tickets/scan",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "={{ $execution.id }}"
+            },
+            {
+              "name": "codebaseId",
+              "value": "={{ $json.codebaseId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        352,
+        256
+      ],
+      "id": "7f3cc68d-70b1-4744-a0ae-617dc6f610f5",
+      "name": "Scan Tickets"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1121ca2-dddc-4144-8b50-66a61d597f2d",
+              "leftValue": "={{ $json.data.nextTicket.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        184
+      ],
+      "id": "10075ef0-581c-494c-bb9c-f986dabef04e",
+      "name": "Tickets Remaining?"
+    },
+    {
+      "parameters": {
+        "command": "=bash $AGENT_REPO/src/scripts/git/git_branch.sh \"{{ $json.data.codebaseId }}\" \"{{ $json.data.nextTicket.branchName }}\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        800,
+        88
+      ],
+      "id": "d136222c-88c8-428f-9433-8ffc28c10bb0",
+      "name": "Setup Git Branch",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "echo \"QA Reviewing\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        800,
+        280
+      ],
+      "id": "d0248e31-9859-4458-aaf7-72eb4f19e8b1",
+      "name": "Compress Project",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "path": "/test.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        280
+      ],
+      "id": "1537b008-3a27-44d7-ba87-6fd9ad12d388",
+      "name": "Download Project",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $('Dev Params').item.json.codebaseId }}\" \"Finished work for ticket {{ $json.data.nextTicket.ticketId }}\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        16
+      ],
+      "id": "64f26df5-830a-496f-a6cc-78cd8bb3014f",
+      "name": "Commit Dev Work",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $('Dev Params').item.json.codebaseId }}\" \"QA review finished for {{ $json.data.nextTicket.ticketId }}\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        2592,
+        16
+      ],
+      "id": "589a060d-deff-40f6-b8fd-8fe150abd0e9",
+      "name": "Commit QA Work",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "echo \"Project Manager Started\"",
+        "cwd": "/dev"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        3264,
+        88
+      ],
+      "id": "c840d372-8a88-4683-bade-d5251299cd66",
+      "name": "Merge Branch to Develop",
+      "credentials": {
+        "sshPassword": {
+          "id": "cubrUaryfoxjprAQ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3488,
+        256
+      ],
+      "id": "b64b1139-8c0a-49cc-a244-39ac40cfd333",
+      "name": "Next Ticket"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c4ccc88-9c8b-4336-8858-403210fd3ab2",
+              "leftValue": "={{ $json.data.ticket.status }}",
+              "rightValue": "COMPLETE",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3040,
+        88
+      ],
+      "id": "0f59a435-69f0-43db-af32-e5ad0b728407",
+      "name": "Passes QA?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/execute-async",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "={{ $execution.id }}"
+            },
+            {
+              "name": "callbackUrl",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "codebaseId",
+              "value": "={{ $('Dev Params').item.json.codebaseId }}"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $('Dev Params').item.json.dev_prompt }}"
+            },
+            {
+              "name": "role",
+              "value": "developer"
+            },
+            {
+              "name": "debugMode",
+              "value": "={{ $('Dev Params').item.json.debugMode }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1024,
+        88
+      ],
+      "id": "ef704fa0-12d5-45fa-8232-6dc7507f98ab",
+      "name": "Launch Dev Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "qa_prompt",
+              "value": "You are an expert quality assurance engineer. Please read agent/onboarding/qa.md to get started",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        16
+      ],
+      "id": "77fdb809-919a-459b-a681-3244e5bcea67",
+      "name": "QA Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/agent/execute-async",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "executionId",
+              "value": "={{ $execution.id }}"
+            },
+            {
+              "name": "callbackUrl",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "codebaseId",
+              "value": "={{ $('Dev Params').item.json.codebaseId }}"
+            },
+            {
+              "name": "prompt",
+              "value": "=\"{{ $json.qa_prompt }}\""
+            },
+            {
+              "name": "role",
+              "value": "qa"
+            },
+            {
+              "name": "debugMode",
+              "value": "={{ $('Dev Params').item.json.debugMode }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2144,
+        16
+      ],
+      "id": "e587c85d-33bd-4733-b6d6-caad047fbbef",
+      "name": "Launch QA Agent"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        256
+      ],
+      "id": "296104c9-c5e0-4a87-8228-3ed593f2fcf2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/api/codebases",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -992,
+        256
+      ],
+      "id": "c83d5223-db6b-47e7-b26d-29412c5a7b48",
+      "name": "Get Active Codebases"
+    },
+    {
+      "parameters": {
+        "url": "http://app:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1216,
+        256
+      ],
+      "id": "a9a8da55-b539-4bfd-b265-c60a8c97003a",
+      "name": "Check App is Running"
+    },
+    {
+      "parameters": {
+        "jsCode": "const codebases = $input.first().json.data.codebases\nreturn {\n  ids: codebases.map(cb => cb.id),\n  names: codebases.map(cb => cb.name)\n} \n  "
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -768,
+        256
+      ],
+      "id": "f39f422d-a32a-4445-b929-b67c1e32cc04",
+      "name": "Map Codebase Names"
+    },
+    {
+      "parameters": {
+        "jsCode": "const codebases = $('Get Active Codebases').first().json.data.codebases\nconst codebaseName = $input.first().json.Codebase\nconst codebaseSelected = codebases.find(cb => cb.name === codebaseName)\nreturn {\n  codebaseSelectedId: codebaseSelected.id\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        256
+      ],
+      "id": "cbc3e49f-aad4-4aa6-a5d1-c90941e0a3f2",
+      "name": "Get Codebase Id1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "dev_prompt",
+              "value": "={{ $json.dev_prompt }}",
+              "type": "string"
+            },
+            {
+              "id": "0bda49e8-ee2a-4a16-964f-8fa6b14b2743",
+              "name": "debugMode",
+              "value": "={{ $('Dev Start Form').item.json['Debug Mode'][0] == \"Debug Mode\" }}",
+              "type": "boolean"
+            },
+            {
+              "id": "82e7d0af-3113-4a47-854d-e8e4064bc621",
+              "name": "codebaseId",
+              "value": "={{ $('Get Codebase Id1').item.json.codebaseSelectedId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        128,
+        256
+      ],
+      "id": "e7c2f5c5-154e-4b9c-a0b9-40a7da1dc876",
+      "name": "Dev Params"
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Start PM Agent",
+        "formDescription": "Select the codebase to work on",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Codebase",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "={{ $json.names }}"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Debug Mode",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Debug Mode"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -544,
+        256
+      ],
+      "id": "cb0a13a2-813e-4e19-a2ba-d6c385e62406",
+      "name": "Dev Start Form",
+      "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+              "name": "dev_prompt",
+              "value": "You are an expert senior software engineer. Please read agent/onboarding/engineer.md to get started",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        256
+      ],
+      "id": "da1ca599-cb77-4ff8-8b0e-2684fdf35bd6",
+      "name": "Dev Prompt"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "webhookSuffix": ""
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "7f79caf0-a0a5-43a4-bc75-6965748ad94e",
+      "name": "Wait For Dev",
+      "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "webhookSuffix": ""
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2368,
+        16
+      ],
+      "id": "57d8e685-eb34-4ddf-9371-7c31c1525766",
+      "name": "Wait For QA",
+      "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        16
+      ],
+      "id": "c2b1c7d9-8c49-466a-b03e-7972d2816e5e",
+      "name": "Wait",
+      "webhookId": "fb12c776-b804-4854-8397-e38b044530e4"
+    },
+    {
+      "parameters": {
+        "url": "=http://app:3000/api/tickets/{{ $('Tickets Remaining?').item.json.data.nextTicket.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2816,
+        16
+      ],
+      "id": "241f46d2-6905-47cd-b7d5-be2ec61b2711",
+      "name": "Get Ticket"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Scan Tickets": {
+      "main": [
+        [
+          {
+            "node": "Tickets Remaining?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tickets Remaining?": {
+      "main": [
+        [
+          {
+            "node": "Setup Git Branch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Compress Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Git Branch": {
+      "main": [
+        [
+          {
+            "node": "Launch Dev Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compress Project": {
+      "main": [
+        [
+          {
+            "node": "Download Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Dev Work": {
+      "main": [
+        [
+          {
+            "node": "QA Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit QA Work": {
+      "main": [
+        [
+          {
+            "node": "Get Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Branch to Develop": {
+      "main": [
+        [
+          {
+            "node": "Next Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next Ticket": {
+      "main": [
+        [
+          {
+            "node": "Scan Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Passes QA?": {
+      "main": [
+        [
+          {
+            "node": "Merge Branch to Develop",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Launch Dev Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Dev Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait For Dev",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA Prompt": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch QA Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait For QA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Check App is Running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Codebases": {
+      "main": [
+        [
+          {
+            "node": "Map Codebase Names",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check App is Running": {
+      "main": [
+        [
+          {
+            "node": "Get Active Codebases",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Codebase Names": {
+      "main": [
+        [
+          {
+            "node": "Dev Start Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Codebase Id1": {
+      "main": [
+        [
+          {
+            "node": "Dev Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev Params": {
+      "main": [
+        [
+          {
+            "node": "Scan Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev Start Form": {
+      "main": [
+        [
+          {
+            "node": "Get Codebase Id1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev Prompt": {
+      "main": [
+        [
+          {
+            "node": "Dev Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Dev": {
+      "main": [
+        [
+          {
+            "node": "Commit Dev Work",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For QA": {
+      "main": [
+        [
+          {
+            "node": "Commit QA Work",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Launch QA Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Ticket": {
+      "main": [
+        [
+          {
+            "node": "Passes QA?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5726d742-8384-40d2-b6b0-b227cac4e34d",
+  "meta": {
+    "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
+  },
+  "id": "NGngsR6StuAl1ihc",
+  "tags": []
+}

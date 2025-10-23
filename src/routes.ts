@@ -12,12 +12,16 @@ router.get('/health', async (req: Request, res: Response) => {
 });
 
 // Codebase endpoints
+router.post('/api/codebase/setup', async (req: Request, res: Response) => {
+    return new CodebaseController(req, res).setup();
+});
+
 router.get('/api/codebase/:id', async (req: Request, res: Response) => {
     return new CodebaseController(req, res).get();
 });
 
-router.post('/api/codebase/setup', async (req: Request, res: Response) => {
-    return new CodebaseController(req, res).setup();
+router.get('/api/codebases', async (req: Request, res: Response) => {
+    return new CodebaseController(req, res).getAll();
 });
 
 // Agent Endpoints
@@ -42,6 +46,9 @@ router.post('/api/agent/execute-async', async (req: Request, res: Response) => {
 });
 
 // Ticket endpoints
+router.get('/api/tickets/:id', async (req: Request, res: Response) => {
+    return new TicketsController(req, res).scanTicket();
+});
 router.post('/api/tickets/scan', async (req: Request, res: Response) => {
     return new TicketsController(req, res).scan();
 });
