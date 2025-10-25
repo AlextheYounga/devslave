@@ -20,7 +20,8 @@ export default class AgentController {
   async ping() {
     try {
       const agentId = this.req.params.id!;
-      const agentHandler = new GetAgentStatusHandler(agentId);
+      const debugMode = this.req?.query?.debugMode ? this.req.query.debugMode === "true" : false;
+      const agentHandler = new GetAgentStatusHandler(agentId, debugMode);
       const result = await agentHandler.handle();
 
       return this.res.status(200).json({

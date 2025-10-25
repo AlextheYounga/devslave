@@ -7,7 +7,7 @@ import { join } from "path";
 import { homedir } from "os";
 import { AgentPreparing, AgentLaunched } from "../events";
 import { Role, paths } from "../constants";
-import { createId } from "@paralleldrive/cuid2";
+import { error } from "console";
 dotenv.config();
 
 type StartAgentParams = {
@@ -31,10 +31,10 @@ export default class StartAgentHandler {
   }
 
   async handle() {
-    if (this.params.debugMode) return this.debugResponse();
     const codebaseId = this.params.codebaseId;
     const scriptFile = `${paths.scripts}/launch-agent.sh`;
     const agentRecord = await this.createAgentRecord();
+    if (this.params.debugMode) return this.debugResponse(agentRecord.id);
 
     this.tmuxSession = `agent_${agentRecord.id}`;
     await this.updateAgentRecord(agentRecord.id, {
@@ -73,7 +73,7 @@ export default class StartAgentHandler {
   // Good-enough strategy for getting session files. This is straightforward using lsof
   // on the MacOS version of codex, but on Linux it's more complicated.
   async getAgentLogFile() {
-    const timeout = Date.now() + 10000; // 10 seconds from now
+    const timeout = Date.now() + 2000; // 10 seconds from now
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     while (true) {
       const logFilesAfter = this.getAllLogFiles();
@@ -82,9 +82,9 @@ export default class StartAgentHandler {
       if (newLogFile.length === 0 || newLogFile.length > 1) {
         if (Date.now() > timeout) {
           this.killTmuxFailSafe();
-          throw new Error(
-            `Unable to determine new log file for agent. Found ${newLogFile.length} new files.`
-          );
+          const errorMessage = `Unable to determine new log file for agent. Found ${newLogFile.length} new files.` 
+          console.error(errorMessage);
+          throw new Error(errorMessage);
         }
         // Wait a bit and retry
         await sleep(500);
@@ -160,14 +160,13 @@ export default class StartAgentHandler {
     exec(`tmux kill-session -t ${this.tmuxSession}`);
   }
 
-  private debugResponse() {
-    const id = createId();
+  private debugResponse(agentId: string) {
     return {
-      agentId: id,
+      agentId: agentId,
       codebaseId: this.params.codebaseId,
       logFile: "debug-file.jsonl",
       sessionId: "debug-session-id",
-      tmuxSession: `agent_${id}`,
+      tmuxSession: `agent_${agentId}`,
     };
   }
 }

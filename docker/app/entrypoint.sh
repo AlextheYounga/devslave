@@ -14,6 +14,7 @@ service ssh start
 
 echo "[entrypoint] installing npm dependencies"
 nvm install
+node --version
 npm install --no-audit --no-fund
 
 echo "[entrypoint] prisma migrate deploy"

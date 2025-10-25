@@ -17,7 +17,8 @@ export default class TicketsController {
   async scanTicket() {
     try {
       const ticketId = this.req.params.id!;
-      const scanTicketsHandler = new ScanTicketHandler(ticketId);
+      const debugMode = this.req?.query?.debugMode ? this.req.query.debugMode === "true" : false;
+      const scanTicketsHandler = new ScanTicketHandler(ticketId, debugMode);
       const ticket = await scanTicketsHandler.handle();
 
       return this.res.status(200).json({

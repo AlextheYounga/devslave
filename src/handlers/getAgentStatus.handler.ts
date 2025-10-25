@@ -1,8 +1,8 @@
 import { prisma } from "../prisma";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { createHash } from "crypto";
 import { execSync } from "child_process";
-import { PrismaClient, AgentStatus } from "@prisma/client";
+import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
 import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
 
 type AgentStatusResult = {
@@ -15,26 +15,29 @@ type AgentStatusResult = {
 export default class GetAgentStatusHandler {
   private db: PrismaClient;
   public agentId: string;
+  public debugMode: boolean;
   public tmuxSession: string | null = null;
-  private contentHash: string | undefined;
   private eventData: any;
 
-  constructor(agentId: string) {
+  constructor(agentId: string, debugMode: boolean) {
     this.db = prisma;
     this.agentId = agentId;
+    this.debugMode = debugMode;
     this.eventData = { agentId };
   }
 
   async handle(): Promise<AgentStatusResult> {
     let publishableEvent = new AgentRunning(this.eventData);
     const agent = await this.db.agent.findUniqueOrThrow({ where: { id: this.agentId } });
-    const prevStatus = agent.status;
-    const nextStatus = await this.getAgentStatus();
+    if (this.debugMode) return this.debugResponse(agent);
 
     this.tmuxSession = agent.tmuxSession;
     if (!this.tmuxSession) {
       throw new Error("Agent does not have an associated tmux session.");
     }
+
+    const prevStatus = agent.status;
+    const nextStatus = await this.getAgentStatus();
 
     this.eventData = {
       ...this.eventData,
@@ -83,7 +86,10 @@ export default class GetAgentStatusHandler {
   private async getAgentStatus(): Promise<AgentStatus> {
     try {
       const sessionAlive = await this.isSessionAlive();
-      if (!sessionAlive) return AgentStatus.FAILED;
+      if (!sessionAlive) {
+        console.log("Tmux session appears dead.");
+        return AgentStatus.FAILED;
+      }
 
       const paneFile = this.capturePaneContent();
       const newHash = this.hashPaneContent(paneFile);
@@ -103,7 +109,7 @@ export default class GetAgentStatusHandler {
   }
 
   private capturePaneContent() {
-    const paneFile = `/tmp/agent_${this.agentId}_pane.txt`;
+    const paneFile = `/tmp/agent_cache/agent_${this.agentId}_pane.txt`;
     execSync(`touch ${paneFile}`);
     execSync(`tmux capture-pane -p -t ${this.tmuxSession}:0 > ${paneFile}`);
     return paneFile;
@@ -116,10 +122,15 @@ export default class GetAgentStatusHandler {
   }
 
   private isContentUnchanged(newHash: string) {
+    const hashFile = `/tmp/agent_cache/agent_${this.agentId}_hash.txt`;
+
+    const lastContentHash = existsSync(hashFile)
+      ? readFileSync(hashFile, "utf-8").trim()
+      : null;
     // No change in content - assume session is idle
-    if (this.contentHash && this.contentHash === newHash) return true;
+    if (lastContentHash && lastContentHash === newHash) return true;
     // Content has changed - update content hash for next run
-    this.contentHash = newHash;
+    writeFileSync(hashFile, newHash, "utf-8");
     return false;
   }
 
@@ -143,5 +154,14 @@ export default class GetAgentStatusHandler {
   private getAgentRunDuration(createdAt: Date): number {
     const now = new Date();
     return now.getTime() - createdAt.getTime();
+  }
+
+  private debugResponse(agent: Agent) {
+    return {
+      agentId: agent.id,
+      status: AgentStatus.COMPLETED,
+      tmuxSession: "debug-session-id",
+      duration: this.getAgentRunDuration(agent.createdAt),
+    };
   }
 }

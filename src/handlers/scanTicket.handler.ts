@@ -1,18 +1,18 @@
 import { prisma } from "../prisma";
 import { PrismaClient, Ticket, TicketStatus } from "@prisma/client";
-import { AGENT_FOLDER_NAME } from "../constants";
-import { readFileSync, existsSync } from "fs";
-import path from "path";
-import matter from "gray-matter";
 import { TicketStatusChanged } from "../events";
+import { readFileSync, existsSync } from "fs";
+import matter from "gray-matter";
 
 export default class ScanTicketHandler {
   private db: PrismaClient;
   private ticketId: string;
+  private debugMode: boolean;
 
-  constructor(ticketId: string) {
+  constructor(ticketId: string, debugMode: boolean) {
     this.db = prisma;
     this.ticketId = ticketId;
+    this.debugMode = debugMode;
   }
 
   async handle(): Promise<Ticket> {
@@ -20,9 +20,7 @@ export default class ScanTicketHandler {
       where: { id: this.ticketId },
     });
 
-    const codebase = await this.db.codebase.findUniqueOrThrow({
-      where: { id: ticket.codebaseId },
-    });
+    if (this.debugMode) return this.debugResponse(ticket);
 
     if (!existsSync(ticket.ticketFile)) {
       throw new Error(`Tickets file does not exist at path: ${ticket.ticketFile}`);
@@ -113,4 +111,11 @@ export default class ScanTicketHandler {
       };
     }
   }
+
+    private debugResponse(ticket: Ticket) {
+      return {
+        ...ticket,
+        status: TicketStatus.CLOSED
+      }
+    }
 }

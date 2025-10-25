@@ -21,6 +21,9 @@ RUN mkdir /var/run/sshd \
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 RUN bash -lc 'export NVM_DIR="/root/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; nvm install 22; nvm alias default 22; nvm use 22; node_path="$(nvm which node)"; bin_dir="$(dirname "$node_path")"; ln -sf "$node_path" /usr/local/bin/node; for b in npm npx corepack; do if [ -f "$bin_dir/$b" ]; then ln -sf "$bin_dir/$b" /usr/local/bin/$b; fi; done'
 
+# Create cache directory for installation artifacts
+RUN mkdir -p /tmp/agent_cache
+
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
@@ -30,9 +33,9 @@ ENV PATH="/.venv/bin:${PATH}"
 # Install PHP & Composer (herd-lite)
 ENV TERM=xterm
 RUN apt-get install -y --no-install-recommends procps && rm -rf /var/lib/apt/lists/*
-RUN curl -fsSL https://php.new/install/linux/8.4 -o /tmp/install_php.sh \
-    && sed -i 's/^clear/# clear/' /tmp/install_php.sh \
-    && bash /tmp/install_php.sh
+RUN curl -fsSL https://php.new/install/linux/8.4 -o /tmp/agent_cache/install_php.sh \
+    && sed -i 's/^clear/# clear/' /tmp/agent_cache/install_php.sh \
+    && bash /tmp/agent_cache/install_php.sh
 ENV PATH="/root/.config/herd-lite/bin:${PATH}"
 
 # Install Laravel CLI
@@ -45,17 +48,17 @@ RUN if [ "$INSTALL_OLLAMA" = "true" ]; then curl -fsSL https://ollama.com/instal
 RUN if [ "$INSTALL_OLLAMA" = "true" ]; then uv pip install duckduckgo-mcp-server; fi
 
 # Install Go 
-RUN curl -sSfL https://golang.org/dl/go1.21.5.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
+RUN curl -sSfL https://golang.org/dl/go1.21.5.linux-amd64.tar.gz -o /tmp/agent_cache/go.tar.gz && \
     rm -rf /usr/local/go && \
-    tar -C /usr/local -xzf /tmp/go.tar.gz && \
-    rm /tmp/go.tar.gz
+    tar -C /usr/local -xzf /tmp/agent_cache/go.tar.gz && \
+    rm /tmp/agent_cache/go.tar.gz
 ENV PATH=$PATH:/usr/local/go/bin
 
 # Install Gitleaks from source
-RUN git clone https://github.com/gitleaks/gitleaks.git /tmp/gitleaks && \
-    cd /tmp/gitleaks && \
+RUN git clone https://github.com/gitleaks/gitleaks.git /tmp/agent_cache/gitleaks && \
+    cd /tmp/agent_cache/gitleaks && \
     go build -o /usr/local/bin/gitleaks && \
-    rm -rf /tmp/gitleaks
+    rm -rf /tmp/agent_cache/gitleaks
 
 
 # Install Rust

@@ -119,7 +119,7 @@ export default class WatchAgentHandler {
   }
 
   private capturePaneContent() {
-    const paneFile = `/tmp/agent_${this.agentId}_pane.txt`;
+    const paneFile = `/tmp/agent_cache/agent_${this.agentId}_pane.txt`;
     execSync(`touch ${paneFile}`);
     execSync(`tmux capture-pane -p -t ${this.tmuxSession}:0 > ${paneFile}`);
     return paneFile;

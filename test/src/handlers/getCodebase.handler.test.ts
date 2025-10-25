@@ -6,7 +6,7 @@ describe("GetCodebaseHandler", () => {
     const codebase = await prisma.codebase.create({
       data: {
         name: "existing",
-        path: "/tmp/existing",
+        path: "/tmp/agent_cache/existing",
         setup: true,
       },
     });
