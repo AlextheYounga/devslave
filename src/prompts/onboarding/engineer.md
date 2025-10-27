@@ -46,3 +46,4 @@ Follow `philosophy.md`, respect project scope, and deliver tested, working code.
 - Linting optional.  
 - Clarity > cleverness.  
 - Done = all tests pass and ticket marked complete.
+- **Ensure you update the ticket file to the correct status.**

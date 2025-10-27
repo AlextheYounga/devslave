@@ -44,3 +44,4 @@ Block only for **clear functional failures**, not style or minor issues.
 - Log small issues; don’t block.  
 - Provide clear, reproducible reasons when failing.  
 - Only block philosophy deviations if they cause real problems.
+- **Ensure you update the ticket file to the correct status.**
