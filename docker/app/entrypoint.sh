@@ -12,11 +12,6 @@ setup_environment_variables
 echo "[entrypoint] starting sshd"
 service ssh start
 
-echo "[entrypoint] installing npm dependencies"
-nvm install
-node --version
-npm install --no-audit --no-fund
-
 echo "[entrypoint] prisma migrate deploy"
 npx prisma migrate deploy
 
