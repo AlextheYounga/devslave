@@ -1,427 +1,385 @@
 {
-  "name": "Project Manager Agent Workflow",
-  "nodes": [
-    {
-      "parameters": {
-        "resume": "form",
-        "formTitle": "Tickets Review Confirmation",
-        "formDescription": "Check the tickets and confirm these are okay",
-        "formFields": {
-          "values": [
-            {
-              "fieldType": "html",
-              "elementName": "Outline ",
-              "html": "<div>\n  <p>Check the tickets with the following command</p>\n  <pre><code>\n    docker exec -it devslave-app-1 bash\n\n    cd {{ $('Project Start Params').first().json.projectPath }}/agent/tickets\n  </code></pre>\n</div>"
-            }
-          ]
+    "name": "Project Manager Agent Workflow",
+    "nodes": [
+        {
+            "parameters": {
+                "resume": "form",
+                "formTitle": "Tickets Review Confirmation",
+                "formDescription": "Check the tickets and confirm these are okay",
+                "formFields": {
+                    "values": [
+                        {
+                            "fieldType": "html",
+                            "elementName": "Outline ",
+                            "html": "<div>\n  <p>Check the tickets with the following command</p>\n  <pre><code>\n    docker exec -it devslave-app-1 bash\n\n    cd {{ $('Project Start Params').first().json.projectPath }}/agent/tickets\n  </code></pre>\n</div>"
+                        }
+                    ]
+                },
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1.1,
+            "position": [2496, 352],
+            "id": "14467b9d-4c56-4079-89d7-f87247b7f976",
+            "name": "Tickets Review Confirmation Form",
+            "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
         },
-        "responseMode": "lastNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        2496,
-        352
-      ],
-      "id": "14467b9d-4c56-4079-89d7-f87247b7f976",
-      "name": "Tickets Review Confirmation Form",
-      "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
-    },
-    {
-      "parameters": {
-        "command": "=bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $('Build Agent Payload').item.json.data.codebaseId }}\" \"Finished project sprint planning\""
-      },
-      "type": "n8n-nodes-base.ssh",
-      "typeVersion": 1,
-      "position": [
-        2496,
-        144
-      ],
-      "id": "6e49f9ee-b243-4916-83f0-02f0e1b3d449",
-      "name": "PM Git Commit",
-      "credentials": {
-        "sshPassword": {
-          "id": "cubrUaryfoxjprAQ",
-          "name": "SSH Password account"
+        {
+            "parameters": {
+                "command": "=bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $('Build Agent Payload').item.json.data.codebaseId }}\" \"Finished project sprint planning\""
+            },
+            "type": "n8n-nodes-base.ssh",
+            "typeVersion": 1,
+            "position": [2496, 144],
+            "id": "6e49f9ee-b243-4916-83f0-02f0e1b3d449",
+            "name": "PM Git Commit",
+            "credentials": {
+                "sshPassword": {
+                    "id": "cubrUaryfoxjprAQ",
+                    "name": "SSH Password account"
+                }
+            },
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "resume": "webhook",
+                "httpMethod": "POST",
+                "options": {
+                    "webhookSuffix": ""
+                }
+            },
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1.1,
+            "position": [2176, 352],
+            "id": "641ff9e9-933a-4b38-9a03-460c6f8cbdab",
+            "name": "Wait for PM Agent",
+            "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+                            "name": "pm_prompt",
+                            "value": "You are an expert software project manager. Please read agent/onboarding/project-manager.md to get started",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [1472, 352],
+            "id": "9ec024aa-bdca-4813-8861-8643aad6a8fd",
+            "name": "PM Prompt"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [112, 352],
+            "id": "656322ef-f546-483f-b52e-e74f2a471a8c",
+            "name": "When clicking ‘Execute workflow’"
+        },
+        {
+            "parameters": {
+                "url": "http://app:3000/api/codebases",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [{}]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [560, 352],
+            "id": "34923b0c-226e-440f-88d7-e324f6d747ee",
+            "name": "Get Active Codebases"
+        },
+        {
+            "parameters": {
+                "url": "http://app:3000/health",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [336, 352],
+            "id": "951fbf9b-fa7e-4a89-854c-eb0981db5e34",
+            "name": "Check App is Running"
+        },
+        {
+            "parameters": {
+                "resume": "form",
+                "formTitle": "Start PM Agent",
+                "formDescription": "Select the codebase to work on",
+                "formFields": {
+                    "values": [
+                        {
+                            "fieldLabel": "Codebase",
+                            "fieldType": "dropdown",
+                            "fieldOptions": {
+                                "values": [
+                                    {
+                                        "option": "={{ $json.names }}"
+                                    }
+                                ]
+                            },
+                            "requiredField": true
+                        },
+                        {
+                            "fieldLabel": "Debug Mode",
+                            "fieldType": "checkbox",
+                            "fieldOptions": {
+                                "values": [
+                                    {
+                                        "option": "Debug Mode"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1.1,
+            "position": [1008, 352],
+            "id": "9d5fe59f-df8b-49d0-866c-de5fc51f813e",
+            "name": "PM Start Form",
+            "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
+        },
+        {
+            "parameters": {
+                "jsCode": "const codebases = $input.first().json.data.codebases;\nreturn {\n  ids: codebases.map(cb => cb.id),\n  names: codebases.map(cb => cb.name)\n} \n  "
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [784, 352],
+            "id": "6f308ea3-33ba-40a8-9768-d9aff270826b",
+            "name": "Map Codebase Names"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://app:3000/api/agent/execute-async",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "executionId",
+                            "value": "={{ $execution.id }}"
+                        },
+                        {
+                            "name": "callbackUrl",
+                            "value": "={{ $execution.resumeUrl }}"
+                        },
+                        {
+                            "name": "codebaseId",
+                            "value": "={{ $json.codebaseId }}"
+                        },
+                        {
+                            "name": "prompt",
+                            "value": "={{ $json.pm_prompt }}"
+                        },
+                        {
+                            "name": "role",
+                            "value": "manager"
+                        },
+                        {
+                            "name": "debugMode",
+                            "value": "={{ $json.debugMode }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [1952, 352],
+            "id": "e729391f-9757-45a4-b996-5c106d25535b",
+            "name": "Launch PM Agent"
+        },
+        {
+            "parameters": {
+                "jsCode": "const codebases = $('Get Active Codebases').first().json.data.codebases\nconst codebaseName = $input.first().json.Codebase\nconst codebaseSelected = codebases.find(cb => cb.name === codebaseName)\nreturn {\n  codebaseSelectedId: codebaseSelected.id\n}\n"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [1232, 352],
+            "id": "0e53f12e-e9bf-482e-8fc5-278f8128902f",
+            "name": "Get Codebase Id"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+                            "name": "pm_prompt",
+                            "value": "={{ $json.pm_prompt }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "0bda49e8-ee2a-4a16-964f-8fa6b14b2743",
+                            "name": "debugMode",
+                            "value": "={{ $('PM Start Form').item.json['Debug Mode'][0] == \"Debug Mode\" }}",
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "82e7d0af-3113-4a47-854d-e8e4064bc621",
+                            "name": "codebaseId",
+                            "value": "={{ $('Get Codebase Id').item.json.codebaseSelectedId }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [1696, 352],
+            "id": "2f68a3aa-7c10-477e-a054-515ef9f29f68",
+            "name": "Build Agent Payload"
         }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "resume": "webhook",
-        "httpMethod": "POST",
-        "options": {
-          "webhookSuffix": ""
-        }
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        2176,
-        352
-      ],
-      "id": "641ff9e9-933a-4b38-9a03-460c6f8cbdab",
-      "name": "Wait for PM Agent",
-      "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
-              "name": "pm_prompt",
-              "value": "You are an expert software project manager. Please read agent/onboarding/project-manager.md to get started",
-              "type": "string"
-            }
-          ]
+    ],
+    "pinData": {},
+    "connections": {
+        "Tickets Review Confirmation Form": {
+            "main": [[]]
         },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1472,
-        352
-      ],
-      "id": "9ec024aa-bdca-4813-8861-8643aad6a8fd",
-      "name": "PM Prompt"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        112,
-        352
-      ],
-      "id": "656322ef-f546-483f-b52e-e74f2a471a8c",
-      "name": "When clicking ‘Execute workflow’"
-    },
-    {
-      "parameters": {
-        "url": "http://app:3000/api/codebases",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {}
-          ]
+        "PM Git Commit": {
+            "main": [[]]
         },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        560,
-        352
-      ],
-      "id": "34923b0c-226e-440f-88d7-e324f6d747ee",
-      "name": "Get Active Codebases"
-    },
-    {
-      "parameters": {
-        "url": "http://app:3000/health",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        336,
-        352
-      ],
-      "id": "951fbf9b-fa7e-4a89-854c-eb0981db5e34",
-      "name": "Check App is Running"
-    },
-    {
-      "parameters": {
-        "resume": "form",
-        "formTitle": "Start PM Agent",
-        "formDescription": "Select the codebase to work on",
-        "formFields": {
-          "values": [
-            {
-              "fieldLabel": "Codebase",
-              "fieldType": "dropdown",
-              "fieldOptions": {
-                "values": [
-                  {
-                    "option": "={{ $json.names }}"
-                  }
+        "Wait for PM Agent": {
+            "main": [
+                [
+                    {
+                        "node": "PM Git Commit",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Tickets Review Confirmation Form",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
-              },
-              "requiredField": true
-            },
-            {
-              "fieldLabel": "Debug Mode",
-              "fieldType": "checkbox",
-              "fieldOptions": {
-                "values": [
-                  {
-                    "option": "Debug Mode"
-                  }
+            ]
+        },
+        "PM Prompt": {
+            "main": [
+                [
+                    {
+                        "node": "Build Agent Payload",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
-              }
-            }
-          ]
+            ]
         },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        1008,
-        352
-      ],
-      "id": "9d5fe59f-df8b-49d0-866c-de5fc51f813e",
-      "name": "PM Start Form",
-      "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
-    },
-    {
-      "parameters": {
-        "jsCode": "const codebases = $input.first().json.data.codebases;\nreturn {\n  ids: codebases.map(cb => cb.id),\n  names: codebases.map(cb => cb.name)\n} \n  "
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        784,
-        352
-      ],
-      "id": "6f308ea3-33ba-40a8-9768-d9aff270826b",
-      "name": "Map Codebase Names"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://app:3000/api/agent/execute-async",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "executionId",
-              "value": "={{ $execution.id }}"
-            },
-            {
-              "name": "callbackUrl",
-              "value": "={{ $execution.resumeUrl }}"
-            },
-            {
-              "name": "codebaseId",
-              "value": "={{ $json.codebaseId }}"
-            },
-            {
-              "name": "prompt",
-              "value": "={{ $json.pm_prompt }}"
-            },
-            {
-              "name": "role",
-              "value": "manager"
-            },
-            {
-              "name": "debugMode",
-              "value": "={{ $json.debugMode }}"
-            }
-          ]
+        "When clicking ‘Execute workflow’": {
+            "main": [
+                [
+                    {
+                        "node": "Check App is Running",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         },
-        "options": {
-          "timeout": 10000
+        "Check App is Running": {
+            "main": [
+                [
+                    {
+                        "node": "Get Active Codebases",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Active Codebases": {
+            "main": [
+                [
+                    {
+                        "node": "Map Codebase Names",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "PM Start Form": {
+            "main": [
+                [
+                    {
+                        "node": "Get Codebase Id",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Map Codebase Names": {
+            "main": [
+                [
+                    {
+                        "node": "PM Start Form",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Launch PM Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Wait for PM Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Codebase Id": {
+            "main": [
+                [
+                    {
+                        "node": "PM Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Build Agent Payload": {
+            "main": [
+                [
+                    {
+                        "node": "Launch PM Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1952,
-        352
-      ],
-      "id": "e729391f-9757-45a4-b996-5c106d25535b",
-      "name": "Launch PM Agent"
     },
-    {
-      "parameters": {
-        "jsCode": "const codebases = $('Get Active Codebases').first().json.data.codebases\nconst codebaseName = $input.first().json.Codebase\nconst codebaseSelected = codebases.find(cb => cb.name === codebaseName)\nreturn {\n  codebaseSelectedId: codebaseSelected.id\n}\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1232,
-        352
-      ],
-      "id": "0e53f12e-e9bf-482e-8fc5-278f8128902f",
-      "name": "Get Codebase Id"
+    "active": false,
+    "settings": {
+        "executionOrder": "v1"
     },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
-              "name": "pm_prompt",
-              "value": "={{ $json.pm_prompt }}",
-              "type": "string"
-            },
-            {
-              "id": "0bda49e8-ee2a-4a16-964f-8fa6b14b2743",
-              "name": "debugMode",
-              "value": "={{ $('PM Start Form').item.json['Debug Mode'][0] == \"Debug Mode\" }}",
-              "type": "boolean"
-            },
-            {
-              "id": "82e7d0af-3113-4a47-854d-e8e4064bc621",
-              "name": "codebaseId",
-              "value": "={{ $('Get Codebase Id').item.json.codebaseSelectedId }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1696,
-        352
-      ],
-      "id": "2f68a3aa-7c10-477e-a054-515ef9f29f68",
-      "name": "Build Agent Payload"
-    }
-  ],
-  "pinData": {},
-  "connections": {
-    "Tickets Review Confirmation Form": {
-      "main": [
-        []
-      ]
+    "versionId": "0700ea18-ec18-46af-8cf2-2871ccef17a1",
+    "meta": {
+        "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
-    "PM Git Commit": {
-      "main": [
-        []
-      ]
-    },
-    "Wait for PM Agent": {
-      "main": [
-        [
-          {
-            "node": "PM Git Commit",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Tickets Review Confirmation Form",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "PM Prompt": {
-      "main": [
-        [
-          {
-            "node": "Build Agent Payload",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Check App is Running",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check App is Running": {
-      "main": [
-        [
-          {
-            "node": "Get Active Codebases",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Active Codebases": {
-      "main": [
-        [
-          {
-            "node": "Map Codebase Names",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "PM Start Form": {
-      "main": [
-        [
-          {
-            "node": "Get Codebase Id",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Map Codebase Names": {
-      "main": [
-        [
-          {
-            "node": "PM Start Form",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Launch PM Agent": {
-      "main": [
-        [
-          {
-            "node": "Wait for PM Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Codebase Id": {
-      "main": [
-        [
-          {
-            "node": "PM Prompt",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Agent Payload": {
-      "main": [
-        [
-          {
-            "node": "Launch PM Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "0700ea18-ec18-46af-8cf2-2871ccef17a1",
-  "meta": {
-    "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
-  },
-  "id": "r7MPTM7JIBSVe6gd",
-  "tags": []
+    "id": "r7MPTM7JIBSVe6gd",
+    "tags": []
 }

@@ -2,28 +2,28 @@ import prisma from "../../client";
 import GetCodebaseHandler from "../../../src/handlers/getCodebase.handler";
 
 describe("GetCodebaseHandler", () => {
-  it("returns the codebase when it exists", async () => {
-    const codebase = await prisma.codebase.create({
-      data: {
-        name: "existing",
-        path: "/tmp/agent_cache/existing",
-        setup: true,
-      },
+    it("returns the codebase when it exists", async () => {
+        const codebase = await prisma.codebase.create({
+            data: {
+                name: "existing",
+                path: "/tmp/agent_cache/existing",
+                setup: true,
+            },
+        });
+
+        const handler = new GetCodebaseHandler(codebase.id);
+        const result = await handler.handle();
+
+        expect(result).toMatchObject({
+            id: codebase.id,
+            name: codebase.name,
+            path: codebase.path,
+        });
     });
 
-    const handler = new GetCodebaseHandler(codebase.id);
-    const result = await handler.handle();
+    it("throws when the codebase cannot be found", async () => {
+        const handler = new GetCodebaseHandler("missing-id");
 
-    expect(result).toMatchObject({
-      id: codebase.id,
-      name: codebase.name,
-      path: codebase.path,
+        await expect(handler.handle()).rejects.toThrow();
     });
-  });
-
-  it("throws when the codebase cannot be found", async () => {
-    const handler = new GetCodebaseHandler("missing-id");
-
-    await expect(handler.handle()).rejects.toThrow();
-  });
 });

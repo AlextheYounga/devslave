@@ -18,18 +18,18 @@ app.use("/", routes);
 
 // Graceful shutdown
 process.on("SIGTERM", async () => {
-  console.log("Received SIGTERM, shutting down gracefully");
-  await prisma.$disconnect();
-  process.exit(0);
+    console.log("Received SIGTERM, shutting down gracefully");
+    await prisma.$disconnect();
+    process.exit(0);
 });
 
 process.on("SIGINT", async () => {
-  console.log("Received SIGINT, shutting down gracefully");
-  await prisma.$disconnect();
-  process.exit(0);
+    console.log("Received SIGINT, shutting down gracefully");
+    await prisma.$disconnect();
+    process.exit(0);
 });
 
 app.listen(port, () => {
-  console.log(`API server running on port ${port}`);
-  console.log(`Health check: http://localhost:${port}/health`);
+    console.log(`API server running on port ${port}`);
+    console.log(`Health check: http://localhost:${port}/health`);
 });

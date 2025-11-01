@@ -5,24 +5,24 @@ set -euo pipefail
 codebase_id=${1:-}
 
 if [[ -z "${codebase_id}" ]]; then
-  echo "Usage: $0 <codebase_id>" >&2
-  exit 1
+    echo "Usage: $0 <codebase_id>" >&2
+    exit 1
 fi
 
 get_codebase_by_id() {
     local codebase_id=$1
     local codebase_record
-    
+
     # Use test database path from DB_ABSOLUTE_URL env var
     local test_db_path="$DB_ABSOLUTE_URL"
     sql="SELECT * FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
     codebase_record=$(sqlite3 "$test_db_path" "$sql")
-    
+
     if [[ -z "$codebase_record" ]]; then
         echo "Error: Codebase with ID $codebase_id not found." >&2
         return 1
     fi
-    
+
     echo "$codebase_record"
 }
 
@@ -48,10 +48,10 @@ setup_AGENT_FOLDER_NAME() {
     mkdir -p "${project_path}/docs"
     mkdir -p "${project_path}/${AGENT_FOLDER_NAME}/tickets"
     mkdir -p "${project_path}/${AGENT_FOLDER_NAME}/scripts"
-    
+
     # Create PROJECT.md with master prompt content (using printf to avoid trailing newline)
     printf "%s" "${master_prompt}" > "${project_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
-    
+
     # Create a mock git_commit.sh script that doesn't actually commit
     cat > "${project_path}/${AGENT_FOLDER_NAME}/scripts/git_commit.sh" << 'EOF'
 #!/usr/bin/env bash
@@ -59,7 +59,7 @@ set -euo pipefail
 commit_message="${1:-Auto commit}"
 echo "Mock commit: ${commit_message}"
 EOF
-    
+
     chmod +x "${project_path}/${AGENT_FOLDER_NAME}/scripts/git_commit.sh"
 }
 
@@ -68,9 +68,9 @@ main() {
         echo "Simulating failure for test purposes" >&2
         exit 1
     fi
-    
+
     setup_AGENT_FOLDER_NAME
-    
+
     if [[ "${setup_type}" == "node" ]]; then
         echo "Running node setup functions"
     elif [[ "${setup_type}" == "python" ]]; then
@@ -81,7 +81,7 @@ main() {
         echo "Unknown setup type: ${setup_type}" >&2
         exit 1
     fi
-    
+
     echo "Project setup completed successfully"
 }
 

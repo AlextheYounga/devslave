@@ -12,7 +12,7 @@ setup_uv() {
     fi
 
     uv python install 3.13
-    
+
     if [[ ! -d ".venv" ]]; then
         uv venv .venv
     fi
@@ -46,4 +46,4 @@ run_python_functions() {
     setup_pip
     setup_gitignore
     commit_changes
-}   
+}

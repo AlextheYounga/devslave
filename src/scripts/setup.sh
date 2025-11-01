@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-
 # Args
 codebase_id=${1:-}
 
 if [[ -z "${codebase_id}" ]]; then
-  echo "Usage: $0 <codebase_id>" >&2
-  exit 1
+    echo "Usage: $0 <codebase_id>" >&2
+    exit 1
 fi
 
 get_codebase_by_id() {
     local codebase_id=$1
     local codebase_record
-    
+
     sql="SELECT * FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
     codebase_record=$(sqlite3 "$DB_ABSOLUTE_URL" "$sql")
-    
+
     if [[ -z "$codebase_record" ]]; then
         echo "Error: Codebase with ID $codebase_id not found." >&2
         return 1
     fi
-    
+
     echo "$codebase_record"
 }
 
@@ -90,7 +89,7 @@ setup_precommit() {
     # Add pre-commit config (no network; install only if pre-commit exists)
     cp "${stubs_folder}/precommitconfig.yaml" "${codebase_path}/.pre-commit-config.yaml" || true
 
-    if command -v pre-commit >/dev/null 2>&1; then
+    if command -v pre-commit > /dev/null 2>&1; then
         pre-commit install || true
     fi
 }
@@ -106,12 +105,8 @@ main() {
 
     # Move to project folder
     setup_precommit
-    
 
-
-    
     echo "Project setup completed successfully"
 }
 
 main
-

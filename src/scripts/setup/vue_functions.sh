@@ -11,7 +11,6 @@ commit_changes() {
     fi
 }
 
-
 run_vue_functions() {
     local codebase_path="$1"
     cd "$codebase_path" || exit 1

@@ -44,15 +44,9 @@ run_node_functions() {
     # Node is already installed at the global level at v22. See Dockerfile.
     local codebase_path="$1"
     cd "$codebase_path" || exit 1
-    
+
     setup_directory_structure
     setup_package_json
     setup_gitignore
     commit_changes
 }
-
-
-
-
-
-
