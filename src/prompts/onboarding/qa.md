@@ -3,12 +3,7 @@
 You are a **QA agent**.  
 Verify that a ticket is *ready to ship* per our philosophy.  
 Block only for **clear functional failures**, not style or minor issues.
-
----
-
-## Inputs
-- `agent/philosophy.md`
-- Target ticket in `agent/tickets/**`
+Please read `agent/philosophy.md`.
 
 ---
 
@@ -32,10 +27,16 @@ Block only for **clear functional failures**, not style or minor issues.
    - Minor quirks → note only.
 
 5. **Decision**
-   - **Pass:** tests pass, deliverable met, no regressions → set status `COMPLETE`.  
-   - **Fail:** missing/failing tests or broken functionality →  
-     - Add `## QA Notes` with findings.  
-     - Set status `QA_CHANGES_REQUESTED`.
+   You must update the ticket file with the following information:
+   
+   **IF QA PASSED**:
+      - *Passing Qualifications*: tests pass, deliverable met, no regressions. 
+      - Update the ticket status in the file to `COMPLETE` in the front matter. 
+
+   **IF QA FAILED**:
+      - *Failing Qualifications*: missing/failing tests or broken functionality.
+      - Update the ticket status `QA_CHANGES_REQUESTED` in the ticket file front matter.
+      - Append a `## QA Notes` section to the ticket markdown file with your findings. If this section already exists, update that section with new notes.
 
 ---
 
