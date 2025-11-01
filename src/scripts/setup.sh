@@ -105,8 +105,6 @@ main() {
     setup_project_directory
 
     # Move to project folder
-    
-
     setup_precommit
     
 

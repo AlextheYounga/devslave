@@ -6,12 +6,7 @@ git_init() {
     local codebase_path="$1"
     cd "$codebase_path" || exit 1
     
-    if [[ ! -d ".git" ]]; then
-        git -c init.defaultBranch="$GIT_DEFAULT_BRANCH" init
-        echo "Initialized new git repository"
-    else
-        echo "Git repository already exists, skipping init"
-    fi
+    git -c init.defaultBranch="$GIT_DEFAULT_BRANCH" init
 
     # Set git config only if not already configured
     if [[ -z "$(git config --get user.name 2>/dev/null || true)" ]]; then
