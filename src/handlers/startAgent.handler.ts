@@ -59,6 +59,15 @@ export default class StartAgentHandler {
             stdio: "ignore",
         }).unref(); // Allow parent to exit without waiting
 
+        // Verify tmux session actually started
+        const sessionStarted = await this.verifyTmuxSession(this.tmuxSession);
+        if (!sessionStarted) {
+            await this.updateAgentRecord(agentRecord.id, {
+                status: AgentStatus.FAILED,
+            });
+            throw new Error(`Tmux session ${this.tmuxSession} failed to start`);
+        }
+
         new AgentLaunched(this.eventData).publish();
 
         // Start non-blocking log file discovery
@@ -72,6 +81,36 @@ export default class StartAgentHandler {
             agentId: agentRecord.id,
             tmuxSession: this.tmuxSession,
         };
+    }
+
+    private async verifyTmuxSession(sessionName: string): Promise<boolean> {
+        const timeout = Date.now() + 10000; // 10 seconds
+        const sleep = (ms: number) =>
+            new Promise((resolve) => setTimeout(resolve, ms));
+
+        while (Date.now() < timeout) {
+            const exists = await this.tmuxSessionExists(sessionName);
+            if (exists) {
+                console.log(
+                    `[StartAgentHandler] Tmux session ${sessionName} verified`,
+                );
+                return true;
+            }
+            await sleep(500);
+        }
+
+        console.error(
+            `[StartAgentHandler] Tmux session ${sessionName} verification timeout`,
+        );
+        return false;
+    }
+
+    private tmuxSessionExists(sessionName: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            exec(`tmux has-session -t ${sessionName} 2>/dev/null`, (error) => {
+                resolve(error === null);
+            });
+        });
     }
 
     private startLogFileDiscovery(agentId: string) {
