@@ -67,7 +67,9 @@ export default class ScanAllTicketsHandler {
             }).publish();
 
             const nextTicket = scannedTickets.find(
-                (t) => t.status === TicketStatus.OPEN || TicketStatus.QA_CHANGES_REQUESTED,
+                (t) =>
+                    t.status === TicketStatus.OPEN ||
+                    TicketStatus.QA_CHANGES_REQUESTED,
             );
 
             return {

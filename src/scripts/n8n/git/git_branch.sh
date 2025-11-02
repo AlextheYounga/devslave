@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# shellcheck disable=SC1091
+source "$AGENT_REPO/.env"
+
 codebase_id=$1
 branch_name=$2
 
@@ -27,7 +30,6 @@ git_commit() {
     git config user.email "$GIT_EMAIL"
     git config commit.gpgsign false
     git add .
-    message="chore: auto-commit on branch $branch_name before creating new branch"
     git commit -m "$message" --no-gpg-sign
 }
 
@@ -50,5 +52,4 @@ fi
 git config user.name "$GIT_USERNAME"
 git config user.email "$GIT_EMAIL"
 git config commit.gpgsign false
-main_trunk=$(git symbolic-ref HEAD | sed 's/refs\/heads\///')
-git checkout -b "$branch_name" "$main_trunk"
+git checkout -b "$branch_name" "$GIT_DEFAULT_BRANCH"

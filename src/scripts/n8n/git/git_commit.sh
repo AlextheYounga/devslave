@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
+source "$AGENT_REPO/.env"
+
 codebase_id=$1
 commit_message=$2
 

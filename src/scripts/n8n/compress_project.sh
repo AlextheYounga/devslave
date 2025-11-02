@@ -3,6 +3,9 @@
 # Args
 codebase_id=$1
 
+# shellcheck disable=SC1091
+source "$AGENT_REPO/.env"
+
 get_codebase_path_by_id() {
     local codebase_id=$1
     local codebase_path

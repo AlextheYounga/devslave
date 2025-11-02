@@ -75,7 +75,7 @@ export default class StartAgentHandler {
     // Good-enough strategy for getting session files. This is straightforward using lsof
     // on the MacOS version of codex, but on Linux it's more complicated.
     async getAgentLogFile() {
-        const timeout = Date.now() + 2000; // 10 seconds from now
+        const timeout = Date.now() + 5000; // 5 seconds from now
         const sleep = (ms: number) =>
             new Promise((resolve) => setTimeout(resolve, ms));
         while (true) {
