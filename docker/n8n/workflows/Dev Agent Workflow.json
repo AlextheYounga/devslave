@@ -22,8 +22,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1184, 48],
-            "id": "bbf9e299-8e59-47ea-8530-13241d496566",
+            "position": [-1808, 608],
+            "id": "6c3267be-6e21-471d-94fd-50b1b0256bc8",
             "name": "Scan Tickets"
         },
         {
@@ -32,12 +32,12 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-512, 48],
-            "id": "ad72568f-afa0-42a4-803d-800557813f9b",
+            "position": [-1136, 608],
+            "id": "16f3e60f-b047-47d8-ace0-9dc3af2a3742",
             "name": "Compress Project",
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
@@ -46,17 +46,17 @@
             "parameters": {
                 "resource": "file",
                 "operation": "download",
-                "path": "=/tmp/{{ $('Get Selected Codebase').item.json.codebaseSelected.folderName }}",
+                "path": "=/tmp/{{ $('Get Selections').item.json.codebaseSelected.folderName }}",
                 "options": {}
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-288, 48],
-            "id": "c8eddb77-bc5b-431c-848f-dead72c87c19",
+            "position": [-912, 608],
+            "id": "27a23da1-d6e6-4350-b3e8-70d98fb78b4e",
             "name": "Download Project",
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
@@ -67,12 +67,12 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [832, -560],
-            "id": "5a2dbd2a-9635-4432-a004-9ddaa86b80d6",
+            "position": [208, 0],
+            "id": "c12d8a2a-10ab-42d7-b628-0f206a3ca235",
             "name": "Commit Dev Work",
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
@@ -83,12 +83,12 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [2480, -192],
-            "id": "f3de464b-c6aa-4379-b756-14ad22af0e7a",
+            "position": [1856, 368],
+            "id": "bc2a283c-51f0-4486-8cf4-94e1abe2f03a",
             "name": "Commit QA Work",
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
@@ -126,8 +126,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-64, -392],
-            "id": "fed4f826-fa1e-4d27-8644-7633054c8b3c",
+            "position": [-688, 176],
+            "id": "d9a4f481-bb55-4826-8d9b-f8d9216bb1c0",
             "name": "Launch Dev Agent"
         },
         {
@@ -146,8 +146,8 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [1360, -96],
-            "id": "80190833-655b-4fa6-8a15-2ee45c5d0269",
+            "position": [736, 464],
+            "id": "ee0128bf-aa72-42bb-9f77-e7538a660990",
             "name": "QA Prompt"
         },
         {
@@ -183,16 +183,16 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [1584, -96],
-            "id": "6c8c7b12-455e-4025-b578-b2d4d4915030",
+            "position": [960, 464],
+            "id": "76c8044c-423a-4966-883e-a3b42388041c",
             "name": "Launch QA Agent"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.manualTrigger",
             "typeVersion": 1,
-            "position": [-2752, -48],
-            "id": "38d1112a-294e-4e6f-bf38-0dfb2e4b07f7",
+            "position": [-3744, 512],
+            "id": "b5b22567-59e4-4d73-9f91-f667ef4ec798",
             "name": "When clicking ‘Execute workflow’"
         },
         {
@@ -206,8 +206,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2304, 48],
-            "id": "ee6ca893-a916-4116-9d75-68ca7d1eac9f",
+            "position": [-2896, 608],
+            "id": "3bddf3ac-9b1b-4c4e-91f4-0bdbdd63e530",
             "name": "Get Active Codebases"
         },
         {
@@ -217,19 +217,9 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2528, 48],
-            "id": "3e88912c-3974-4293-83ec-1b87f981ea6a",
+            "position": [-3520, 608],
+            "id": "7288431e-e958-4723-9f7e-320b28b3298c",
             "name": "Check App is Running"
-        },
-        {
-            "parameters": {
-                "jsCode": "const codebases = $input.first().json.data.codebases\nreturn {\n  ids: codebases.map(cb => cb.id),\n  names: codebases.map(cb => cb.name)\n} \n  "
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [-2080, 48],
-            "id": "6ee7e69e-9532-49c6-9fe8-238d9a49c457",
-            "name": "Map Codebase Names"
         },
         {
             "parameters": {
@@ -244,7 +234,13 @@
                         {
                             "id": "82e7d0af-3113-4a47-854d-e8e4064bc621",
                             "name": "codebaseId",
-                            "value": "={{ $('Get Selected Codebase').item.json.codebaseSelected.id }}",
+                            "value": "={{ $('Get Selections').item.json.codebaseSelected.id }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "06a9e390-3d0d-4343-b5fb-97b1be9ccf95",
+                            "name": "model",
+                            "value": "={{ $('Get Selections').item.json.modelSelected }}",
                             "type": "string"
                         }
                     ]
@@ -253,8 +249,8 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-1408, 48],
-            "id": "c31f2c23-6006-4f2f-b6bd-c426ae316816",
+            "position": [-2032, 608],
+            "id": "35f1e865-0e8a-4aa7-b5ff-9ec85116eed9",
             "name": "Dev Params"
         },
         {
@@ -270,11 +266,22 @@
                             "fieldOptions": {
                                 "values": [
                                     {
-                                        "option": "={{ $json.names }}"
+                                        "option": "={{ $json.codebases.names }}"
                                     }
                                 ]
                             },
                             "requiredField": true
+                        },
+                        {
+                            "fieldLabel": "Model",
+                            "fieldType": "dropdown",
+                            "fieldOptions": {
+                                "values": [
+                                    {
+                                        "option": "={{ $json.models.names }}"
+                                    }
+                                ]
+                            }
                         },
                         {
                             "fieldLabel": "Debug Mode",
@@ -293,8 +300,8 @@
             },
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-1856, 48],
-            "id": "6915a3f7-3ea9-49ed-8ddd-c8d07851b798",
+            "position": [-2480, 608],
+            "id": "8d7c3d10-4f85-4266-8e71-ebfc54584f59",
             "name": "Dev Start Form",
             "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
         },
@@ -314,16 +321,16 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-288, -392],
-            "id": "9eadc1a1-5c8b-41cb-8b87-dd24e90d0cf7",
+            "position": [-912, 176],
+            "id": "8f78ac1d-867a-45ce-9a96-c62e2a3dfa4f",
             "name": "Dev Prompt"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [160, -472],
-            "id": "7ecda644-e41b-4b0e-a5bc-d3f1d3f5c8c0",
+            "position": [-464, 96],
+            "id": "c6394e89-506d-47e8-b854-2ccdd25c1838",
             "name": "Dev Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
         },
@@ -343,16 +350,16 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [384, -536],
-            "id": "0d677595-9940-4ca3-80d2-6a64f5b95642",
+            "position": [-240, 32],
+            "id": "c9174298-7d36-47c6-8ac4-2c74750551c4",
             "name": "Ping Dev Agent"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [1808, -96],
-            "id": "3236aecb-1e84-43c8-abb4-fa1db47ac8e4",
+            "position": [1184, 464],
+            "id": "bd87add3-db61-404e-97ee-00b9fc72114f",
             "name": "QA Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
         },
@@ -372,8 +379,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [2032, -160],
-            "id": "28006f63-c78f-4354-92fa-79c44bd7c493",
+            "position": [1408, 400],
+            "id": "a205d7d3-7262-40a6-a00c-fdb08898c1e3",
             "name": "Ping QA Agent"
         },
         {
@@ -382,8 +389,8 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [832, -368],
-            "id": "511efcb1-832d-439b-ab35-4d058f57a713",
+            "position": [208, 192],
+            "id": "6cd83539-3237-4935-ac62-d1d385d974c9",
             "name": "Dev Agent Failed"
         },
         {
@@ -464,8 +471,8 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [608, -488],
-            "id": "7a61b222-4fc4-41e2-9d39-3d05e5cc07e6",
+            "position": [-16, 80],
+            "id": "20e311b7-935c-4d92-8643-63a8dc9961bf",
             "name": "Dev Agent Status"
         },
         {
@@ -546,8 +553,8 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [2256, -112],
-            "id": "0c81619a-e9b5-4fe9-898d-e705e7969875",
+            "position": [1632, 448],
+            "id": "fb0dca0d-c0fc-44f3-942c-5177b6c393ab",
             "name": "QA Agent Status"
         },
         {
@@ -556,19 +563,9 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [2480, 0],
-            "id": "9fdaa4ea-e0b8-451a-a93d-6c846c6c595e",
+            "position": [1856, 560],
+            "id": "e715263a-65de-49cd-bcf6-3c87694e03ee",
             "name": "QA Agent Failed"
-        },
-        {
-            "parameters": {
-                "jsCode": "const codebases = $('Get Active Codebases').first().json.data.codebases\nconst codebaseName = $input.first().json.Codebase\nconst codebaseSelected = codebases.find(cb => cb.name === codebaseName)\nreturn {\n  codebaseSelected: codebaseSelected\n}\n"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [-1632, 48],
-            "id": "ec6e589c-8559-4b7c-a020-c76c48a0a51d",
-            "name": "Get Selected Codebase"
         },
         {
             "parameters": {
@@ -577,8 +574,8 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-2752, 144],
-            "id": "a204f8c3-1c7d-48c3-92ea-2035ab2e00ae",
+            "position": [-3744, 704],
+            "id": "f6bd7288-7e08-46a4-afe3-d19a28766b18",
             "name": "Dev Webhook Start",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
         },
@@ -588,12 +585,12 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [3312, 208],
-            "id": "f06a8ae4-a3f9-436a-a763-bc85c757a8a3",
+            "position": [2688, 768],
+            "id": "aff62ddf-430b-4ef4-adda-0d69022e47e6",
             "name": "Complete Feature",
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
@@ -677,24 +674,24 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-960, -112],
-            "id": "dfee5fac-8239-419b-b98b-d32958f8d47a",
+            "position": [-1584, 448],
+            "id": "decdbd46-f9b4-4f98-9e4e-17cd5b9599df",
             "name": "Next Ticket Router"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [1168, -96],
-            "id": "242790bb-541d-41e1-b7d1-ae7c59596dd9",
+            "position": [544, 464],
+            "id": "b7b65fb2-fef5-40fb-96d7-336d1964ea01",
             "name": "In QA"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-736, 48],
-            "id": "30af7c11-ce6c-4e8f-abdd-3fd08fb0f572",
+            "position": [-1360, 608],
+            "id": "3e6295ef-6dbb-481e-b682-20e863087017",
             "name": "Project Completed"
         },
         {
@@ -704,8 +701,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [2704, -192],
-            "id": "03b9b773-69ae-4581-b318-ba4c7c6783ed",
+            "position": [2080, 368],
+            "id": "23a28fc6-b80d-47bb-80f9-a9612ded054a",
             "name": "Check Ticket Status"
         },
         {
@@ -735,16 +732,16 @@
             },
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
-            "position": [2928, 80],
-            "id": "b7c91f34-169b-4305-ac24-26c68034abd1",
+            "position": [2304, 640],
+            "id": "bf02fa04-f65b-42df-8620-96baeac8ccb4",
             "name": "Passed QA?"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-736, -392],
-            "id": "60e95c4b-2f48-491a-b20e-b44f884204d9",
+            "position": [-1360, 176],
+            "id": "dba7d92d-38b7-493c-a6f5-2dfb8e2efef1",
             "name": "In Development"
         },
         {
@@ -753,15 +750,57 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-512, -392],
-            "id": "074edc96-8f10-44b7-8e76-ef758eb07455",
+            "position": [-1136, 176],
+            "id": "84e8c8f4-5203-4432-9481-17352893de8f",
             "name": "Switch to Git Branch",
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
+        },
+        {
+            "parameters": {
+                "url": "http://ollama:11434",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [-3312, 608],
+            "id": "0a03cbaf-7b4c-4e4f-9a80-96f87a94d5fe",
+            "name": "Check Ollama"
+        },
+        {
+            "parameters": {
+                "url": "http://ollama:11434/api/tags",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [-3104, 608],
+            "id": "69e73a4d-ff3b-4659-95fb-8eaed9ed9ce3",
+            "name": "Ollama Models"
+        },
+        {
+            "parameters": {
+                "jsCode": "const codebases = $input.first().json.data.codebases\nconst models = $('Ollama Models').first().json.models\nreturn {\n  codebases: {\n    ids: codebases.map(cb => cb.id),\n    names: codebases.map(cb => cb.name)\n  },\n  models: {\n    names:  models.map(m => m.name)\n  }\n} \n  "
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [-2688, 608],
+            "id": "50d2d51e-d0dc-415b-81a7-de9b39f8c97c",
+            "name": "Map API Data"
+        },
+        {
+            "parameters": {
+                "jsCode": "const codebases = $('Get Active Codebases').first().json.data.codebases\nconst codebaseName = $input.first().json.Codebase\nconst modelName = $input.first().json.Model\nconst codebaseSelected = codebases.find(cb => cb.name === codebaseName)\nreturn {\n  codebaseSelected: codebaseSelected,\n  modelSelected: modelName\n}\n"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [-2256, 608],
+            "id": "a364540c-a356-40dc-b18d-6f02399bbb26",
+            "name": "Get Selections"
         }
     ],
     "pinData": {},
@@ -858,7 +897,7 @@
             "main": [
                 [
                     {
-                        "node": "Map Codebase Names",
+                        "node": "Map API Data",
                         "type": "main",
                         "index": 0
                     }
@@ -869,18 +908,7 @@
             "main": [
                 [
                     {
-                        "node": "Get Active Codebases",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Map Codebase Names": {
-            "main": [
-                [
-                    {
-                        "node": "Dev Start Form",
+                        "node": "Check Ollama",
                         "type": "main",
                         "index": 0
                     }
@@ -902,7 +930,7 @@
             "main": [
                 [
                     {
-                        "node": "Get Selected Codebase",
+                        "node": "Get Selections",
                         "type": "main",
                         "index": 0
                     }
@@ -1008,17 +1036,6 @@
                 [
                     {
                         "node": "QA Poll Delay",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Selected Codebase": {
-            "main": [
-                [
-                    {
-                        "node": "Dev Params",
                         "type": "main",
                         "index": 0
                     }
@@ -1144,20 +1161,61 @@
                     }
                 ]
             ]
+        },
+        "Check Ollama": {
+            "main": [
+                [
+                    {
+                        "node": "Ollama Models",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ollama Models": {
+            "main": [
+                [
+                    {
+                        "node": "Get Active Codebases",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Map API Data": {
+            "main": [
+                [
+                    {
+                        "node": "Dev Start Form",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Selections": {
+            "main": [
+                [
+                    {
+                        "node": "Dev Params",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "active": true,
     "settings": {
-        "executionOrder": "v1",
-        "callerPolicy": "workflowsFromSameOwner",
-        "availableInMCP": false,
-        "errorWorkflow": "IoUqF73Ow2bKXXVy"
+        "executionOrder": "v1"
     },
-    "versionId": "24880767-73b5-4134-935b-9f09eb9a8c46",
+    "versionId": "aa1c2ca1-b322-443c-b26b-7b3300aab41c",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
-    "id": "FX56oor8LY31e7Ia",
+    "id": "SJZoRz7jpPdrhCfz",
     "tags": []
 }

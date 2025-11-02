@@ -5,8 +5,8 @@
             "parameters": {},
             "type": "n8n-nodes-base.manualTrigger",
             "typeVersion": 1,
-            "position": [-128, -208],
-            "id": "f37e5350-d9fb-4d1d-bda1-86b5076352fd",
+            "position": [-2624, 208],
+            "id": "2d990d0c-72a8-4c9e-b2c9-64495deb2949",
             "name": "When clicking ‘Execute workflow’"
         },
         {
@@ -16,8 +16,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [96, -112],
-            "id": "0ebc8212-02d6-4d6f-8663-d09b1a060d10",
+            "position": [-2400, 304],
+            "id": "068ec14f-7b96-4cf2-81b5-86171d4e168d",
             "name": "Check App is Running"
         },
         {
@@ -32,13 +32,13 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [2112, -112],
-            "id": "816e50d2-0239-4e46-b0df-f27c2ef1774a",
+            "position": [288, 304],
+            "id": "992332d3-9c60-4e6d-93ef-5c6fbc734b49",
             "name": "Get Outline",
             "alwaysOutputData": false,
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
@@ -84,6 +84,21 @@
                             }
                         },
                         {
+                            "fieldType": "html",
+                            "html": "<p>Select an Ollama OSS model or leave the select blank to use default GPT5-Codex</p>\n\n"
+                        },
+                        {
+                            "fieldLabel": "Model",
+                            "fieldType": "dropdown",
+                            "fieldOptions": {
+                                "values": [
+                                    {
+                                        "option": "={{ $json.models }}"
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "fieldLabel": "Master Prompt",
                             "fieldType": "textarea",
                             "placeholder": "Obey me"
@@ -105,8 +120,8 @@
             },
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [320, -112],
-            "id": "dfc18fa4-b785-4475-9ab9-7d36b0be68c1",
+            "position": [-1504, 304],
+            "id": "9fac8d24-e9d3-410a-ad01-456d1c69c57c",
             "name": "Project Start Form",
             "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
         },
@@ -121,8 +136,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [768, -112],
-            "id": "1e85f656-1587-4295-bb3f-cbd2552b50d8",
+            "position": [-1056, 304],
+            "id": "8abb8f56-9db3-43c3-921b-12b3a646b20d",
             "name": "Setup Codebase"
         },
         {
@@ -141,8 +156,8 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [992, -112],
-            "id": "aa00d6d4-22de-4855-95cc-8f6d2c483a62",
+            "position": [-832, 304],
+            "id": "a931b171-9017-4c45-85ba-815acf800090",
             "name": "Architect Prompt"
         },
         {
@@ -151,66 +166,16 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [2112, -304],
-            "id": "1960a32e-335a-46c7-85f7-509b8731c7c5",
+            "position": [288, 112],
+            "id": "6aaf11ac-43ee-40c1-9ca2-c06c889f68ee",
             "name": "Architect Git Commit",
             "credentials": {
                 "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
+                    "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             },
             "onError": "continueRegularOutput"
-        },
-        {
-            "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "a0fb5033-fa3f-46f2-abde-35878b78aa1f",
-                            "name": "executionId",
-                            "value": "={{ $execution.id  }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "32ac396b-206e-4943-8079-8da298c29bf9",
-                            "name": "name",
-                            "value": "={{ $json.Name }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "d3384658-5546-41d2-9f80-35160e75c5f0",
-                            "name": "folderName",
-                            "value": "={{ $json['Project Folder'] }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "1385b5a4-455b-4c83-a699-fae86f3b56d9",
-                            "name": "setup",
-                            "value": "={{ $json['Setup Type'] }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "a8982f7c-0e8a-41cc-bd2b-cc7a92f80b47",
-                            "name": "prompt",
-                            "value": "={{ $json['Master Prompt'] }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "e410e8d5-2368-47de-aadd-0e7a2ff8fc8a",
-                            "name": "debugMode",
-                            "value": "={{ $json['Debug Mode'][0] == \"Debug Mode\" }}",
-                            "type": "boolean"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [544, -112],
-            "id": "60a18b07-9b3e-490d-baec-258022c60e78",
-            "name": "Project Start Params"
         },
         {
             "parameters": {
@@ -251,16 +216,16 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [1216, -112],
-            "id": "5e0625dc-6de4-4a02-8fd2-eb0786a81049",
+            "position": [-608, 304],
+            "id": "28ed85c5-35ac-41d8-8939-22a7c7649843",
             "name": "Launch Architect Agent"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [1440, -112],
-            "id": "7f4c7393-de85-430b-a02f-e5e17e053e8b",
+            "position": [-384, 304],
+            "id": "91ed5aa2-c77b-4727-846e-aa389fe8b5ef",
             "name": "Architect Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
         },
@@ -280,8 +245,8 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [1664, -192],
-            "id": "984c6471-2407-493c-8388-5f0149dc8e44",
+            "position": [-160, 240],
+            "id": "a56ee762-9d5b-4c42-bbe5-f2775f15ad08",
             "name": "Ping Architect Agent"
         },
         {
@@ -362,8 +327,8 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [1888, -128],
-            "id": "beeeacab-feef-4718-ac4b-b8781e7da9da",
+            "position": [64, 288],
+            "id": "a5cb5c36-71ef-4125-b963-6e3851ce61f8",
             "name": "Architect Agent Status"
         },
         {
@@ -372,16 +337,16 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [2112, 80],
-            "id": "0a57830c-73a6-4125-9112-61e94a716f09",
+            "position": [288, 496],
+            "id": "b96153dc-56d0-4b39-8f63-035a1f9bc42a",
             "name": "Architect Agent Failed"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [2336, -112],
-            "id": "00813147-144a-482a-b84a-6ac10ed417cd",
+            "position": [512, 304],
+            "id": "f04d7402-0a37-4112-93f1-bde41384b655",
             "name": "Finished"
         },
         {
@@ -391,10 +356,52 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-128, -16],
-            "id": "ab160279-9d21-41de-9682-aaa8ca93d0dc",
+            "position": [-2624, 400],
+            "id": "34fee462-bf14-4ec1-90c2-637f1d3c0032",
             "name": "Architect Webhook Start",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
+        },
+        {
+            "parameters": {
+                "url": "http://ollama:11434",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [-2176, 304],
+            "id": "58ffc235-b109-44eb-95fc-bbfb43cecd1f",
+            "name": "Check Ollama"
+        },
+        {
+            "parameters": {
+                "url": "http://ollama:11434/api/tags",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [-1952, 304],
+            "id": "746cc976-d329-4fd8-bd6f-b6f31ebda6eb",
+            "name": "Ollama Models"
+        },
+        {
+            "parameters": {
+                "jsCode": "const models = $('Ollama Models').first().json.models\nreturn {\n  models: models.map(m => m.name)\n} \n  "
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [-1728, 304],
+            "id": "e83ce72f-c7b4-4709-8472-9baf8298dfc4",
+            "name": "Map API Data"
+        },
+        {
+            "parameters": {
+                "jsCode": "const name = $input.first().json.Name;\nconst folderName = $input.first().json['Project Folder'];\nconst setup = $input.first().json['Setup Type'];\nconst prompt = $input.first().json['Master Prompt'];\nconst debugMode = $input.first().json['Debug Mode'] == \"Debug Mode\";\nconst model = $input.first().json.Model\n\nreturn {\n  executionId: $execution.id,\n  name: name,\n  folderName: folderName,\n  setup: setup,\n  prompt: prompt,\n  debugMode: debugMode,\n  model: model\n}\n"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [-1280, 304],
+            "id": "2ae673c1-a3f3-4875-a5aa-4b1ce082ab08",
+            "name": "Project Start Params"
         }
     ],
     "pinData": {},
@@ -414,7 +421,7 @@
             "main": [
                 [
                     {
-                        "node": "Project Start Form",
+                        "node": "Check Ollama",
                         "type": "main",
                         "index": 0
                     }
@@ -459,20 +466,6 @@
                 [
                     {
                         "node": "Launch Architect Agent",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Architect Git Commit": {
-            "main": [[]]
-        },
-        "Project Start Params": {
-            "main": [
-                [
-                    {
-                        "node": "Setup Codebase",
                         "type": "main",
                         "index": 0
                     }
@@ -552,19 +545,61 @@
                     }
                 ]
             ]
+        },
+        "Check Ollama": {
+            "main": [
+                [
+                    {
+                        "node": "Ollama Models",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ollama Models": {
+            "main": [
+                [
+                    {
+                        "node": "Map API Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Map API Data": {
+            "main": [
+                [
+                    {
+                        "node": "Project Start Form",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Project Start Params": {
+            "main": [
+                [
+                    {
+                        "node": "Setup Codebase",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
-    "active": true,
+    "active": false,
     "settings": {
-        "executionOrder": "v1",
-        "callerPolicy": "workflowsFromSameOwner",
-        "availableInMCP": false,
-        "errorWorkflow": "IoUqF73Ow2bKXXVy"
+        "executionOrder": "v1"
     },
-    "versionId": "fc13e7bb-93bf-432f-b075-bf20df07f876",
+    "versionId": "6cf04402-a378-4390-aed4-3cd337c9422a",
     "meta": {
+        "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
-    "id": "KYr9qUNw7SWH6aqA",
+    "id": "NDhz5JjX3in82pUa",
     "tags": []
 }
