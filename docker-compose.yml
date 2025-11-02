@@ -77,7 +77,6 @@ services:
         - INSTALL_OLLAMA=${INSTALL_OLLAMA}
         - AGENT_REPO=${AGENT_REPO}
         - DEV_WORKSPACE=${DEV_WORKSPACE}
-        - DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}
     restart: unless-stopped
     volumes:
       # Bind-mount source repo into isolated agent directory to avoid clobbering /app/dev

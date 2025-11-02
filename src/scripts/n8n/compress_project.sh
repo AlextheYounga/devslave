@@ -30,16 +30,12 @@ if [[ ! -d "$codebase_path" ]]; then
     exit 1
 fi
 
-# Ensure ~/projects directory exists
-projects_dir="$HOME/projects"
-mkdir -p "$projects_dir"
-
 # Get the base directory name
 codebase_name=$(basename "$codebase_path")
 
 # Create zip filename with datetime
 zip_filename="${codebase_name}.zip"
-zip_path="$projects_dir/$zip_filename"
+zip_path="/tmp/agent_cache/$zip_filename"
 
 # Zip the directory without including full path
 # Using -r for recursive and changing to parent directory
@@ -47,7 +43,7 @@ parent_dir=$(dirname "$codebase_path")
 cd "$parent_dir" || exit 1
 
 if zip -r "$zip_path" "$codebase_name" > /dev/null; then
-    echo "Successfully created: $zip_path"
+    echo "$zip_path"
     exit 0
 else
     echo "Error: Failed to create zip archive." >&2
