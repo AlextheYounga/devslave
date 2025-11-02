@@ -19,6 +19,7 @@ type StartAgentParams = {
     codebaseId: string;
     prompt: string;
     role: Role;
+    model?: string;
     debugMode?: boolean;
 };
 
@@ -166,6 +167,7 @@ export default class StartAgentHandler {
                 executionId: this.params.executionId,
                 role: this.params.role,
                 prompt: this.params.prompt,
+                model: this.params.model || null,
             },
         });
 
@@ -192,10 +194,6 @@ export default class StartAgentHandler {
             where: { id: id },
             data: data,
         });
-    }
-
-    private killTmuxFailSafe() {
-        exec(`tmux kill-session -t ${this.tmuxSession}`);
     }
 
     private debugResponse(agentId: string) {
