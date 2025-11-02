@@ -37,13 +37,8 @@ git_init() {
         fi
     fi
 
-    # Create a develop branch if it doesn't exist
-    if ! git show-ref --verify --quiet "refs/heads/develop"; then
-        git checkout -b develop
-        echo "Created 'develop' branch"
-    else
-        echo "'develop' branch already exists, skipping creation"
+    # Ensure we're on the correct branch (should already be, but just to be safe)
+    if git show-ref --verify --quiet "refs/heads/$GIT_DEFAULT_BRANCH"; then
+        git checkout "$GIT_DEFAULT_BRANCH"
     fi
-
-    git switch "$GIT_DEFAULT_BRANCH"
 }

@@ -99,9 +99,9 @@ main() {
     mkdir -p "${codebase_path}"
     cd "$codebase_path" || exit 1
 
+    setup_project_directory
     git_init "$codebase_path"
     run_language_specific_functions
-    setup_project_directory
 
     # Move to project folder
     setup_precommit
