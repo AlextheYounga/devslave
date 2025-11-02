@@ -5,7 +5,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.manualTrigger",
             "typeVersion": 1,
-            "position": [-128, 0],
+            "position": [-128, -208],
             "id": "f37e5350-d9fb-4d1d-bda1-86b5076352fd",
             "name": "When clicking ‘Execute workflow’"
         },
@@ -16,7 +16,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [96, 0],
+            "position": [96, -112],
             "id": "0ebc8212-02d6-4d6f-8663-d09b1a060d10",
             "name": "Check App is Running"
         },
@@ -32,7 +32,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [1664, 96],
+            "position": [2112, -112],
             "id": "816e50d2-0239-4e46-b0df-f27c2ef1774a",
             "name": "Get Outline",
             "alwaysOutputData": false,
@@ -42,32 +42,6 @@
                     "name": "SSH Password account"
                 }
             }
-        },
-        {
-            "parameters": {
-                "mode": "markdownToHtml",
-                "markdown": "={{ $json.outlineData }}",
-                "destinationKey": "outlineHtml",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.markdown",
-            "typeVersion": 1,
-            "position": [2112, 96],
-            "id": "e5919f90-b5e0-441e-8bde-0480e582605b",
-            "name": "Markdown"
-        },
-        {
-            "parameters": {
-                "operation": "text",
-                "binaryPropertyName": "fileData",
-                "destinationKey": "outlineData",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.extractFromFile",
-            "typeVersion": 1,
-            "position": [1888, 96],
-            "id": "05489426-c465-4c93-be9c-899af0011dcc",
-            "name": "Extract from File"
         },
         {
             "parameters": {
@@ -131,7 +105,7 @@
             },
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [320, 0],
+            "position": [320, -112],
             "id": "dfc18fa4-b785-4475-9ab9-7d36b0be68c1",
             "name": "Project Start Form",
             "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
@@ -147,7 +121,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [768, 0],
+            "position": [768, -112],
             "id": "1e85f656-1587-4295-bb3f-cbd2552b50d8",
             "name": "Setup Codebase"
         },
@@ -167,17 +141,17 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [992, 0],
+            "position": [992, -112],
             "id": "aa00d6d4-22de-4855-95cc-8f6d2c483a62",
             "name": "Architect Prompt"
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/git/git_commit.sh \"{{ $json.data.codebaseId }}\" \"Finished architect outline\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Launch Architect Agent').item.json.data.codebaseId }}\" \"Finished architect outline\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [1664, -96],
+            "position": [2112, -304],
             "id": "1960a32e-335a-46c7-85f7-509b8731c7c5",
             "name": "Architect Git Commit",
             "credentials": {
@@ -187,92 +161,6 @@
                 }
             },
             "onError": "continueRegularOutput"
-        },
-        {
-            "parameters": {
-                "resume": "form",
-                "formTitle": "Outline Created Confirmation",
-                "formDescription": "The outline has been created.",
-                "formFields": {
-                    "values": [
-                        {
-                            "fieldType": "html",
-                            "elementName": "Outline ",
-                            "html": "<div style=\"border: 1px solid #ccc; padding: 10px; background: #f9f9f9;\">\n    {{ $json.outlineHtml }} \n</div>"
-                        },
-                        {
-                            "fieldName": "codebaseId",
-                            "fieldType": "hiddenField",
-                            "fieldValue": "=\"{{ $('Setup Codebase').item.json.data.codebaseId }}\""
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.wait",
-            "typeVersion": 1.1,
-            "position": [2336, 96],
-            "id": "f3eda188-3817-41d1-868b-7bc8b6f7ad35",
-            "name": "Outline Confirmation Form",
-            "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
-        },
-        {
-            "parameters": {
-                "method": "POST",
-                "url": "http://app:3000/api/agent/execute-async",
-                "sendBody": true,
-                "bodyParameters": {
-                    "parameters": [
-                        {
-                            "name": "executionId",
-                            "value": "=\"{{ $execution.id }}\""
-                        },
-                        {
-                            "name": "callbackUrl",
-                            "value": "={{ $execution.resumeUrl }}"
-                        },
-                        {
-                            "name": "codebaseId",
-                            "value": "={{ $('Setup Codebase').item.json.data.codebaseId }}"
-                        },
-                        {
-                            "name": "prompt",
-                            "value": "={{ $json.architect_prompt }}"
-                        },
-                        {
-                            "name": "role",
-                            "value": "architect"
-                        },
-                        {
-                            "name": "debugMode",
-                            "value": "={{ $('Setup Codebase').item.json.data.debugMode }}"
-                        }
-                    ]
-                },
-                "options": {
-                    "timeout": 10000
-                }
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.2,
-            "position": [1216, 0],
-            "id": "5e0625dc-6de4-4a02-8fd2-eb0786a81049",
-            "name": "Launch Architect Agent"
-        },
-        {
-            "parameters": {
-                "resume": "webhook",
-                "httpMethod": "POST",
-                "options": {
-                    "webhookSuffix": ""
-                }
-            },
-            "type": "n8n-nodes-base.wait",
-            "typeVersion": 1.1,
-            "position": [1440, 0],
-            "id": "4416a8f3-0c28-4fa1-9a20-cb79c703392c",
-            "name": "Wait For Architect",
-            "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
         },
         {
             "parameters": {
@@ -320,9 +208,193 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [544, 0],
+            "position": [544, -112],
             "id": "60a18b07-9b3e-490d-baec-258022c60e78",
             "name": "Project Start Params"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://app:3000/api/agent/start",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "executionId",
+                            "value": "=\"{{ $execution.id }}\""
+                        },
+                        {
+                            "name": "callbackUrl",
+                            "value": "={{ $execution.resumeUrl }}"
+                        },
+                        {
+                            "name": "codebaseId",
+                            "value": "={{ $('Setup Codebase').item.json.data.codebaseId }}"
+                        },
+                        {
+                            "name": "prompt",
+                            "value": "={{ $json.architect_prompt }}"
+                        },
+                        {
+                            "name": "role",
+                            "value": "architect"
+                        },
+                        {
+                            "name": "debugMode",
+                            "value": "={{ $('Setup Codebase').item.json.data.debugMode }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [1216, -112],
+            "id": "5e0625dc-6de4-4a02-8fd2-eb0786a81049",
+            "name": "Launch Architect Agent"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1.1,
+            "position": [1440, -112],
+            "id": "7f4c7393-de85-430b-a02f-e5e17e053e8b",
+            "name": "Architect Poll Delay",
+            "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
+        },
+        {
+            "parameters": {
+                "url": "=http://app:3000/api/agent/{{ $json.data.agentId }}/status",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "debugMode",
+                            "value": "={{ $json.data.debugMode }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [1664, -192],
+            "id": "984c6471-2407-493c-8388-5f0149dc8e44",
+            "name": "Ping Architect Agent"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.data.status }}",
+                                        "rightValue": "COMPLETED",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        },
+                                        "id": "91206cf7-6d2e-46af-84e5-19d60a718404"
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "88a54ecf-c5f3-4fa9-84ba-be8c60d9de38",
+                                        "leftValue": "={{ $json.data.status }}",
+                                        "rightValue": "FAILED",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "70dcdcf1-f3ae-4f06-8ac8-92628247ccc0",
+                                        "leftValue": "={{ $json.data.status }}",
+                                        "rightValue": "RUNNING",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.3,
+            "position": [1888, -128],
+            "id": "beeeacab-feef-4718-ac4b-b8781e7da9da",
+            "name": "Architect Agent Status"
+        },
+        {
+            "parameters": {
+                "errorMessage": "Dev Agent Failed"
+            },
+            "type": "n8n-nodes-base.stopAndError",
+            "typeVersion": 1,
+            "position": [2112, 80],
+            "id": "0a57830c-73a6-4125-9112-61e94a716f09",
+            "name": "Architect Agent Failed"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [2336, -112],
+            "id": "00813147-144a-482a-b84a-6ac10ed417cd",
+            "name": "Finished"
+        },
+        {
+            "parameters": {
+                "path": "architect-webhook-start",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [-128, -16],
+            "id": "ab160279-9d21-41de-9682-aaa8ca93d0dc",
+            "name": "Architect Webhook Start",
+            "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
         }
     ],
     "pinData": {},
@@ -353,29 +425,7 @@
             "main": [
                 [
                     {
-                        "node": "Extract from File",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Markdown": {
-            "main": [
-                [
-                    {
-                        "node": "Outline Confirmation Form",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Extract from File": {
-            "main": [
-                [
-                    {
-                        "node": "Markdown",
+                        "node": "Finished",
                         "type": "main",
                         "index": 0
                     }
@@ -418,21 +468,51 @@
         "Architect Git Commit": {
             "main": [[]]
         },
-        "Outline Confirmation Form": {
-            "main": [[]]
-        },
-        "Launch Architect Agent": {
+        "Project Start Params": {
             "main": [
                 [
                     {
-                        "node": "Wait For Architect",
+                        "node": "Setup Codebase",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Wait For Architect": {
+        "Launch Architect Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Architect Poll Delay",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Architect Poll Delay": {
+            "main": [
+                [
+                    {
+                        "node": "Ping Architect Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ping Architect Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Architect Agent Status",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Architect Agent Status": {
             "main": [
                 [
                     {
@@ -445,14 +525,28 @@
                         "type": "main",
                         "index": 0
                     }
+                ],
+                [
+                    {
+                        "node": "Architect Agent Failed",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Architect Poll Delay",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
             ]
         },
-        "Project Start Params": {
+        "Architect Webhook Start": {
             "main": [
                 [
                     {
-                        "node": "Setup Codebase",
+                        "node": "Check App is Running",
                         "type": "main",
                         "index": 0
                     }
@@ -460,11 +554,14 @@
             ]
         }
     },
-    "active": false,
+    "active": true,
     "settings": {
-        "executionOrder": "v1"
+        "executionOrder": "v1",
+        "callerPolicy": "workflowsFromSameOwner",
+        "availableInMCP": false,
+        "errorWorkflow": "IoUqF73Ow2bKXXVy"
     },
-    "versionId": "62ca8666-d87d-4b50-8da5-2180a81f71c1",
+    "versionId": "fc13e7bb-93bf-432f-b075-bf20df07f876",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
