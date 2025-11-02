@@ -53,7 +53,7 @@ export default class GetAgentStatusHandler {
                 break;
             case AgentStatus.COMPLETED:
                 publishableEvent = new AgentCompleted(this.eventData);
-                this.killAgent();
+                // Leave session alive for post-run inspection
                 break;
             case AgentStatus.FAILED:
                 this.killAgent();

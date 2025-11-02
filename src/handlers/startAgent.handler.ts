@@ -5,9 +5,13 @@ import { exec, spawn } from "child_process";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
-import { AgentPreparing, AgentLaunched } from "../events";
+import {
+    AgentPreparing,
+    AgentLaunched,
+    AgentLogFileDiscovered,
+    AgentLogFileDiscoveryFailed,
+} from "../events";
 import { Role, paths } from "../constants";
-import { error } from "console";
 dotenv.config();
 
 type StartAgentParams = {
@@ -56,47 +60,72 @@ export default class StartAgentHandler {
 
         new AgentLaunched(this.eventData).publish();
 
-        const logFile = await this.getAgentLogFile();
-        const sessionId = this.extractSessionId(logFile!);
+        // Start non-blocking log file discovery
+        this.startLogFileDiscovery(agentRecord.id);
+
         await this.updateAgentRecord(agentRecord.id, {
-            logFile: logFile,
-            sessionId: sessionId,
             status: AgentStatus.LAUNCHED,
         });
 
         return {
             agentId: agentRecord.id,
-            logFile: logFile,
-            sessionId: sessionId,
             tmuxSession: this.tmuxSession,
         };
     }
 
-    // Good-enough strategy for getting session files. This is straightforward using lsof
-    // on the MacOS version of codex, but on Linux it's more complicated.
-    async getAgentLogFile() {
-        const timeout = Date.now() + 5000; // 5 seconds from now
+    private startLogFileDiscovery(agentId: string) {
+        // Fire and forget - runs in background
+        this.pollForLogFile(agentId).catch((err) => {
+            console.error(
+                `[StartAgentHandler] Log file discovery error: ${err.message}`,
+            );
+        });
+    }
+
+    private async pollForLogFile(agentId: string) {
+        const timeout = Date.now() + 10000; // 10 seconds from now
         const sleep = (ms: number) =>
             new Promise((resolve) => setTimeout(resolve, ms));
+
         while (true) {
             const logFilesAfter = this.getAllLogFiles();
             const newLogFile = logFilesAfter.filter(
-                (f) => !this.logFiles!.includes(f),
+                (f: string) => !this.logFiles!.includes(f),
             );
 
-            if (newLogFile.length === 0 || newLogFile.length > 1) {
-                if (Date.now() > timeout) {
-                    this.killTmuxFailSafe();
-                    const errorMessage = `Unable to determine new log file for agent. Found ${newLogFile.length} new files.`;
-                    console.error(errorMessage);
-                    throw new Error(errorMessage);
-                }
-                // Wait a bit and retry
-                await sleep(500);
-                continue;
+            if (newLogFile.length === 1) {
+                const logFile = newLogFile[0]!;
+                const sessionId = this.extractSessionId(logFile);
+
+                await this.db.agent.update({
+                    where: { id: agentId },
+                    data: {
+                        logFile: logFile ?? null,
+                        sessionId: sessionId ?? null,
+                    },
+                });
+
+                new AgentLogFileDiscovered({
+                    agentId,
+                    logFile: logFile ?? null,
+                    sessionId: sessionId ?? null,
+                }).publish();
+
+                return;
             }
 
-            return newLogFile[0];
+            if (Date.now() > timeout) {
+                const errorMessage = `Unable to determine new log file for agent. Found ${newLogFile.length} new files.`;
+                console.error(errorMessage);
+                new AgentLogFileDiscoveryFailed({
+                    agentId,
+                    error: errorMessage,
+                    filesFound: newLogFile.length,
+                }).publish();
+                return;
+            }
+
+            await sleep(500);
         }
     }
 

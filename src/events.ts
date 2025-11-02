@@ -98,6 +98,18 @@ export class AgentCallbackRequestSent extends BaseEvent {
     }
 }
 
+export class AgentLogFileDiscovered extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class AgentLogFileDiscoveryFailed extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
 // Ticket-related events
 export class ScanningTicketsStarted extends BaseEvent {
     constructor(data?: Record<string, any>, parentId?: string) {
