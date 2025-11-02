@@ -10,6 +10,7 @@ ENV_VARS=(
     "GIT_DEFAULT_BRANCH"
     "GIT_USERNAME"
     "GIT_EMAIL"
+    "CODEX_OSS_BASE_URL"
 )
 
 setup_environment_variables() {

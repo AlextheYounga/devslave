@@ -70,11 +70,25 @@ services:
     depends_on:
       - n8n
 
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      # Mount host's Ollama models directory for read/write access
+      - ${HOME}/.ollama:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   app:
     build:
       context: .
       args:
-        - INSTALL_OLLAMA=${INSTALL_OLLAMA}
         - AGENT_REPO=${AGENT_REPO}
         - DEV_WORKSPACE=${DEV_WORKSPACE}
     restart: unless-stopped
@@ -97,10 +111,13 @@ services:
       - GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}
       - GIT_USERNAME=${GIT_USERNAME}
       - GIT_EMAIL=${GIT_EMAIL}
+      - OLLAMA_HOST=http://ollama:11434
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      ollama:
         condition: service_healthy
     ports:
       - "127.0.0.1:3000:3000"

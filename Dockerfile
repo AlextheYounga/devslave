@@ -41,12 +41,6 @@ ENV PATH="/root/.config/herd-lite/bin:${PATH}"
 # Install Laravel CLI
 RUN composer global require laravel/installer
 
-# Install Ollama (optional, pass --build-arg INSTALL_OLLAMA=true to install)
-ARG INSTALL_OLLAMA=false
-RUN if [ "$INSTALL_OLLAMA" = "true" ]; then curl -fsSL https://ollama.com/install.sh | sh; fi
-# Install duckduckgo-mcp-server in uv venv
-RUN if [ "$INSTALL_OLLAMA" = "true" ]; then uv pip install duckduckgo-mcp-server; fi
-
 # Install Go 
 RUN curl -sSfL https://golang.org/dl/go1.21.5.linux-amd64.tar.gz -o /tmp/agent_cache/go.tar.gz && \
     rm -rf /usr/local/go && \
