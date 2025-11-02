@@ -39,6 +39,9 @@ Please read `agent/philosophy.md`.
     - Update the ticket status `QA_CHANGES_REQUESTED` in the ticket file front matter.
     - Append a `## QA Notes` section to the ticket markdown file with your findings. If this section already exists, update that section with new notes.
 
+6. **Finish**
+    - Commit your changes to the current branch. Do not merge to any other branch.
+
 ---
 
 ## Rules

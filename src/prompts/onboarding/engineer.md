@@ -35,6 +35,7 @@ Please read `agent/philosophy.md`, respect project scope outlined in `agent/PROJ
    You must update the ticket file with the following information:
     - Update the ticket status to `QA_REVIEW` in the ticket file front matter.
     - Add/append brief notes under `## Dev Notes` if useful.
+    - Commit your changes to the current branch. Do not merge to any other branch.
 
 ---
 

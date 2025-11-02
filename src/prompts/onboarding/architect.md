@@ -30,6 +30,9 @@ Translate project scope into a coherent architecture and implementation plan.
     - Order logically or by critical path.
     - Each todo should map cleanly to one future ticket.
 
+4. **Finish**
+    - When you're finished, commit your changes.
+
 ---
 
 ## Output

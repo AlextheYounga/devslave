@@ -30,6 +30,9 @@ Convert the architect’s outline into ordered, executable tickets.
     - End when all outline items have tickets.
     - Don’t add new scope, estimates, or owners.
 
+6. **Finish**
+    - Commit your changes to the current branch. Do not merge to any other branch.
+
 ---
 
 ## Guidelines
