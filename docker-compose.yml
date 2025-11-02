@@ -1,134 +1,136 @@
 name: devslave
 
 x-shared: &shared
-  restart: unless-stopped
-  image: docker.n8n.io/n8nio/n8n
-  environment:
-    - DB_TYPE=postgresdb
-    - DB_POSTGRESDB_HOST=postgres
-    - DB_POSTGRESDB_PORT=5432
-    - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
-    - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
-    - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
-    - EXECUTIONS_MODE=queue
-    - QUEUE_BULL_REDIS_HOST=redis
-    - QUEUE_HEALTH_CHECK_ACTIVE=true
-    - N8N_ENCRYPTION_KEY=${ENCRYPTION_KEY}
-  links:
-    - postgres
-    - redis
-  volumes:
-    - n8n_storage:/home/node/.n8n
-  depends_on:
-    redis:
-      condition: service_healthy
-    postgres:
-      condition: service_healthy
+    restart: unless-stopped
+    image: docker.n8n.io/n8nio/n8n
+    environment:
+        - DB_TYPE=postgresdb
+        - DB_POSTGRESDB_HOST=postgres
+        - DB_POSTGRESDB_PORT=5432
+        - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+        - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
+        - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+        - EXECUTIONS_MODE=queue
+        - QUEUE_BULL_REDIS_HOST=redis
+        - QUEUE_HEALTH_CHECK_ACTIVE=true
+        - N8N_ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    links:
+        - postgres
+        - redis
+    volumes:
+        - n8n_storage:/home/node/.n8n
+    depends_on:
+        redis:
+            condition: service_healthy
+        postgres:
+            condition: service_healthy
 
 services:
-  postgres:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-      - POSTGRES_NON_ROOT_USER
-      - POSTGRES_NON_ROOT_PASSWORD
-    volumes:
-      - db_storage:/var/lib/postgresql/data
-      - ./docker/pg/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+    postgres:
+        image: postgres:16
+        restart: unless-stopped
+        environment:
+            - POSTGRES_USER
+            - POSTGRES_PASSWORD
+            - POSTGRES_DB
+            - POSTGRES_NON_ROOT_USER
+            - POSTGRES_NON_ROOT_PASSWORD
+        volumes:
+            - db_storage:/var/lib/postgresql/data
+            - ./docker/pg/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+                ]
+            interval: 5s
+            timeout: 5s
+            retries: 10
 
-  redis:
-    image: redis:6-alpine
-    restart: unless-stopped
-    volumes:
-      - redis_storage:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+    redis:
+        image: redis:6-alpine
+        restart: unless-stopped
+        volumes:
+            - redis_storage:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
 
-  n8n:
-    <<: *shared
-    ports:
-      - 127.0.0.1:5678:5678
+    n8n:
+        <<: *shared
+        ports:
+            - 127.0.0.1:5678:5678
 
-  n8n-worker:
-    <<: *shared
-    command: worker
-    depends_on:
-      - n8n
+    n8n-worker:
+        <<: *shared
+        command: worker
+        depends_on:
+            - n8n
 
-  ollama:
-    image: ollama/ollama:latest
-    restart: unless-stopped
-    volumes:
-      # Mount host's Ollama models directory for read/write access
-      - ${HOME}/.ollama:/root/.ollama
-    ports:
-      - "127.0.0.1:11434:11434"
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+    ollama:
+        image: ollama/ollama:latest
+        restart: unless-stopped
+        volumes:
+            # Mount host's Ollama models directory for read/write access
+            - ${HOME}/.ollama:/root/.ollama
+        ports:
+            - "127.0.0.1:11434:11434"
+        healthcheck:
+            test: ["CMD", "ollama", "list"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
 
-  app:
-    build:
-      context: .
-      args:
-        - AGENT_REPO=${AGENT_REPO}
-        - DEV_WORKSPACE=${DEV_WORKSPACE}
-    restart: unless-stopped
-    volumes:
-      # Bind-mount source repo into isolated agent directory to avoid clobbering /app/dev
-      - .:/app/agent
-      # Named volumes for deps/build artifacts (scoped to agent dir)
-      - app_node_modules:/app/agent/node_modules
-      # Dedicated persistent dev workspace (agent output, generated code, temp repos, etc.)
-      - dev_data:/app/dev
-      # Codex config: use a named volume for isolation + seed from host (ro) on first run
-      - codex_data:/root/.codex
-      - ${HOME}/.codex:/seed/.codex:ro
-    working_dir: /app/agent
-    environment:
-      - NODE_ENV=development
-      - AGENT_REPO=${AGENT_REPO}
-      - DEV_WORKSPACE=${DEV_WORKSPACE}
-      - DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}
-      - GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}
-      - GIT_USERNAME=${GIT_USERNAME}
-      - GIT_EMAIL=${GIT_EMAIL}
-      - OLLAMA_HOST=http://ollama:11434
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      ollama:
-        condition: service_healthy
-    ports:
-      - "127.0.0.1:3000:3000"
-      - "127.0.0.1:2222:2222"
-    expose:
-      - "2222"
+    app:
+        build:
+            context: .
+            args:
+                - AGENT_REPO=${AGENT_REPO}
+                - DEV_WORKSPACE=${DEV_WORKSPACE}
+        restart: unless-stopped
+        volumes:
+            # Bind-mount source repo into isolated agent directory to avoid clobbering /app/dev
+            - .:/app/agent
+            # Named volumes for deps/build artifacts (scoped to agent dir)
+            - app_node_modules:/app/agent/node_modules
+            # Dedicated persistent dev workspace (agent output, generated code, temp repos, etc.)
+            - dev_data:/app/dev
+            # Codex config: use a named volume for isolation + seed from host (ro) on first run
+            - codex_data:/root/.codex
+            - ${HOME}/.codex:/seed/.codex:ro
+        working_dir: /app/agent
+        environment:
+            - NODE_ENV=development
+            - AGENT_REPO=${AGENT_REPO}
+            - DEV_WORKSPACE=${DEV_WORKSPACE}
+            - DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}
+            - AGENT_FOLDER_NAME=${AGENT_FOLDER_NAME}
+            - GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}
+            - GIT_USERNAME=${GIT_USERNAME}
+            - GIT_EMAIL=${GIT_EMAIL}
+            - CODEX_OSS_BASE_URL=${CODEX_OSS_BASE_URL}
+            - OLLAMA_HOST=http://ollama:11434
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            ollama:
+                condition: service_healthy
+        ports:
+            - "127.0.0.1:3000:3000"
+            - "127.0.0.1:2222:2222"
+        expose:
+            - "2222"
 
 volumes:
-  db_storage:
-  n8n_storage:
-  redis_storage:
-  app_node_modules:
-  dev_data:
-  codex_data:
+    db_storage:
+    n8n_storage:
+    redis_storage:
+    app_node_modules:
+    dev_data:
+    codex_data:

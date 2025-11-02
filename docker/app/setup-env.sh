@@ -16,39 +16,58 @@ ENV_VARS=(
 setup_environment_variables() {
     echo "[setup-env] Configuring environment variables at runtime"
 
-    # Clear previous configurations
-    > /etc/bash.bashrc.env
-    > /etc/environment.env
+    # Create temp files with fresh content
+    local bash_env="/tmp/bash.env.$$"
+    local system_env="/tmp/system.env.$$"
+    local ssh_env="/root/.ssh/environment"
+
     mkdir -p /root/.ssh
-    > /root/.ssh/environment
 
-    # Set up bash environment
+    # Generate environment files
+    : > "$bash_env"
+    : > "$system_env"
+    : > "$ssh_env"
+
     for var in "${ENV_VARS[@]}"; do
         value="${!var:-}"
         if [[ -n "$value" ]]; then
-            echo "export ${var}=\"${value}\"" >> /etc/bash.bashrc.env
+            echo "export ${var}=\"${value}\"" >> "$bash_env"
+            echo "${var}=\"${value}\"" >> "$system_env"
+            echo "${var}=${value}" >> "$ssh_env"
         fi
     done
 
-    # Set up system environment
-    for var in "${ENV_VARS[@]}"; do
-        value="${!var:-}"
-        if [[ -n "$value" ]]; then
-            echo "${var}=\"${value}\"" >> /etc/environment.env
-        fi
-    done
+    # Idempotently add to bashrc (replace if exists)
+    if grep -q "# DEVSLAVE_ENV_START" /etc/bash.bashrc 2> /dev/null; then
+        # Remove existing block
+        sed -i '/# DEVSLAVE_ENV_START/,/# DEVSLAVE_ENV_END/d' /etc/bash.bashrc
+    fi
+    # Add fresh block
+    {
+        echo ""
+        echo "# DEVSLAVE_ENV_START"
+        cat "$bash_env"
+        echo "# DEVSLAVE_ENV_END"
+    } >> /etc/bash.bashrc
 
-    # Set up SSH environment for root user
-    for var in "${ENV_VARS[@]}"; do
-        value="${!var:-}"
-        if [[ -n "$value" ]]; then
-            echo "${var}=${value}" >> /root/.ssh/environment
-        fi
-    done
+    # Idempotently add to /etc/environment (replace if exists)
+    if grep -q "# DEVSLAVE_ENV_START" /etc/environment 2> /dev/null; then
+        # Remove existing block
+        sed -i '/# DEVSLAVE_ENV_START/,/# DEVSLAVE_ENV_END/d' /etc/environment
+    fi
+    # Add fresh block
+    {
+        echo ""
+        echo "# DEVSLAVE_ENV_START"
+        cat "$system_env"
+        echo "# DEVSLAVE_ENV_END"
+    } >> /etc/environment
 
-    # Append to main config files
-    cat /etc/bash.bashrc.env >> /etc/bash.bashrc
-    cat /etc/environment.env >> /etc/environment
+    # SSH environment permissions
+    chmod 600 "$ssh_env"
+
+    # Cleanup temp files
+    rm -f "$bash_env" "$system_env"
 
     echo "[setup-env] Environment configuration complete"
 }

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+# shellcheck disable=SC1090
 source ~/.nvm/nvm.sh
 
 echo "[entrypoint] working dir: $(pwd)"
 
 # Set up environment variables at runtime
+# shellcheck disable=SC1091
 source /usr/local/bin/setup-env.sh
 setup_environment_variables
 
