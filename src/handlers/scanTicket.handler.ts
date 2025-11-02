@@ -29,9 +29,11 @@ export default class ScanTicketHandler {
         }
 
         const ticketData = this.parseTicketFile(ticket.ticketFile);
-        await this.updateExistingTicket(ticket, ticketData);
-
-        return ticket;
+        const updatedTicket = await this.updateExistingTicket(
+            ticket,
+            ticketData,
+        );
+        return updatedTicket;
     }
 
     // Convert string status from frontmatter to TicketStatus enum
@@ -78,45 +80,29 @@ export default class ScanTicketHandler {
         ticketData: any,
     ) {
         const { title, status, description } = ticketData;
+        const ticketRecord = await this.db.ticket.update({
+            where: { id: existingTicket.id },
+            data: {
+                title,
+                description,
+                status,
+            },
+        });
 
-        if (existingTicket.status !== status) {
-            const ticketRecord = await this.db.ticket.update({
-                where: { id: existingTicket.id },
-                data: {
-                    title,
-                    description,
-                    status,
-                },
-            });
+        new TicketStatusChanged({
+            ticket: {
+                id: existingTicket.id,
+                ticketId: existingTicket.ticketId,
+                title,
+                oldStatus: existingTicket.status,
+                newStatus: status,
+            },
+        }).publish();
 
-            new TicketStatusChanged({
-                ticket: {
-                    id: existingTicket.id,
-                    ticketId: existingTicket.ticketId,
-                    title,
-                    oldStatus: existingTicket.status,
-                    newStatus: status,
-                },
-            }).publish();
-
-            return {
-                ...ticketRecord,
-                action: "updated" as const,
-            };
-        } else {
-            const ticketRecord = await this.db.ticket.update({
-                where: { id: existingTicket.id },
-                data: {
-                    title,
-                    description,
-                },
-            });
-
-            return {
-                ...ticketRecord,
-                action: "unchanged" as const,
-            };
-        }
+        return {
+            ...ticketRecord,
+            action: "updated" as const,
+        };
     }
 
     private debugResponse(ticket: Ticket) {

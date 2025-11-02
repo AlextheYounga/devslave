@@ -1,7 +1,8 @@
 import { prisma } from "../prisma";
-import { PrismaClient, Ticket, TicketStatus } from "@prisma/client";
+import { Codebase, PrismaClient, Ticket, TicketStatus } from "@prisma/client";
 import { AGENT_FOLDER_NAME } from "../constants";
 import { readdirSync, readFileSync, existsSync } from "fs";
+import { execSync } from "child_process";
 import path from "path";
 import matter from "gray-matter";
 import {
@@ -25,6 +26,7 @@ type ScannedTicketsResult = {
 export default class ScanAllTicketsHandler {
     private db: PrismaClient;
     private params: ScanTicketsParams;
+    public ticketsFolder: string = "";
 
     constructor(params: ScanTicketsParams) {
         this.db = prisma;
@@ -38,12 +40,19 @@ export default class ScanAllTicketsHandler {
             const codebase = await this.db.codebase.findUniqueOrThrow({
                 where: { id: this.params.codebaseId },
             });
-            const ticketsFolder = path.join(
+
+            if (!codebase?.id) {
+                throw new Error(
+                    `Codebase with ID ${this.params.codebaseId} not found.`,
+                );
+            }
+
+            this.ticketsFolder = path.join(
                 codebase.path,
                 `${AGENT_FOLDER_NAME}/tickets`,
             );
 
-            if (!existsSync(ticketsFolder)) {
+            if (!existsSync(this.ticketsFolder)) {
                 new ScanningTicketsComplete({
                     ...this.params,
                     message: "No tickets folder found",
@@ -53,24 +62,19 @@ export default class ScanAllTicketsHandler {
                 return { tickets: [], nextTicket: null };
             }
 
-            const ticketFiles = this.getTicketFiles(ticketsFolder);
-            const scannedTickets = await this.processTicketFiles(
-                ticketFiles,
-                ticketsFolder,
-                codebase.id,
-            );
+            const ticketFiles = this.getTicketFiles();
+            const scannedTickets = await this.processTicketFiles(ticketFiles);
 
             new ScanningTicketsComplete({
                 ...this.params,
                 ticketsProcessed: ticketFiles.length,
-                scannedTickets: scannedTickets.map((t) => t.ticketId),
+                scannedTickets: scannedTickets.map((t) => [
+                    t.ticketId,
+                    t.status,
+                ]),
             }).publish();
 
-            const nextTicket = scannedTickets.find(
-                (t) =>
-                    t.status === TicketStatus.OPEN ||
-                    TicketStatus.QA_CHANGES_REQUESTED,
-            );
+            const nextTicket = await this.getNextTicket(codebase.path);
 
             return {
                 tickets: scannedTickets,
@@ -108,30 +112,25 @@ export default class ScanAllTicketsHandler {
         return `feat/ticket-${ticketId}`;
     }
 
-    private getTicketFiles(ticketsFolder: string): string[] {
-        return readdirSync(ticketsFolder).filter(
+    private getTicketFiles(): string[] {
+        return readdirSync(this.ticketsFolder).filter(
             (file) => file.endsWith(".md") || file.endsWith(".markdown"),
         );
     }
 
-    private async processTicketFiles(
-        ticketFiles: string[],
-        ticketsFolder: string,
-        codebaseId: string,
-    ) {
+    private async processTicketFiles(ticketFiles: string[]) {
         const scannedTickets = [];
 
         for (const ticketFile of ticketFiles) {
-            const ticketData = this.parseTicketFile(ticketsFolder, ticketFile);
+            const ticketData = this.parseTicketFile(ticketFile);
 
             if (!ticketData) {
                 continue;
             }
 
-            const fullTicketPath = path.join(ticketsFolder, ticketFile);
+            const fullTicketPath = path.join(this.ticketsFolder, ticketFile);
             const ticketRecord = await this.upsertTicket(
                 ticketData,
-                codebaseId,
                 fullTicketPath,
             );
             scannedTickets.push(ticketRecord);
@@ -140,8 +139,8 @@ export default class ScanAllTicketsHandler {
         return scannedTickets;
     }
 
-    private parseTicketFile(ticketsFolder: string, ticketFile: string) {
-        const ticketPath = path.join(ticketsFolder, ticketFile);
+    private parseTicketFile(ticketFile: string) {
+        const ticketPath = path.join(this.ticketsFolder, ticketFile);
         const ticketContent = readFileSync(ticketPath, "utf-8");
         const { data: frontmatter, content } = matter(ticketContent);
 
@@ -161,13 +160,62 @@ export default class ScanAllTicketsHandler {
         return { ticketId, title, status, description };
     }
 
-    private async upsertTicket(
-        ticketData: any,
-        codebaseId: string,
-        ticketFilePath: string,
-    ) {
-        const { ticketId } = ticketData;
+    private async getNextTicket(codebasePath: string) {
+        const gitBranches = execSync("git branch --list", {
+            cwd: codebasePath,
+            encoding: "utf-8",
+        });
 
+        // Get latest feature branch
+        const featureBranches = gitBranches
+            .split("\n")
+            .map((b) => b.replace("*", "").trim())
+            .filter((b) => b.startsWith("feat/ticket-"))
+            .sort();
+
+        const latestFeatureBranch = featureBranches[featureBranches.length - 1];
+        if (featureBranches.length === 0 || !latestFeatureBranch) {
+            return this.getLastActiveTicket();
+        }
+
+        const ticketIdMatch = latestFeatureBranch.match(/feat\/ticket-(.+)/);
+        if (!ticketIdMatch || ticketIdMatch[1] === undefined) {
+            return this.getLastActiveTicket();
+        }
+
+        const branchTicket = await this.db.ticket.findFirst({
+            where: {
+                codebaseId: this.params.codebaseId,
+                ticketId: ticketIdMatch[1],
+            },
+        });
+
+        if (!branchTicket?.id || branchTicket?.status === TicketStatus.CLOSED) {
+            return this.getLastActiveTicket();
+        }
+
+        return branchTicket;
+    }
+
+    private async getLastActiveTicket() {
+        return this.db.ticket.findFirst({
+            where: {
+                codebaseId: this.params.codebaseId,
+                status: {
+                    in: [
+                        TicketStatus.OPEN,
+                        TicketStatus.QA_REVIEW,
+                        TicketStatus.QA_CHANGES_REQUESTED,
+                    ],
+                },
+            },
+            orderBy: { createdAt: "asc" },
+        });
+    }
+
+    private async upsertTicket(ticketData: any, ticketFilePath: string) {
+        const { ticketId } = ticketData;
+        const codebaseId = this.params.codebaseId;
         const existingTicket = await this.db.ticket.findFirst({
             where: {
                 codebaseId,
@@ -176,11 +224,7 @@ export default class ScanAllTicketsHandler {
         });
 
         if (!existingTicket) {
-            return await this.createNewTicket(
-                ticketData,
-                codebaseId,
-                ticketFilePath,
-            );
+            return await this.createNewTicket(ticketData, ticketFilePath);
         } else {
             return await this.updateExistingTicket(
                 existingTicket,
@@ -190,14 +234,10 @@ export default class ScanAllTicketsHandler {
         }
     }
 
-    private async createNewTicket(
-        ticketData: any,
-        codebaseId: string,
-        ticketFilePath: string,
-    ) {
+    private async createNewTicket(ticketData: any, ticketFilePath: string) {
         const { ticketId, title, status, description } = ticketData;
         const branchName = this.createBranchName(ticketId);
-
+        const codebaseId = this.params.codebaseId;
         const ticketRecord = await this.db.ticket.create({
             data: {
                 codebaseId,
