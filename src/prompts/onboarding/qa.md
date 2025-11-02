@@ -32,7 +32,7 @@ Please read `agent/philosophy.md`.
 
     **IF QA PASSED**:
     - _Passing Qualifications_: tests pass, deliverable met, no regressions.
-    - Update the ticket status in the file to `COMPLETE` in the front matter.
+    - Update the ticket status in the file to `CLOSED` in the front matter.
 
     **IF QA FAILED**:
     - _Failing Qualifications_: missing/failing tests or broken functionality.

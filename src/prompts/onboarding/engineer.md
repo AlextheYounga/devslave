@@ -43,5 +43,5 @@ Please read `agent/philosophy.md`, respect project scope outlined in `agent/PROJ
 
 - Linting optional.
 - Clarity > cleverness.
-- Done = all tests pass and ticket marked complete.
+- Done = all tests pass and ticket marked QA_REVIEW.
 - **Ensure you update the ticket file to the correct status.**
