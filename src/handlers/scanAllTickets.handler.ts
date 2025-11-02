@@ -67,7 +67,7 @@ export default class ScanAllTicketsHandler {
             }).publish();
 
             const nextTicket = scannedTickets.find(
-                (t) => t.status === TicketStatus.OPEN,
+                (t) => t.status === TicketStatus.OPEN || TicketStatus.QA_CHANGES_REQUESTED,
             );
 
             return {
@@ -126,10 +126,11 @@ export default class ScanAllTicketsHandler {
                 continue;
             }
 
+            const fullTicketPath = path.join(ticketsFolder, ticketFile);
             const ticketRecord = await this.upsertTicket(
                 ticketData,
                 codebaseId,
-                ticketFile,
+                fullTicketPath,
             );
             scannedTickets.push(ticketRecord);
         }
@@ -161,7 +162,7 @@ export default class ScanAllTicketsHandler {
     private async upsertTicket(
         ticketData: any,
         codebaseId: string,
-        ticketFile: string,
+        ticketFilePath: string,
     ) {
         const { ticketId } = ticketData;
 
@@ -176,17 +177,21 @@ export default class ScanAllTicketsHandler {
             return await this.createNewTicket(
                 ticketData,
                 codebaseId,
-                ticketFile,
+                ticketFilePath,
             );
         } else {
-            return await this.updateExistingTicket(existingTicket, ticketData);
+            return await this.updateExistingTicket(
+                existingTicket,
+                ticketData,
+                ticketFilePath,
+            );
         }
     }
 
     private async createNewTicket(
         ticketData: any,
         codebaseId: string,
-        ticketFile: string,
+        ticketFilePath: string,
     ) {
         const { ticketId, title, status, description } = ticketData;
         const branchName = this.createBranchName(ticketId);
@@ -198,7 +203,7 @@ export default class ScanAllTicketsHandler {
                 title,
                 branchName,
                 description,
-                ticketFile,
+                ticketFile: ticketFilePath,
                 status,
             },
         });
@@ -219,47 +224,36 @@ export default class ScanAllTicketsHandler {
         };
     }
 
-    private async updateExistingTicket(existingTicket: any, ticketData: any) {
+    private async updateExistingTicket(
+        existingTicket: any,
+        ticketData: any,
+        ticketFilePath: string,
+    ) {
         const { title, status, description } = ticketData;
+        const ticketRecord = await this.db.ticket.update({
+            where: { id: existingTicket.id },
+            data: {
+                title,
+                description,
+                status,
+                ticketFile: ticketFilePath,
+            },
+        });
 
-        if (existingTicket.status !== status) {
-            const ticketRecord = await this.db.ticket.update({
-                where: { id: existingTicket.id },
-                data: {
-                    title,
-                    description,
-                    status,
-                },
-            });
+        new TicketStatusChanged({
+            ...this.params,
+            ticket: {
+                id: existingTicket.id,
+                ticketId: existingTicket.ticketId,
+                title,
+                oldStatus: existingTicket.status,
+                newStatus: status,
+            },
+        }).publish();
 
-            new TicketStatusChanged({
-                ...this.params,
-                ticket: {
-                    id: existingTicket.id,
-                    ticketId: existingTicket.ticketId,
-                    title,
-                    oldStatus: existingTicket.status,
-                    newStatus: status,
-                },
-            }).publish();
-
-            return {
-                ...ticketRecord,
-                action: "updated" as const,
-            };
-        } else {
-            const ticketRecord = await this.db.ticket.update({
-                where: { id: existingTicket.id },
-                data: {
-                    title,
-                    description,
-                },
-            });
-
-            return {
-                ...ticketRecord,
-                action: "unchanged" as const,
-            };
-        }
+        return {
+            ...ticketRecord,
+            action: "updated" as const,
+        };
     }
 }
