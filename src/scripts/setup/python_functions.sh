@@ -29,6 +29,14 @@ setup_pip() {
     uv pip install -r requirements.txt
 }
 
+setup_gitignore() {
+    if [[ ! -f .gitignore ]]; then
+        cp "${stubs_folder}/python-gitignore.txt" .gitignore || true
+    else
+        echo "Node.js gitignore rules already present, skipping"
+    fi
+}
+
 commit_changes() {
     # Add and commit changes (only if there are changes)
     git add -A
