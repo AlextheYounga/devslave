@@ -14,7 +14,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $json.codebaseId }}"
+                            "value": "={{ $('Dev Params').item.json.codebaseId }}"
                         }
                     ]
                 },
@@ -22,65 +22,17 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1184, -88],
+            "position": [-1184, 48],
             "id": "bbf9e299-8e59-47ea-8530-13241d496566",
             "name": "Scan Tickets"
         },
         {
             "parameters": {
-                "conditions": {
-                    "options": {
-                        "caseSensitive": true,
-                        "leftValue": "",
-                        "typeValidation": "loose",
-                        "version": 2
-                    },
-                    "conditions": [
-                        {
-                            "id": "c1121ca2-dddc-4144-8b50-66a61d597f2d",
-                            "leftValue": "={{ $json.data.nextTicket.id }}",
-                            "rightValue": "",
-                            "operator": {
-                                "type": "string",
-                                "operation": "exists",
-                                "singleValue": true
-                            }
-                        }
-                    ],
-                    "combinator": "and"
-                },
-                "looseTypeValidation": true,
-                "options": {}
-            },
-            "type": "n8n-nodes-base.if",
-            "typeVersion": 2.2,
-            "position": [-960, -160],
-            "id": "01528c57-6005-473f-9f49-3607a2b0a144",
-            "name": "Tickets Remaining?"
-        },
-        {
-            "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{ $json.data.codebaseId }}\" \"{{ $json.data.nextTicket.branchName }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/compress_project.sh \"{{ $('Scan Tickets').item.json.data.tickets[0].codebaseId }}\"\n\n"
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-736, -256],
-            "id": "074edc96-8f10-44b7-8e76-ef758eb07455",
-            "name": "Setup Git Branch",
-            "credentials": {
-                "sshPassword": {
-                    "id": "cubrUaryfoxjprAQ",
-                    "name": "SSH Password account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/compress_project.sh \"{{ $json.data.tickets[0].codebaseId }}\""
-            },
-            "type": "n8n-nodes-base.ssh",
-            "typeVersion": 1,
-            "position": [-736, -16],
+            "position": [-512, 48],
             "id": "ad72568f-afa0-42a4-803d-800557813f9b",
             "name": "Compress Project",
             "credentials": {
@@ -99,7 +51,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-512, -16],
+            "position": [-288, 48],
             "id": "c8eddb77-bc5b-431c-848f-dead72c87c19",
             "name": "Download Project",
             "credentials": {
@@ -115,7 +67,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [608, -432],
+            "position": [832, -560],
             "id": "5a2dbd2a-9635-4432-a004-9ddaa86b80d6",
             "name": "Commit Dev Work",
             "credentials": {
@@ -131,7 +83,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [1952, -528],
+            "position": [2480, -192],
             "id": "f3de464b-c6aa-4379-b756-14ad22af0e7a",
             "name": "Commit QA Work",
             "credentials": {
@@ -140,45 +92,6 @@
                     "name": "SSH Password account"
                 }
             }
-        },
-        {
-            "parameters": {},
-            "type": "n8n-nodes-base.noOp",
-            "typeVersion": 1,
-            "position": [2944, 48],
-            "id": "52323a05-22db-4709-a3ed-143b0c547cea",
-            "name": "Next Ticket"
-        },
-        {
-            "parameters": {
-                "conditions": {
-                    "options": {
-                        "caseSensitive": true,
-                        "leftValue": "",
-                        "typeValidation": "strict",
-                        "version": 2
-                    },
-                    "conditions": [
-                        {
-                            "id": "6c4ccc88-9c8b-4336-8858-403210fd3ab2",
-                            "leftValue": "={{ $json.data.ticket.status }}",
-                            "rightValue": "CLOSED",
-                            "operator": {
-                                "type": "string",
-                                "operation": "equals",
-                                "name": "filter.operator.equals"
-                            }
-                        }
-                    ],
-                    "combinator": "and"
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.if",
-            "typeVersion": 2.2,
-            "position": [2400, -256],
-            "id": "b7c91f34-169b-4305-ac24-26c68034abd1",
-            "name": "Passes QA?"
         },
         {
             "parameters": {
@@ -190,10 +103,6 @@
                         {
                             "name": "executionId",
                             "value": "={{ $execution.id }}"
-                        },
-                        {
-                            "name": "callbackUrl",
-                            "value": "={{ $execution.resumeUrl }}/dev-callback"
                         },
                         {
                             "name": "codebaseId",
@@ -217,7 +126,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-288, -256],
+            "position": [-64, -392],
             "id": "fed4f826-fa1e-4d27-8644-7633054c8b3c",
             "name": "Launch Dev Agent"
         },
@@ -228,7 +137,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "qa_prompt",
-                            "value": "=You are an expert quality assurance engineer. You have been assigned ticket {{ $('Tickets Remaining?').item.json.data.nextTicket.ticketId }}. Please read agent/onboarding/qa.md and then {{ $('Tickets Remaining?').item.json.data.nextTicket.ticketFile }} to get started.",
+                            "value": "=You are an expert quality assurance engineer. You have been assigned ticket {{ $('Scan Tickets').item.json.data.nextTicket.ticketId }}. Please read agent/onboarding/qa.md and then {{ $('Scan Tickets').item.json.data.nextTicket.ticketFile }} to get started.",
                             "type": "string"
                         }
                     ]
@@ -237,7 +146,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [832, -432],
+            "position": [1360, -96],
             "id": "80190833-655b-4fa6-8a15-2ee45c5d0269",
             "name": "QA Prompt"
         },
@@ -251,10 +160,6 @@
                         {
                             "name": "executionId",
                             "value": "={{ $execution.id }}"
-                        },
-                        {
-                            "name": "callbackUrl",
-                            "value": "={{ $execution.resumeUrl }}/qa-callback"
                         },
                         {
                             "name": "codebaseId",
@@ -278,7 +183,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [1056, -432],
+            "position": [1584, -96],
             "id": "6c8c7b12-455e-4025-b578-b2d4d4915030",
             "name": "Launch QA Agent"
         },
@@ -286,7 +191,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.manualTrigger",
             "typeVersion": 1,
-            "position": [-2752, -184],
+            "position": [-2752, -48],
             "id": "38d1112a-294e-4e6f-bf38-0dfb2e4b07f7",
             "name": "When clicking ‘Execute workflow’"
         },
@@ -301,7 +206,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2304, -88],
+            "position": [-2304, 48],
             "id": "ee6ca893-a916-4116-9d75-68ca7d1eac9f",
             "name": "Get Active Codebases"
         },
@@ -312,7 +217,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2528, -88],
+            "position": [-2528, 48],
             "id": "3e88912c-3974-4293-83ec-1b87f981ea6a",
             "name": "Check App is Running"
         },
@@ -322,7 +227,7 @@
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [-2080, -88],
+            "position": [-2080, 48],
             "id": "6ee7e69e-9532-49c6-9fe8-238d9a49c457",
             "name": "Map Codebase Names"
         },
@@ -348,7 +253,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-1408, -88],
+            "position": [-1408, 48],
             "id": "c31f2c23-6006-4f2f-b6bd-c426ae316816",
             "name": "Dev Params"
         },
@@ -388,7 +293,7 @@
             },
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-1856, -88],
+            "position": [-1856, 48],
             "id": "6915a3f7-3ea9-49ed-8ddd-c8d07851b798",
             "name": "Dev Start Form",
             "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
@@ -400,7 +305,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "dev_prompt",
-                            "value": "=You are an expert senior software engineer. You have been assigned ticket {{ $('Tickets Remaining?').item.json.data.nextTicket.ticketId }}. Please read agent/onboarding/engineer.md and then {{ $('Tickets Remaining?').item.json.data.nextTicket.ticketFile }} to get started.",
+                            "value": "=You are an expert senior software engineer. You have been assigned ticket {{ $('Scan Tickets').item.json.data.nextTicket.ticketId }}. Please read agent/onboarding/engineer.md and then {{ $('Scan Tickets').item.json.data.nextTicket.ticketFile }} to get started.",
                             "type": "string"
                         }
                     ]
@@ -409,26 +314,15 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-512, -256],
+            "position": [-288, -392],
             "id": "9eadc1a1-5c8b-41cb-8b87-dd24e90d0cf7",
             "name": "Dev Prompt"
-        },
-        {
-            "parameters": {
-                "url": "=http://app:3000/api/tickets/{{ $('Tickets Remaining?').item.json.data.nextTicket.id }}",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.2,
-            "position": [2176, -528],
-            "id": "03b9b773-69ae-4581-b318-ba4c7c6783ed",
-            "name": "Get Ticket"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-64, -336],
+            "position": [160, -472],
             "id": "7ecda644-e41b-4b0e-a5bc-d3f1d3f5c8c0",
             "name": "Dev Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -449,7 +343,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [160, -408],
+            "position": [384, -536],
             "id": "0d677595-9940-4ca3-80d2-6a64f5b95642",
             "name": "Ping Dev Agent"
         },
@@ -457,7 +351,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [1280, -432],
+            "position": [1808, -96],
             "id": "3236aecb-1e84-43c8-abb4-fa1db47ac8e4",
             "name": "QA Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -478,7 +372,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [1504, -504],
+            "position": [2032, -160],
             "id": "28006f63-c78f-4354-92fa-79c44bd7c493",
             "name": "Ping QA Agent"
         },
@@ -488,7 +382,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [608, -240],
+            "position": [832, -368],
             "id": "511efcb1-832d-439b-ab35-4d058f57a713",
             "name": "Dev Agent Failed"
         },
@@ -570,7 +464,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [384, -352],
+            "position": [608, -488],
             "id": "7a61b222-4fc4-41e2-9d39-3d05e5cc07e6",
             "name": "Dev Agent Status"
         },
@@ -652,7 +546,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [1728, -448],
+            "position": [2256, -112],
             "id": "0c81619a-e9b5-4fe9-898d-e705e7969875",
             "name": "QA Agent Status"
         },
@@ -662,7 +556,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [1952, -336],
+            "position": [2480, 0],
             "id": "9fdaa4ea-e0b8-451a-a93d-6c846c6c595e",
             "name": "QA Agent Failed"
         },
@@ -672,7 +566,7 @@
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [-1632, -88],
+            "position": [-1632, 48],
             "id": "ec6e589c-8559-4b7c-a020-c76c48a0a51d",
             "name": "Get Selected Codebase"
         },
@@ -683,7 +577,7 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-2752, 8],
+            "position": [-2752, 144],
             "id": "a204f8c3-1c7d-48c3-92ea-2035ab2e00ae",
             "name": "Dev Webhook Start",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
@@ -694,9 +588,174 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [2704, -112],
+            "position": [3312, 208],
             "id": "f06a8ae4-a3f9-436a-a763-bc85c757a8a3",
             "name": "Complete Feature",
+            "credentials": {
+                "sshPassword": {
+                    "id": "cubrUaryfoxjprAQ",
+                    "name": "SSH Password account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "3b724128-1f34-4069-9804-83b084ee703e",
+                                        "leftValue": "={{ [\"OPEN\", \"QA_CHANGES_REQUESTED\"] }}",
+                                        "rightValue": "={{ $json.data.nextTicket.status }}",
+                                        "operator": {
+                                            "type": "array",
+                                            "operation": "contains",
+                                            "rightType": "any"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "797ba88c-a94a-4c26-82d2-bad7528d2280",
+                                        "leftValue": "={{ $json.data.nextTicket.status }}",
+                                        "rightValue": "QA_REVIEW",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.data.nextTicket.id }}",
+                                        "rightValue": "",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "notExists",
+                                            "singleValue": true
+                                        },
+                                        "id": "6ad3e92c-152d-4a32-be0d-4df6ee4e156d"
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.3,
+            "position": [-960, -112],
+            "id": "dfee5fac-8239-419b-b98b-d32958f8d47a",
+            "name": "Next Ticket Router"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [1168, -96],
+            "id": "242790bb-541d-41e1-b7d1-ae7c59596dd9",
+            "name": "In QA"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [-736, 48],
+            "id": "30af7c11-ce6c-4e8f-abdd-3fd08fb0f572",
+            "name": "Project Completed"
+        },
+        {
+            "parameters": {
+                "url": "=http://app:3000/api/tickets/{{ $('Scan Tickets').item.json.data.nextTicket.id }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [2704, -192],
+            "id": "03b9b773-69ae-4581-b318-ba4c7c6783ed",
+            "name": "Check Ticket Status"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "6c4ccc88-9c8b-4336-8858-403210fd3ab2",
+                            "leftValue": "={{ $json.data.ticket.status }}",
+                            "rightValue": "CLOSED",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [2928, 80],
+            "id": "b7c91f34-169b-4305-ac24-26c68034abd1",
+            "name": "Passed QA?"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [-736, -392],
+            "id": "60e95c4b-2f48-491a-b20e-b44f884204d9",
+            "name": "In Development"
+        },
+        {
+            "parameters": {
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{ $('Dev Params').item.json.codebaseId }}\" \"{{ $('Scan Tickets').item.json.data.nextTicket.branchName }}\""
+            },
+            "type": "n8n-nodes-base.ssh",
+            "typeVersion": 1,
+            "position": [-512, -392],
+            "id": "074edc96-8f10-44b7-8e76-ef758eb07455",
+            "name": "Switch to Git Branch",
             "credentials": {
                 "sshPassword": {
                     "id": "cubrUaryfoxjprAQ",
@@ -711,36 +770,7 @@
             "main": [
                 [
                     {
-                        "node": "Tickets Remaining?",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Tickets Remaining?": {
-            "main": [
-                [
-                    {
-                        "node": "Setup Git Branch",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Compress Project",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Setup Git Branch": {
-            "main": [
-                [
-                    {
-                        "node": "Dev Prompt",
+                        "node": "Next Ticket Router",
                         "type": "main",
                         "index": 0
                     }
@@ -762,7 +792,7 @@
             "main": [
                 [
                     {
-                        "node": "QA Prompt",
+                        "node": "In QA",
                         "type": "main",
                         "index": 0
                     }
@@ -773,36 +803,7 @@
             "main": [
                 [
                     {
-                        "node": "Get Ticket",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Next Ticket": {
-            "main": [
-                [
-                    {
-                        "node": "Scan Tickets",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Passes QA?": {
-            "main": [
-                [
-                    {
-                        "node": "Complete Feature",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Launch Dev Agent",
+                        "node": "Check Ticket Status",
                         "type": "main",
                         "index": 0
                     }
@@ -913,17 +914,6 @@
                 [
                     {
                         "node": "Launch Dev Agent",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Ticket": {
-            "main": [
-                [
-                    {
-                        "node": "Passes QA?",
                         "type": "main",
                         "index": 0
                     }
@@ -1050,7 +1040,105 @@
             "main": [
                 [
                     {
-                        "node": "Next Ticket",
+                        "node": "Scan Tickets",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Next Ticket Router": {
+            "main": [
+                [
+                    {
+                        "node": "In Development",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "In QA",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Project Completed",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "In QA": {
+            "main": [
+                [
+                    {
+                        "node": "QA Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Project Completed": {
+            "main": [
+                [
+                    {
+                        "node": "Compress Project",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Ticket Status": {
+            "main": [
+                [
+                    {
+                        "node": "Passed QA?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Passed QA?": {
+            "main": [
+                [
+                    {
+                        "node": "Complete Feature",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Launch Dev Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "In Development": {
+            "main": [
+                [
+                    {
+                        "node": "Switch to Git Branch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch to Git Branch": {
+            "main": [
+                [
+                    {
+                        "node": "Dev Prompt",
                         "type": "main",
                         "index": 0
                     }
@@ -1063,10 +1151,9 @@
         "executionOrder": "v1",
         "callerPolicy": "workflowsFromSameOwner",
         "availableInMCP": false,
-        "errorWorkflow": "IoUqF73Ow2bKXXVy",
-        "executionTimeout": -1
+        "errorWorkflow": "IoUqF73Ow2bKXXVy"
     },
-    "versionId": "332a03d2-7304-438d-b46f-ec0329a855aa",
+    "versionId": "24880767-73b5-4134-935b-9f09eb9a8c46",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
