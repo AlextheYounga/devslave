@@ -34,7 +34,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-1120, 272],
+            "position": [-1120, 176],
             "id": "1ba6388d-02f1-4ee4-8fd4-dce610dd1c3e",
             "name": "PM Prompt"
         },
@@ -42,7 +42,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.manualTrigger",
             "typeVersion": 1,
-            "position": [-2688, 176],
+            "position": [-2688, 80],
             "id": "f5a05147-c351-45d7-a7d0-63e362590db3",
             "name": "When clicking ‘Execute workflow’"
         },
@@ -53,7 +53,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2464, 272],
+            "position": [-2464, 176],
             "id": "4c2f7b5a-9d8a-43a9-b989-3856ad35d5a0",
             "name": "Check App is Running"
         },
@@ -108,7 +108,7 @@
             },
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-1344, 272],
+            "position": [-1344, 176],
             "id": "b1c01949-09dc-4258-9c06-c3b0c750c1cf",
             "name": "PM Start Form",
             "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
@@ -152,7 +152,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-672, 272],
+            "position": [-672, 176],
             "id": "30db135b-d0da-48ef-a096-effac36d39a9",
             "name": "Launch PM Agent"
         },
@@ -234,7 +234,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [0, 256],
+            "position": [0, 160],
             "id": "db99edb6-5de2-4328-bc88-e7b772287101",
             "name": "Architect Agent Status"
         },
@@ -242,7 +242,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [672, 272],
+            "position": [448, 80],
             "id": "fb4fcbff-dd30-4359-91fd-63d9e8dcb842",
             "name": "Finished"
         },
@@ -250,7 +250,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-448, 272],
+            "position": [-448, 176],
             "id": "c61a0ece-e7f6-4ef0-b1bf-9ff014ee99f6",
             "name": "PM Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -271,7 +271,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-224, 200],
+            "position": [-224, 104],
             "id": "f40361af-f774-409c-ac29-99104f8251fd",
             "name": "Ping PM Agent"
         },
@@ -281,7 +281,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [224, 464],
+            "position": [224, 272],
             "id": "c84cd641-d421-4a8d-9f0d-ee3c1957db81",
             "name": "PM Agent Failed"
         },
@@ -292,49 +292,10 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-2688, 368],
+            "position": [-2688, 272],
             "id": "41022462-6be8-4813-a958-759f214a0f20",
             "name": "PM Webhook Start",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
-        },
-        {
-            "parameters": {
-                "resource": "file",
-                "operation": "download",
-                "path": "=/tmp/agent_cache/tickets_{{ $('Agent Payload').item.json.data.codebaseId }}.zip",
-                "binaryPropertyName": "fileData",
-                "options": {
-                    "fileName": "outline.md"
-                }
-            },
-            "type": "n8n-nodes-base.ssh",
-            "typeVersion": 1,
-            "position": [448, 272],
-            "id": "b5eb3995-3c5a-421c-b4cc-edab2661e6c9",
-            "name": "Download Tickets",
-            "alwaysOutputData": false,
-            "credentials": {
-                "sshPassword": {
-                    "id": "rZo9VRK76TIBbM2v",
-                    "name": "SSH Password account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/compress_tickets.sh \"{{ $('Agent Payload').item.json.codebaseId }}\""
-            },
-            "type": "n8n-nodes-base.ssh",
-            "typeVersion": 1,
-            "position": [224, 272],
-            "id": "7296cd47-77da-40b7-bbf5-6e519903bdd0",
-            "name": "Zip Ticket Files",
-            "credentials": {
-                "sshPassword": {
-                    "id": "rZo9VRK76TIBbM2v",
-                    "name": "SSH Password account"
-                }
-            }
         },
         {
             "parameters": {
@@ -343,7 +304,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [-2240, 272],
+            "position": [-2240, 176],
             "id": "f74686fa-8195-4657-8db1-4784dfbfe665",
             "name": "Check Ollama"
         },
@@ -354,7 +315,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [-2016, 272],
+            "position": [-2016, 176],
             "id": "fc40f829-90ae-408b-bb85-6a4476b8f8e3",
             "name": "Ollama Models"
         },
@@ -364,7 +325,7 @@
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [-1568, 272],
+            "position": [-1568, 176],
             "id": "973656e5-ec38-47a0-a4fb-f37b84160eeb",
             "name": "Map API Data"
         },
@@ -374,7 +335,7 @@
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [-896, 272],
+            "position": [-896, 176],
             "id": "57d1db0e-e3b6-48e5-ad31-34df62abaea7",
             "name": "Agent Payload"
         },
@@ -389,7 +350,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1792, 272],
+            "position": [-1792, 176],
             "id": "1b0c87f9-163b-40b7-a664-0522fdaffc7e",
             "name": "Get Active Codebases"
         }
@@ -458,11 +419,6 @@
                         "node": "PM Git Commit",
                         "type": "main",
                         "index": 0
-                    },
-                    {
-                        "node": "Zip Ticket Files",
-                        "type": "main",
-                        "index": 0
                     }
                 ],
                 [
@@ -508,28 +464,6 @@
                 [
                     {
                         "node": "Check App is Running",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Download Tickets": {
-            "main": [
-                [
-                    {
-                        "node": "Finished",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Zip Ticket Files": {
-            "main": [
-                [
-                    {
-                        "node": "Download Tickets",
                         "type": "main",
                         "index": 0
                     }
@@ -590,13 +524,24 @@
                     }
                 ]
             ]
+        },
+        "PM Git Commit": {
+            "main": [
+                [
+                    {
+                        "node": "Finished",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "active": true,
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "86a5d363-bf16-4e7c-a862-85f498599025",
+    "versionId": "e6e4fe1e-7915-4271-81c0-054f49c6e2ab",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
