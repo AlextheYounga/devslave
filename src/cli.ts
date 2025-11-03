@@ -8,6 +8,7 @@ const choices = [
     { name: "App Shell", value: "app-shell" },
     { name: "Start Docker", value: "start-docker" },
     { name: "Open n8n", value: "open-n8n" },
+    { name: "Open Agent Container on VSCode", value: "open-vscode" },
     { name: "Exit", value: "exit" },
 ];
 
@@ -54,6 +55,11 @@ async function handleChoice(choice: string): Promise<void> {
         case "open-n8n":
             console.log("\n🌐 Opening n8n...\n");
             await runCommand("open", ["http://127.0.0.1:5678/"]);
+            break;
+
+        case "open-vscode":
+            console.log("\n💻 Opening Agent Container in VS Code...\n");
+            await runCommand(join(rootDir, "docker/vscode-remote.sh"));
             break;
 
         case "exit":

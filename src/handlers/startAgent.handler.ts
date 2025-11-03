@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import { prisma } from "../prisma";
 import { PrismaClient, AgentStatus } from "@prisma/client";
 import { exec, spawn } from "child_process";
-import { readdirSync } from "fs";
-import { join } from "path";
+import { readdirSync, copyFileSync, existsSync } from "fs";
+import { join, basename } from "path";
 import { homedir } from "os";
 import {
     AgentPreparing,
@@ -11,7 +11,7 @@ import {
     AgentLogFileDiscovered,
     AgentLogFileDiscoveryFailed,
 } from "../events";
-import { Role, paths } from "../constants";
+import { Role, paths, AGENT_FOLDER_NAME } from "../constants";
 dotenv.config();
 
 type StartAgentParams = {
@@ -36,8 +36,6 @@ export default class StartAgentHandler {
     }
 
     async handle() {
-        const codebaseId = this.params.codebaseId;
-        const scriptFile = `${paths.scripts}/launch-agent.sh`;
         const agentRecord = await this.createAgentRecord();
         if (this.params.debugMode) return this.debugResponse(agentRecord.id);
 
@@ -46,28 +44,11 @@ export default class StartAgentHandler {
             tmuxSession: this.tmuxSession,
         });
 
-        const commandArgs = [scriptFile, codebaseId, agentRecord.id];
-        console.log(
-            `[AgentProcessHandler] Executing command: bash ${commandArgs.join(" ")}`,
-        );
+        // Ensure prompt file exists for role and is latest version
+        await this.ensurePrompt();
 
-        // Snapshot baseline of session files as close as possible to launch time
-        this.logFiles = this.getAllLogFiles();
-
-        spawn("bash", commandArgs, {
-            detached: true,
-            stdio: "ignore",
-        }).unref(); // Allow parent to exit without waiting
-
-        // Verify tmux session actually started
-        const sessionStarted = await this.verifyTmuxSession(this.tmuxSession);
-        if (!sessionStarted) {
-            await this.updateAgentRecord(agentRecord.id, {
-                status: AgentStatus.FAILED,
-            });
-            throw new Error(`Tmux session ${this.tmuxSession} failed to start`);
-        }
-
+        // Launch agent in background
+        await this.launchAgent(agentRecord.id);
         new AgentLaunched(this.eventData).publish();
 
         // Start non-blocking log file discovery
@@ -81,6 +62,32 @@ export default class StartAgentHandler {
             agentId: agentRecord.id,
             tmuxSession: this.tmuxSession,
         };
+    }
+
+    private async launchAgent(agentId: string): Promise<void> {
+        const codebaseId = this.params.codebaseId;
+        const scriptFile = `${paths.scripts}/launch-agent.sh`;
+        const commandArgs = [scriptFile, codebaseId, agentId];
+        console.log(
+            `[AgentProcessHandler] Executing command: bash ${commandArgs.join(" ")}`,
+        );
+
+        // Snapshot baseline of session files as close as possible to launch time
+        this.logFiles = this.getAllLogFiles();
+
+        spawn("bash", commandArgs, {
+            detached: true,
+            stdio: "ignore",
+        }).unref(); // Allow parent to exit without waiting
+
+        // Verify tmux session actually started
+        const sessionStarted = await this.verifyTmuxSession(this.tmuxSession!);
+        if (!sessionStarted) {
+            await this.updateAgentRecord(agentId, {
+                status: AgentStatus.FAILED,
+            });
+            throw new Error(`Tmux session ${this.tmuxSession} failed to start`);
+        }
     }
 
     private async verifyTmuxSession(sessionName: string): Promise<boolean> {
@@ -111,6 +118,29 @@ export default class StartAgentHandler {
                 resolve(error === null);
             });
         });
+    }
+
+    private async ensurePrompt() {
+        const rolePrompts: Record<Role, string> = {
+            developer: join(paths.prompts, "onboarding", "engineer.md"),
+            architect: join(paths.prompts, "onboarding", "architect.md"),
+            qa: join(paths.prompts, "onboarding", "qa.md"),
+            manager: join(paths.prompts, "onboarding", "project-manager.md"),
+        };
+
+        const codebase = await this.db.codebase.findUniqueOrThrow({
+            where: { id: this.params.codebaseId },
+        });
+
+        const promptFile = rolePrompts[this.params.role];
+        const projectAgentFolder = join(codebase.path, AGENT_FOLDER_NAME);
+
+        if (!existsSync(promptFile)) {
+            throw new Error(`Prompt file not found: ${promptFile}`);
+        }
+
+        const destPath = join(projectAgentFolder, basename(promptFile));
+        copyFileSync(promptFile, destPath);
     }
 
     private startLogFileDiscovery(agentId: string) {
