@@ -28,41 +28,6 @@
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/compress_project.sh \"{{ $('Scan Tickets').item.json.data.tickets[0].codebaseId }}\"\n\n"
-            },
-            "type": "n8n-nodes-base.ssh",
-            "typeVersion": 1,
-            "position": [-1136, 608],
-            "id": "16f3e60f-b047-47d8-ace0-9dc3af2a3742",
-            "name": "Compress Project",
-            "credentials": {
-                "sshPassword": {
-                    "id": "rZo9VRK76TIBbM2v",
-                    "name": "SSH Password account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "resource": "file",
-                "operation": "download",
-                "path": "=/tmp/{{ $('Get Selections').item.json.codebaseSelected.folderName }}",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.ssh",
-            "typeVersion": 1,
-            "position": [-912, 608],
-            "id": "27a23da1-d6e6-4350-b3e8-70d98fb78b4e",
-            "name": "Download Project",
-            "credentials": {
-                "sshPassword": {
-                    "id": "rZo9VRK76TIBbM2v",
-                    "name": "SSH Password account"
-                }
-            }
-        },
-        {
-            "parameters": {
                 "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Dev Params').item.json.codebaseId }}\" \"Finished work for ticket {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
             },
             "type": "n8n-nodes-base.ssh",
@@ -163,7 +128,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('Dev Params').item.json.codebaseId }}"
+                            "value": "={{ $('Scan Tickets').item.json.data.codebaseId }}"
                         },
                         {
                             "name": "prompt",
@@ -816,17 +781,6 @@
                 ]
             ]
         },
-        "Compress Project": {
-            "main": [
-                [
-                    {
-                        "node": "Download Project",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "Commit Dev Work": {
             "main": [
                 [
@@ -1101,15 +1055,7 @@
             ]
         },
         "Project Completed": {
-            "main": [
-                [
-                    {
-                        "node": "Compress Project",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+            "main": [[]]
         },
         "Check Ticket Status": {
             "main": [
@@ -1133,7 +1079,7 @@
                 ],
                 [
                     {
-                        "node": "Launch Dev Agent",
+                        "node": "Dev Prompt",
                         "type": "main",
                         "index": 0
                     }
@@ -1211,7 +1157,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "aa1c2ca1-b322-443c-b26b-7b3300aab41c",
+    "versionId": "91d99197-0cb7-4697-b7c0-1f5001281fd8",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

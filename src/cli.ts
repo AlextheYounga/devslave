@@ -3,12 +3,15 @@
 import inquirer from "inquirer";
 import { spawn } from "child_process";
 import { join } from "path";
+import { homedir } from "os";
+import { prisma } from "./prisma";
 
 const choices = [
     { name: "App Shell", value: "app-shell" },
     { name: "Start Docker", value: "start-docker" },
     { name: "Open n8n", value: "open-n8n" },
     { name: "Open Agent Container on VSCode", value: "open-vscode" },
+    { name: "Download Project", value: "download-project" },
     { name: "Exit", value: "exit" },
 ];
 
@@ -38,6 +41,70 @@ async function runCommand(
     });
 }
 
+async function handleDownloadProject(): Promise<void> {
+    try {
+        const codebases = await prisma.codebase.findMany();
+
+        if (codebases.length === 0) {
+            console.log("\n⚠️  No codebases found in the database.\n");
+            return;
+        }
+
+        const codebaseChoices = codebases.map((cb) => ({
+            name: `${cb.name} (${cb.path})`,
+            value: cb,
+        }));
+
+        const { selectedCodebase } = await inquirer.prompt([
+            {
+                type: "list",
+                name: "selectedCodebase",
+                message: "Select a codebase to download:",
+                choices: codebaseChoices,
+            },
+        ]);
+
+        const projectName = selectedCodebase.name.replace(/\s+/g, "-");
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const zipFileName = `${projectName}-${timestamp}.zip`;
+        const containerZipPath = `/tmp/${zipFileName}`;
+        const hostDestination = join(homedir(), zipFileName);
+
+        console.log(`\n📦 Creating archive of ${selectedCodebase.name}...`);
+        await runCommand("docker", [
+            "exec",
+            "devslave-app-1",
+            "zip",
+            "-r",
+            containerZipPath,
+            selectedCodebase.path,
+            "-q",
+        ]);
+
+        console.log(`\n📥 Copying to ${hostDestination}...`);
+        await runCommand("docker", [
+            "cp",
+            `devslave-app-1:${containerZipPath}`,
+            hostDestination,
+        ]);
+
+        console.log(`\n🧹 Cleaning up temporary files...`);
+        await runCommand("docker", [
+            "exec",
+            "devslave-app-1",
+            "rm",
+            containerZipPath,
+        ]);
+
+        console.log(
+            `\n✅ Project downloaded successfully to: ${hostDestination}\n`,
+        );
+    } catch (error) {
+        console.error("\n❌ Download failed:", (error as Error).message);
+        throw error;
+    }
+}
+
 async function handleChoice(choice: string): Promise<void> {
     const rootDir = join(__dirname, "..");
 
@@ -60,6 +127,11 @@ async function handleChoice(choice: string): Promise<void> {
         case "open-vscode":
             console.log("\n💻 Opening Agent Container in VS Code...\n");
             await runCommand(join(rootDir, "docker/vscode-remote.sh"));
+            break;
+
+        case "download-project":
+            console.log("\n📦 Download Project...\n");
+            await handleDownloadProject();
             break;
 
         case "exit":
