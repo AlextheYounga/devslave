@@ -38,6 +38,7 @@ Agents should reference this before making any design or implementation decision
 
 ### Tools
 
+- Ripgrep (for all cli searching and parsing)
 - SQLAlchemy (**only** ORM for Python)
 - Prisma (**only** ORM for JS/TS)
 - SQLite (default database; we are SQLite maximalists)

@@ -14,7 +14,7 @@ export default class GetAllCodebasesHandler {
         const codebases = await this.db.codebase.findMany();
 
         for (const codebase of codebases) {
-            if (existsSync(codebase.path)) {
+            if (codebase.active && existsSync(codebase.path)) {
                 activeCodebases.push(codebase);
             }
         }
