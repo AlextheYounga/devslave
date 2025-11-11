@@ -122,10 +122,10 @@ export default class StartAgentHandler {
 
     private async ensurePrompt() {
         const rolePrompts: Record<Role, string> = {
-            developer: join(paths.prompts, "onboarding", "engineer.md"),
-            architect: join(paths.prompts, "onboarding", "architect.md"),
-            qa: join(paths.prompts, "onboarding", "qa.md"),
-            manager: join(paths.prompts, "onboarding", "pm.md"),
+            developer: join(paths.handoffs, "onboarding", "engineer.md"),
+            architect: join(paths.handoffs, "onboarding", "architect.md"),
+            qa: join(paths.handoffs, "onboarding", "qa.md"),
+            manager: join(paths.handoffs, "onboarding", "pm.md"),
         };
 
         const codebase = await this.db.codebase.findUniqueOrThrow({

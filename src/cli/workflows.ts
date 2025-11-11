@@ -99,6 +99,7 @@ async function runPreflightWithLogs(): Promise<OllamaModel[]> {
             ? `✅ Retrieved ${models.length} Ollama model(s).`
             : "⚠️ No Ollama models reported.",
     );
+    console.log("");
 
     return models;
 }
@@ -142,9 +143,7 @@ export async function handleAgentWorkflow(
     };
 
     const webhookUrl = getWebhookUrl(key);
-    console.log(
-        `\n📨 Sending workflow payload to ${config.label} webhook...\n`,
-    );
+    console.log(`\n📨 Sending workflow payload to ${config.label} webhook...`);
     const response = await triggerWebhook(webhookUrl, payload);
     console.log(`\n✅ ${config.label} workflow triggered successfully.`);
 
@@ -152,25 +151,27 @@ export async function handleAgentWorkflow(
         response && typeof response === "object"
             ? (response as { executionId?: string; executionUrl?: string })
             : {};
-    if (executionData.executionId) {
-        console.log(`Execution ID: ${executionData.executionId}`);
-    }
+
     if (executionData.executionUrl) {
         console.log(`Execution URL: ${executionData.executionUrl}`);
-        
+
         // Open execution URL in system default browser
         const { exec } = await import("child_process");
         const { promisify } = await import("util");
         const execAsync = promisify(exec);
-        
-        const openCommand = process.platform === "darwin" 
-            ? "open" 
-            : process.platform === "win32" 
-            ? "start" 
-            : "xdg-open";
-        
+
+        const openCommand =
+            process.platform === "darwin"
+                ? "open"
+                : process.platform === "win32"
+                  ? "start"
+                  : "xdg-open";
+
         try {
-            await execAsync(`${openCommand} "${executionData.executionUrl}"`);
+            await execAsync(
+                `${openCommand} http://${executionData.executionUrl}`,
+            );
+            console.log("\n");
         } catch (error) {
             console.warn("⚠️  Could not open browser automatically.");
         }

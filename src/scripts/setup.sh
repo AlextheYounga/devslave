@@ -81,8 +81,8 @@ setup_project_directory() {
     touch "${codebase_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
     echo "$master_prompt" > "${codebase_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
 
-    prompts_dir="${AGENT_REPO}/src/prompts/handoff"
-    cp -R "${prompts_dir}/." "${codebase_path}/${AGENT_FOLDER_NAME}/" || true
+    handoffs="${AGENT_REPO}/src/prompts/handoffs"
+    cp -R "${handoffs}/." "${codebase_path}/${AGENT_FOLDER_NAME}/" || true
 }
 
 setup_precommit() {

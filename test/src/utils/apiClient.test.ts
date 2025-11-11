@@ -173,13 +173,11 @@ describe("apiClient helpers", () => {
     });
 
     it("sends workflow payload to webhook and returns parsed response", async () => {
-        const fetchSpy = jest
-            .fn()
-            .mockResolvedValue(
-                jsonResponse({
-                    executionId: "exec-123",
-                }) as unknown as Response,
-            );
+        const fetchSpy = jest.fn().mockResolvedValue(
+            jsonResponse({
+                executionId: "exec-123",
+            }) as unknown as Response,
+        );
 
         const result = await triggerWebhook(
             "http://n8n/webhook",

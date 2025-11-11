@@ -14,6 +14,7 @@ export const paths = {
     devWorkspace: process?.env?.NODE_ENV == "test" ? os.tmpdir() : "/app/dev/",
     scripts: scriptsPath,
     prompts: path.join(repoRoot, "src", "prompts"),
+    handoffs: path.join(repoRoot, "src", "prompts", "handoffs"),
     stubs: path.join(scriptsPath, "stubs"),
 };
 
