@@ -14,7 +14,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $json.item.json.body.codebaseId }}"
+                            "value": "={{ $json.body.codebaseId }}"
                         }
                     ]
                 },
@@ -91,7 +91,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2800, 392],
+            "position": [-2800, 400],
             "id": "d9a4f481-bb55-4826-8d9b-f8d9216bb1c0",
             "name": "Launch Dev Agent"
         },
@@ -168,7 +168,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-3024, 472],
+            "position": [-3024, 480],
             "id": "8f78ac1d-867a-45ce-9a96-c62e2a3dfa4f",
             "name": "Dev Prompt"
         },
@@ -176,7 +176,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-2576, 392],
+            "position": [-2576, 400],
             "id": "c6394e89-506d-47e8-b854-2ccdd25c1838",
             "name": "Dev Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -197,7 +197,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2352, 248],
+            "position": [-2352, 256],
             "id": "c9174298-7d36-47c6-8ac4-2c74750551c4",
             "name": "Ping Dev Agent"
         },
@@ -318,7 +318,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-2128, 376],
+            "position": [-2128, 384],
             "id": "20e311b7-935c-4d92-8643-63a8dc9961bf",
             "name": "Dev Agent Status"
         },
@@ -575,7 +575,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-3472, 472],
+            "position": [-3472, 480],
             "id": "dba7d92d-38b7-493c-a6f5-2dfb8e2efef1",
             "name": "In Development"
         },
@@ -585,7 +585,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-3248, 472],
+            "position": [-3248, 480],
             "id": "84e8c8f4-5203-4432-9481-17352893de8f",
             "name": "Switch to Git Branch",
             "credentials": {
@@ -598,7 +598,8 @@
         {
             "parameters": {
                 "httpMethod": "POST",
-                "path": "dev",
+                "path": "developer",
+                "responseMode": "responseNode",
                 "options": {}
             },
             "type": "n8n-nodes-base.webhook",
@@ -916,7 +917,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "688a0457-0d7c-4212-87d6-c2f012e9786e",
+    "versionId": "4a9cfa3b-b347-4f76-85de-ce783dfa3219",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

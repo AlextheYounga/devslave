@@ -41,9 +41,9 @@ const MAIN_MENU_CHOICES = [
 
 const UTILITY_CHOICES = [
     { name: "Open Shell in App Container", value: "app-shell" },
+    { name: "Open Agent Container on VSCode", value: "open-vscode" },
     { name: "Start Docker", value: "start-docker" },
     { name: "Open n8n", value: "open-n8n" },
-    { name: "Open Agent Container on VSCode", value: "open-vscode" },
     { name: "Download Project", value: "download-project" },
     { name: "Back to Main Menu", value: "back" },
 ];

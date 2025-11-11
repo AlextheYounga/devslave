@@ -3,7 +3,7 @@
     "nodes": [
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Agent Payload OG').item.json.data.codebaseId }}\" \"Finished project sprint planning\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('PM Webhook').item.json.body.codebaseId }}\" \"Finished project sprint planning\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
@@ -340,7 +340,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "91c81cb0-5344-44d6-bfdb-6e571a899386",
+    "versionId": "1f79b05f-fc00-49f2-91c9-bc6365aab914",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
