@@ -14,7 +14,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('Dev Params').item.json.codebaseId }}"
+                            "value": "={{ $json.item.json.body.codebaseId }}"
                         }
                     ]
                 },
@@ -22,17 +22,17 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1808, 608],
+            "position": [-3520, 784],
             "id": "6c3267be-6e21-471d-94fd-50b1b0256bc8",
             "name": "Scan Tickets"
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Dev Params').item.json.codebaseId }}\" \"Finished work for ticket {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Dev Webhook').item.json.body.codebaseId }}\" \"Finished work for ticket {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [208, 0],
+            "position": [-944, 640],
             "id": "c12d8a2a-10ab-42d7-b628-0f206a3ca235",
             "name": "Commit Dev Work",
             "credentials": {
@@ -44,11 +44,11 @@
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Dev Params').item.json.codebaseId }}\" \"QA review finished for {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Dev Webhook').item.json.body.codebaseId }}\" \"QA review finished for {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [1856, 368],
+            "position": [720, 608],
             "id": "bc2a283c-51f0-4486-8cf4-94e1abe2f03a",
             "name": "Commit QA Work",
             "credentials": {
@@ -71,7 +71,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('Dev Params').item.json.codebaseId }}"
+                            "value": "={{ $('Dev Webhook').item.json.body.codebaseId }}"
                         },
                         {
                             "name": "prompt",
@@ -83,7 +83,7 @@
                         },
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Params').item.json.debugMode }}"
+                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
                         }
                     ]
                 },
@@ -91,7 +91,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-688, 176],
+            "position": [-2400, 272],
             "id": "d9a4f481-bb55-4826-8d9b-f8d9216bb1c0",
             "name": "Launch Dev Agent"
         },
@@ -111,7 +111,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [736, 464],
+            "position": [-496, 640],
             "id": "ee0128bf-aa72-42bb-9f77-e7538a660990",
             "name": "QA Prompt"
         },
@@ -140,7 +140,7 @@
                         },
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Params').item.json.debugMode }}"
+                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
                         }
                     ]
                 },
@@ -148,127 +148,9 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [960, 464],
+            "position": [-272, 640],
             "id": "76c8044c-423a-4966-883e-a3b42388041c",
             "name": "Launch QA Agent"
-        },
-        {
-            "parameters": {},
-            "type": "n8n-nodes-base.manualTrigger",
-            "typeVersion": 1,
-            "position": [-3744, 512],
-            "id": "b5b22567-59e4-4d73-9f91-f667ef4ec798",
-            "name": "When clicking ‘Execute workflow’"
-        },
-        {
-            "parameters": {
-                "url": "http://app:3000/api/codebases",
-                "sendBody": true,
-                "bodyParameters": {
-                    "parameters": [{}]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.2,
-            "position": [-2896, 608],
-            "id": "3bddf3ac-9b1b-4c4e-91f4-0bdbdd63e530",
-            "name": "Get Active Codebases"
-        },
-        {
-            "parameters": {
-                "url": "http://app:3000/health",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.2,
-            "position": [-3520, 608],
-            "id": "7288431e-e958-4723-9f7e-320b28b3298c",
-            "name": "Check App is Running"
-        },
-        {
-            "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "0bda49e8-ee2a-4a16-964f-8fa6b14b2743",
-                            "name": "debugMode",
-                            "value": "={{ $('Dev Start Form').item.json['Debug Mode'][0] == \"Debug Mode\" }}",
-                            "type": "boolean"
-                        },
-                        {
-                            "id": "82e7d0af-3113-4a47-854d-e8e4064bc621",
-                            "name": "codebaseId",
-                            "value": "={{ $('Get Selections').item.json.codebaseSelected.id }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "06a9e390-3d0d-4343-b5fb-97b1be9ccf95",
-                            "name": "model",
-                            "value": "={{ $('Get Selections').item.json.modelSelected }}",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [-2032, 608],
-            "id": "35f1e865-0e8a-4aa7-b5ff-9ec85116eed9",
-            "name": "Dev Params"
-        },
-        {
-            "parameters": {
-                "resume": "form",
-                "formTitle": "Start PM Agent",
-                "formDescription": "Select the codebase to work on",
-                "formFields": {
-                    "values": [
-                        {
-                            "fieldLabel": "Codebase",
-                            "fieldType": "dropdown",
-                            "fieldOptions": {
-                                "values": [
-                                    {
-                                        "option": "={{ $json.codebases.names }}"
-                                    }
-                                ]
-                            },
-                            "requiredField": true
-                        },
-                        {
-                            "fieldLabel": "Model",
-                            "fieldType": "dropdown",
-                            "fieldOptions": {
-                                "values": [
-                                    {
-                                        "option": "={{ $json.models.names }}"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "fieldLabel": "Debug Mode",
-                            "fieldType": "checkbox",
-                            "fieldOptions": {
-                                "values": [
-                                    {
-                                        "option": "Debug Mode"
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.wait",
-            "typeVersion": 1.1,
-            "position": [-2480, 608],
-            "id": "8d7c3d10-4f85-4266-8e71-ebfc54584f59",
-            "name": "Dev Start Form",
-            "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
         },
         {
             "parameters": {
@@ -286,7 +168,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-912, 176],
+            "position": [-2624, 352],
             "id": "8f78ac1d-867a-45ce-9a96-c62e2a3dfa4f",
             "name": "Dev Prompt"
         },
@@ -294,7 +176,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-464, 96],
+            "position": [-2176, 272],
             "id": "c6394e89-506d-47e8-b854-2ccdd25c1838",
             "name": "Dev Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -307,7 +189,7 @@
                     "parameters": [
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Params').item.json.debugMode }}"
+                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
                         }
                     ]
                 },
@@ -315,7 +197,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-240, 32],
+            "position": [-1952, 208],
             "id": "c9174298-7d36-47c6-8ac4-2c74750551c4",
             "name": "Ping Dev Agent"
         },
@@ -323,7 +205,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [1184, 464],
+            "position": [-48, 640],
             "id": "bd87add3-db61-404e-97ee-00b9fc72114f",
             "name": "QA Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -336,7 +218,7 @@
                     "parameters": [
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Params').item.json.debugMode }}"
+                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
                         }
                     ]
                 },
@@ -344,7 +226,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [1408, 400],
+            "position": [176, 576],
             "id": "a205d7d3-7262-40a6-a00c-fdb08898c1e3",
             "name": "Ping QA Agent"
         },
@@ -354,7 +236,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [208, 192],
+            "position": [-1504, 368],
             "id": "6cd83539-3237-4935-ac62-d1d385d974c9",
             "name": "Dev Agent Failed"
         },
@@ -436,7 +318,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-16, 80],
+            "position": [-1728, 256],
             "id": "20e311b7-935c-4d92-8643-63a8dc9961bf",
             "name": "Dev Agent Status"
         },
@@ -518,7 +400,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [1632, 448],
+            "position": [400, 624],
             "id": "fb0dca0d-c0fc-44f3-942c-5177b6c393ab",
             "name": "QA Agent Status"
         },
@@ -528,21 +410,9 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [1856, 560],
+            "position": [624, 736],
             "id": "e715263a-65de-49cd-bcf6-3c87694e03ee",
             "name": "QA Agent Failed"
-        },
-        {
-            "parameters": {
-                "path": "dev-webhook-start",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 2.1,
-            "position": [-3744, 704],
-            "id": "f6bd7288-7e08-46a4-afe3-d19a28766b18",
-            "name": "Dev Webhook Start",
-            "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
         },
         {
             "parameters": {
@@ -550,7 +420,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [2688, 768],
+            "position": [1392, 1088],
             "id": "aff62ddf-430b-4ef4-adda-0d69022e47e6",
             "name": "Complete Feature",
             "credentials": {
@@ -639,7 +509,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-1584, 448],
+            "position": [-3296, 624],
             "id": "decdbd46-f9b4-4f98-9e4e-17cd5b9599df",
             "name": "Next Ticket Router"
         },
@@ -647,7 +517,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [544, 464],
+            "position": [-720, 640],
             "id": "b7b65fb2-fef5-40fb-96d7-336d1964ea01",
             "name": "In QA"
         },
@@ -655,7 +525,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-1360, 608],
+            "position": [-3072, 784],
             "id": "3e6295ef-6dbb-481e-b682-20e863087017",
             "name": "Project Completed"
         },
@@ -666,7 +536,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [2080, 368],
+            "position": [944, 608],
             "id": "23a28fc6-b80d-47bb-80f9-a9612ded054a",
             "name": "Check Ticket Status"
         },
@@ -697,7 +567,7 @@
             },
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
-            "position": [2304, 640],
+            "position": [1168, 864],
             "id": "bf02fa04-f65b-42df-8620-96baeac8ccb4",
             "name": "Passed QA?"
         },
@@ -705,17 +575,17 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-1360, 176],
+            "position": [-3072, 352],
             "id": "dba7d92d-38b7-493c-a6f5-2dfb8e2efef1",
             "name": "In Development"
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{ $('Dev Params').item.json.codebaseId }}\" \"{{ $('Scan Tickets').item.json.data.nextTicket.branchName }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{ $('Dev Webhook').item.json.body.codebaseId }}\" \"{{ $('Scan Tickets').item.json.data.nextTicket.branchName }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-1136, 176],
+            "position": [-2848, 352],
             "id": "84e8c8f4-5203-4432-9481-17352893de8f",
             "name": "Switch to Git Branch",
             "credentials": {
@@ -727,45 +597,16 @@
         },
         {
             "parameters": {
-                "url": "http://ollama:11434",
+                "httpMethod": "POST",
+                "path": "dev",
                 "options": {}
             },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.3,
-            "position": [-3312, 608],
-            "id": "0a03cbaf-7b4c-4e4f-9a80-96f87a94d5fe",
-            "name": "Check Ollama"
-        },
-        {
-            "parameters": {
-                "url": "http://ollama:11434/api/tags",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.3,
-            "position": [-3104, 608],
-            "id": "69e73a4d-ff3b-4659-95fb-8eaed9ed9ce3",
-            "name": "Ollama Models"
-        },
-        {
-            "parameters": {
-                "jsCode": "const codebases = $input.first().json.data.codebases\nconst models = $('Ollama Models').first().json.models\nreturn {\n  codebases: {\n    ids: codebases.map(cb => cb.id),\n    names: codebases.map(cb => cb.name)\n  },\n  models: {\n    names:  models.map(m => m.name)\n  }\n} \n  "
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [-2688, 608],
-            "id": "50d2d51e-d0dc-415b-81a7-de9b39f8c97c",
-            "name": "Map API Data"
-        },
-        {
-            "parameters": {
-                "jsCode": "const codebases = $('Get Active Codebases').first().json.data.codebases\nconst codebaseName = $input.first().json.Codebase\nconst modelName = $input.first().json.Model\nconst codebaseSelected = codebases.find(cb => cb.name === codebaseName)\nreturn {\n  codebaseSelected: codebaseSelected,\n  modelSelected: modelName\n}\n"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [-2256, 608],
-            "id": "a364540c-a356-40dc-b18d-6f02399bbb26",
-            "name": "Get Selections"
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [-3744, 784],
+            "id": "f6bd7288-7e08-46a4-afe3-d19a28766b18",
+            "name": "Dev Webhook",
+            "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
         }
     ],
     "pinData": {},
@@ -830,61 +671,6 @@
                 [
                     {
                         "node": "QA Poll Delay",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "When clicking ‘Execute workflow’": {
-            "main": [
-                [
-                    {
-                        "node": "Check App is Running",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Active Codebases": {
-            "main": [
-                [
-                    {
-                        "node": "Map API Data",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Check App is Running": {
-            "main": [
-                [
-                    {
-                        "node": "Check Ollama",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Dev Params": {
-            "main": [
-                [
-                    {
-                        "node": "Scan Tickets",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Dev Start Form": {
-            "main": [
-                [
-                    {
-                        "node": "Get Selections",
                         "type": "main",
                         "index": 0
                     }
@@ -996,17 +782,6 @@
                 ]
             ]
         },
-        "Dev Webhook Start": {
-            "main": [
-                [
-                    {
-                        "node": "Check App is Running",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "Complete Feature": {
             "main": [
                 [
@@ -1108,44 +883,11 @@
                 ]
             ]
         },
-        "Check Ollama": {
+        "Dev Webhook": {
             "main": [
                 [
                     {
-                        "node": "Ollama Models",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Ollama Models": {
-            "main": [
-                [
-                    {
-                        "node": "Get Active Codebases",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Map API Data": {
-            "main": [
-                [
-                    {
-                        "node": "Dev Start Form",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Selections": {
-            "main": [
-                [
-                    {
-                        "node": "Dev Params",
+                        "node": "Scan Tickets",
                         "type": "main",
                         "index": 0
                     }
@@ -1157,7 +899,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "91d99197-0cb7-4697-b7c0-1f5001281fd8",
+    "versionId": "685a1429-e1ca-40fe-a4b7-a38f2e4bdb1d",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

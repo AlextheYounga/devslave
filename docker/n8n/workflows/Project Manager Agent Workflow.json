@@ -7,7 +7,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [224, 80],
+            "position": [-1344, 80],
             "id": "2b261cc2-ae5c-4604-912f-b56bf5b7f38c",
             "name": "PM Git Commit",
             "credentials": {
@@ -25,7 +25,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "pm_prompt",
-                            "value": "You are an expert software project manager. Please read agent/onboarding/project-manager.md to get started",
+                            "value": "You are an expert software project manager. Please read agent/onboarding/pm.md to get started",
                             "type": "string"
                         }
                     ]
@@ -34,84 +34,9 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-1120, 176],
+            "position": [-2464, 176],
             "id": "1ba6388d-02f1-4ee4-8fd4-dce610dd1c3e",
             "name": "PM Prompt"
-        },
-        {
-            "parameters": {},
-            "type": "n8n-nodes-base.manualTrigger",
-            "typeVersion": 1,
-            "position": [-2688, 80],
-            "id": "f5a05147-c351-45d7-a7d0-63e362590db3",
-            "name": "When clicking ‘Execute workflow’"
-        },
-        {
-            "parameters": {
-                "url": "http://app:3000/health",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.2,
-            "position": [-2464, 176],
-            "id": "4c2f7b5a-9d8a-43a9-b989-3856ad35d5a0",
-            "name": "Check App is Running"
-        },
-        {
-            "parameters": {
-                "resume": "form",
-                "formTitle": "Start PM Agent",
-                "formDescription": "Select the codebase to work on",
-                "formFields": {
-                    "values": [
-                        {
-                            "fieldLabel": "Codebase",
-                            "fieldType": "dropdown",
-                            "fieldOptions": {
-                                "values": [
-                                    {
-                                        "option": "={{ $json.codebases.names }}"
-                                    }
-                                ]
-                            },
-                            "requiredField": true
-                        },
-                        {
-                            "fieldType": "html",
-                            "html": "<p>Select an Ollama OSS model or leave the select blank to use default GPT5-Codex</p>\n\n"
-                        },
-                        {
-                            "fieldLabel": "Model",
-                            "fieldType": "dropdown",
-                            "fieldOptions": {
-                                "values": [
-                                    {
-                                        "option": "={{ $json.models }}"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "fieldLabel": "Debug Mode",
-                            "fieldType": "checkbox",
-                            "fieldOptions": {
-                                "values": [
-                                    {
-                                        "option": "Debug Mode"
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.wait",
-            "typeVersion": 1.1,
-            "position": [-1344, 176],
-            "id": "b1c01949-09dc-4258-9c06-c3b0c750c1cf",
-            "name": "PM Start Form",
-            "webhookId": "1cf15cfc-267b-4d3f-8321-f1e7421787a9"
         },
         {
             "parameters": {
@@ -126,7 +51,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $json.codebaseId }}"
+                            "value": "={{ $('PM Webhook').item.json.data.codebaseId }}"
                         },
                         {
                             "name": "prompt",
@@ -138,7 +63,7 @@
                         },
                         {
                             "name": "debugMode",
-                            "value": "={{ $json.debugMode }}"
+                            "value": "={{ $('PM Webhook').item.json.data.debugMode }}"
                         },
                         {
                             "name": "model",
@@ -152,7 +77,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-672, 176],
+            "position": [-2240, 176],
             "id": "30db135b-d0da-48ef-a096-effac36d39a9",
             "name": "Launch PM Agent"
         },
@@ -234,7 +159,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [0, 160],
+            "position": [-1568, 160],
             "id": "db99edb6-5de2-4328-bc88-e7b772287101",
             "name": "Architect Agent Status"
         },
@@ -242,7 +167,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [448, 80],
+            "position": [-1120, 80],
             "id": "fb4fcbff-dd30-4359-91fd-63d9e8dcb842",
             "name": "Finished"
         },
@@ -250,7 +175,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-448, 176],
+            "position": [-2016, 176],
             "id": "c61a0ece-e7f6-4ef0-b1bf-9ff014ee99f6",
             "name": "PM Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -271,7 +196,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-224, 104],
+            "position": [-1792, 112],
             "id": "f40361af-f774-409c-ac29-99104f8251fd",
             "name": "Ping PM Agent"
         },
@@ -281,78 +206,22 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [224, 272],
+            "position": [-1344, 272],
             "id": "c84cd641-d421-4a8d-9f0d-ee3c1957db81",
             "name": "PM Agent Failed"
         },
         {
             "parameters": {
+                "httpMethod": "POST",
                 "path": "pm-webhook-start",
                 "options": {}
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-2688, 272],
+            "position": [-2688, 176],
             "id": "41022462-6be8-4813-a958-759f214a0f20",
-            "name": "PM Webhook Start",
+            "name": "PM Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
-        },
-        {
-            "parameters": {
-                "url": "http://ollama:11434",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.3,
-            "position": [-2240, 176],
-            "id": "f74686fa-8195-4657-8db1-4784dfbfe665",
-            "name": "Check Ollama"
-        },
-        {
-            "parameters": {
-                "url": "http://ollama:11434/api/tags",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.3,
-            "position": [-2016, 176],
-            "id": "fc40f829-90ae-408b-bb85-6a4476b8f8e3",
-            "name": "Ollama Models"
-        },
-        {
-            "parameters": {
-                "jsCode": "const codebases = $input.first().json.data.codebases\nconst models = $('Ollama Models').first().json.models\n\nreturn {\n  codebases: {\n      ids: codebases.map(cb => cb.id),\n      names: codebases.map(cb => cb.name)\n  },\n  models: models.map(m => m.name)\n} \n  "
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [-1568, 176],
-            "id": "973656e5-ec38-47a0-a4fb-f37b84160eeb",
-            "name": "Map API Data"
-        },
-        {
-            "parameters": {
-                "jsCode": "const codebases = $('Get Active Codebases').first().json.data.codebases\nconst codebaseName = $('PM Start Form').first().json.Codebase\nconst codebaseSelected = codebases.find(cb => cb.name === codebaseName)\nconst prompt = $input.first().json.pm_prompt\nconst debugMode = $('PM Start Form').first().json['Debug Mode'][0] == \"Debug Mode\";\nconst model = $('PM Start Form').first().json.Model\n\nreturn {\n  executionId: $execution.id,\n  codebaseId: codebaseSelected.id,\n  prompt: prompt,\n  debugMode: debugMode,\n  model: model\n}\n"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [-896, 176],
-            "id": "57d1db0e-e3b6-48e5-ad31-34df62abaea7",
-            "name": "Agent Payload"
-        },
-        {
-            "parameters": {
-                "url": "http://app:3000/api/codebases",
-                "sendBody": true,
-                "bodyParameters": {
-                    "parameters": [{}]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.2,
-            "position": [-1792, 176],
-            "id": "1b0c87f9-163b-40b7-a664-0522fdaffc7e",
-            "name": "Get Active Codebases"
         }
     ],
     "pinData": {},
@@ -361,40 +230,7 @@
             "main": [
                 [
                     {
-                        "node": "Agent Payload",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "When clicking ‘Execute workflow’": {
-            "main": [
-                [
-                    {
-                        "node": "Check App is Running",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Check App is Running": {
-            "main": [
-                [
-                    {
-                        "node": "Check Ollama",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "PM Start Form": {
-            "main": [
-                [
-                    {
-                        "node": "PM Prompt",
+                        "node": "Launch PM Agent",
                         "type": "main",
                         "index": 0
                     }
@@ -459,77 +295,22 @@
                 ]
             ]
         },
-        "PM Webhook Start": {
-            "main": [
-                [
-                    {
-                        "node": "Check App is Running",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Check Ollama": {
-            "main": [
-                [
-                    {
-                        "node": "Ollama Models",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Ollama Models": {
-            "main": [
-                [
-                    {
-                        "node": "Get Active Codebases",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Map API Data": {
-            "main": [
-                [
-                    {
-                        "node": "PM Start Form",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Agent Payload": {
-            "main": [
-                [
-                    {
-                        "node": "Launch PM Agent",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Active Codebases": {
-            "main": [
-                [
-                    {
-                        "node": "Map API Data",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "PM Git Commit": {
             "main": [
                 [
                     {
                         "node": "Finished",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "PM Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "PM Prompt",
                         "type": "main",
                         "index": 0
                     }
@@ -541,7 +322,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "e6e4fe1e-7915-4271-81c0-054f49c6e2ab",
+    "versionId": "38bea946-5cc1-48c7-bb91-2f0c963886fd",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
