@@ -133,7 +133,7 @@ export default class StartAgentHandler {
         });
 
         const promptFile = rolePrompts[this.params.role];
-        const projectAgentFolder = join(codebase.path, AGENT_FOLDER_NAME);
+        const projectAgentFolder = join(codebase.path, AGENT_FOLDER_NAME, "onboarding");
 
         if (!existsSync(promptFile)) {
             throw new Error(`Prompt file not found: ${promptFile}`);
