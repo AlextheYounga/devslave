@@ -3,6 +3,7 @@ import inquirer from "inquirer";
 import { spawn } from "child_process";
 import { join } from "path";
 import { homedir } from "os";
+import { AgentStatus } from "@prisma/client";
 import { prisma } from "../prisma";
 import {
     AgentWorkflowKey,
@@ -104,6 +105,84 @@ async function handleDownloadProject(): Promise<void> {
     }
 }
 
+async function handleViewRunningAgents(): Promise<void> {
+    const runningStatuses = [
+        AgentStatus.PREPARING,
+        AgentStatus.LAUNCHED,
+        AgentStatus.RUNNING,
+    ];
+
+    const agents = await prisma.agent.findMany({
+        where: {
+            status: {
+                in: runningStatuses,
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+
+    if (agents.length === 0) {
+        console.log("\n⚠️  No running agents found.\n");
+        return;
+    }
+
+    const agentChoices = agents.map((agent) => ({
+        name: `[${agent.status}] ${agent.role ?? "unknown role"} (${agent.id})`,
+        value: agent.id,
+    }));
+
+    agentChoices.push({
+        name: "Back to Main Menu",
+        value: "back",
+    });
+
+    const { selectedAgentId } = await inquirer.prompt<{
+        selectedAgentId: string;
+    }>([
+        {
+            type: "list",
+            name: "selectedAgentId",
+            message: "Select an agent to attach:",
+            choices: agentChoices,
+        },
+    ]);
+
+    if (selectedAgentId === "back") {
+        return;
+    }
+
+    const selectedAgent = agents.find((agent) => agent.id === selectedAgentId);
+
+    if (!selectedAgent) {
+        console.log("\n❌ Selected agent not found.\n");
+        return;
+    }
+
+    const sessionName =
+        selectedAgent.tmuxSession?.trim() || `agent_${selectedAgent.id}`;
+
+    console.log(`\n🔌 Attaching to tmux session ${sessionName}...\n`);
+
+    try {
+        await runCommand("docker", [
+            "exec",
+            "-it",
+            "devslave-app-1",
+            "tmux",
+            "attach",
+            "-t",
+            sessionName,
+        ]);
+    } catch (error) {
+        console.error(
+            "\n❌ Failed to attach to tmux session:",
+            (error as Error).message,
+        );
+    }
+}
+
 async function handleUtilityChoice(choice: string): Promise<void> {
     const rootDir = join(__dirname, "..", "..");
 
@@ -164,6 +243,9 @@ export async function startCli(): Promise<void> {
             switch (action) {
                 case "create-project":
                     await handleCreateProjectFlow();
+                    break;
+                case "view-running-agents":
+                    await handleViewRunningAgents();
                     break;
                 case "start-agent-workflow":
                     await handleWorkflowMenu();
