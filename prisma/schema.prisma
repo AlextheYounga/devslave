@@ -26,6 +26,7 @@ model Agent {
     executionId String
     sessionId   String?
     tmuxSession String?
+    codebaseId  String?
     role        String?
     logFile     String?
     prompt      String?
@@ -34,6 +35,8 @@ model Agent {
     status      AgentStatus @default(PREPARING)
     createdAt   DateTime    @default(now())
     updatedAt   DateTime    @updatedAt
+
+    codebase Codebase? @relation(fields: [codebaseId], references: [id], onDelete: SetNull)
 
     @@map("agents")
 }
@@ -49,6 +52,7 @@ model Codebase {
     updatedAt DateTime @updatedAt
 
     tickets Ticket[]
+    agents  Agent[]
 
     @@map("codebases")
 }

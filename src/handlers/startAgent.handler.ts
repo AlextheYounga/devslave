@@ -68,30 +68,51 @@ export default class StartAgentHandler {
         const codebaseId = this.params.codebaseId;
         const scriptFile = `${paths.scripts}/launch-agent.sh`;
         const commandArgs = [scriptFile, codebaseId, agentId];
-        console.log(
-            `[AgentProcessHandler] Executing command: bash ${commandArgs.join(" ")}`,
-        );
+        const maxAttempts = 3;
+        let attempt = 0;
+        let started = false;
 
-        // Snapshot baseline of session files as close as possible to launch time
-        this.logFiles = this.getAllLogFiles();
+        while (attempt < maxAttempts && !started) {
+            attempt += 1;
+            console.log(
+                `[AgentProcessHandler] (attempt ${attempt}/${maxAttempts}) Executing command: bash ${commandArgs.join(" ")}`,
+            );
 
-        spawn("bash", commandArgs, {
-            detached: true,
-            stdio: "ignore",
-        }).unref(); // Allow parent to exit without waiting
+            // Re-snapshot baseline of session files each attempt to avoid polluted diff
+            this.logFiles = this.getAllLogFiles();
 
-        // Verify tmux session actually started
-        const sessionStarted = await this.verifyTmuxSession(this.tmuxSession!);
-        if (!sessionStarted) {
+            try {
+                spawn("bash", commandArgs, {
+                    detached: true,
+                    stdio: "ignore",
+                }).unref(); // Allow parent to exit without waiting
+            } catch (e: any) {
+                console.error(
+                    `[AgentProcessHandler] spawn failed on attempt ${attempt}: ${e.message}`,
+                );
+            }
+
+            started = await this.verifyTmuxSession(this.tmuxSession!);
+            if (started) break;
+
+            if (attempt < maxAttempts) {
+                // small backoff before retrying
+                await new Promise((r) => setTimeout(r, 500));
+            }
+        }
+
+        if (!started) {
             await this.updateAgentRecord(agentId, {
                 status: AgentStatus.FAILED,
             });
-            throw new Error(`Tmux session ${this.tmuxSession} failed to start`);
+            throw new Error(
+                `Tmux session ${this.tmuxSession} failed to start after ${maxAttempts} attempts`,
+            );
         }
     }
 
     private async verifyTmuxSession(sessionName: string): Promise<boolean> {
-        const timeout = Date.now() + 10000; // 10 seconds
+        const timeout = Date.now() + 5000; // 5 seconds
         const sleep = (ms: number) =>
             new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -241,6 +262,7 @@ export default class StartAgentHandler {
                 role: this.params.role,
                 prompt: this.params.prompt,
                 model: this.params?.model ?? "default",
+                codebaseId: this.params.codebaseId,
             },
         });
 

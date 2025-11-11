@@ -105,6 +105,46 @@ async function handleDownloadProject(): Promise<void> {
     }
 }
 
+type AgentMetadata = {
+    codebaseId?: string;
+    codebaseName?: string;
+};
+
+function extractAgentMetadata(agent: { data: unknown }): AgentMetadata {
+    if (!agent?.data || typeof agent.data !== "object") {
+        return {};
+    }
+
+    const data = agent.data as Record<string, unknown>;
+    const nestedCodebase =
+        data["codebase"] && typeof data["codebase"] === "object"
+            ? (data["codebase"] as Record<string, unknown>)
+            : undefined;
+
+    const codebaseId =
+        typeof data["codebaseId"] === "string"
+            ? (data["codebaseId"] as string)
+            : typeof nestedCodebase?.["id"] === "string"
+              ? (nestedCodebase["id"] as string)
+              : undefined;
+
+    const codebaseName =
+        typeof data["codebaseName"] === "string"
+            ? (data["codebaseName"] as string)
+            : typeof nestedCodebase?.["name"] === "string"
+              ? (nestedCodebase["name"] as string)
+              : undefined;
+
+    const metadata: AgentMetadata = {};
+    if (codebaseId) {
+        metadata.codebaseId = codebaseId;
+    }
+    if (codebaseName) {
+        metadata.codebaseName = codebaseName;
+    }
+    return metadata;
+}
+
 async function handleViewRunningAgents(): Promise<void> {
     const runningStatuses = [
         AgentStatus.PREPARING,
@@ -121,6 +161,14 @@ async function handleViewRunningAgents(): Promise<void> {
         orderBy: {
             createdAt: "desc",
         },
+        include: {
+            codebase: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
     });
 
     if (agents.length === 0) {
@@ -128,10 +176,20 @@ async function handleViewRunningAgents(): Promise<void> {
         return;
     }
 
-    const agentChoices = agents.map((agent) => ({
-        name: `[${agent.status}] ${agent.role ?? "unknown role"} (${agent.id})`,
-        value: agent.id,
-    }));
+    const agentChoices = agents.map((agent) => {
+        const metadata = extractAgentMetadata(agent);
+        const resolvedCodebaseId = agent.codebaseId ?? metadata.codebaseId;
+        const resolvedCodebaseName =
+            agent.codebase?.name ??
+            metadata.codebaseName ??
+            (resolvedCodebaseId ? `Codebase ${resolvedCodebaseId}` : null) ??
+            "unknown codebase";
+
+        return {
+            name: `[${agent.status}] ${agent.role ?? "unknown role"} • ${resolvedCodebaseName} (${agent.id})`,
+            value: agent.id,
+        };
+    });
 
     agentChoices.push({
         name: "Back to Main Menu",

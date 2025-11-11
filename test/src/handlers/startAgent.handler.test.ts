@@ -201,6 +201,7 @@ describe("StartAgentHandler", () => {
             });
 
             expect(agent.executionId).toBe(params.executionId);
+            expect(agent.codebaseId).toBe(params.codebaseId);
             expect(agent.status).toBe(AgentStatus.LAUNCHED);
         });
     });
@@ -218,11 +219,15 @@ describe("StartAgentHandler", () => {
             },
         );
 
-        await runHandlerWithCodebase({ model: null }, async (result) => {
-            const agent = await prisma.agent.findUniqueOrThrow({
-                where: { id: result.agentId },
-            });
-            expect(agent.model).toBe("default");
-        });
+        await runHandlerWithCodebase(
+            { model: null },
+            async (result, params) => {
+                const agent = await prisma.agent.findUniqueOrThrow({
+                    where: { id: result.agentId },
+                });
+                expect(agent.model).toBe("default");
+                expect(agent.codebaseId).toBe(params.codebaseId);
+            },
+        );
     });
 });
