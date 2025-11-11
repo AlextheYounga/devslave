@@ -240,7 +240,7 @@ export default class StartAgentHandler {
                 executionId: this.params.executionId,
                 role: this.params.role,
                 prompt: this.params.prompt,
-                model: this.params.model || null,
+                model: this.params?.model ?? "default",
             },
         });
 

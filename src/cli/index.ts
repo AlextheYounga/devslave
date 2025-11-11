@@ -11,6 +11,7 @@ import {
     promptWorkflowMenu,
 } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
+import { startMonitorAgentsFlow } from "./monitor";
 
 dotenv.config();
 
@@ -167,6 +168,9 @@ export async function startCli(): Promise<void> {
                     break;
                 case "start-agent-workflow":
                     await handleWorkflowMenu();
+                    break;
+                case "monitor-agents":
+                    await startMonitorAgentsFlow();
                     break;
                 case "utilities":
                     await handleUtilitiesMenu();

@@ -1,7 +1,7 @@
 ---
 id: "{{id}}"
-title: { { title } }
-status: { { status } }
+title: "{{title}}"
+status: "{{status}}"
 ---
 
 {{body}}

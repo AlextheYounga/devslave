@@ -33,17 +33,24 @@ describe("StartAgentHandler", () => {
         codebaseId: string;
         prompt: string;
         role: "developer";
+        model?: string | null | undefined;
     };
 
-    const buildParams = (
-        overrides: Partial<HandlerInput> = {},
-    ): HandlerInput => ({
-        executionId: `exec-${uniqueId()}`,
-        codebaseId: "codebase-abc",
-        prompt: "Run task",
-        role: "developer",
-        ...overrides,
-    });
+    type HandlerOverrides = Partial<
+        Omit<HandlerInput, "model"> & { model?: string | null }
+    >;
+
+    const buildParams = (overrides: HandlerOverrides = {}): HandlerInput => {
+        const { model, ...rest } = overrides;
+        return {
+            executionId: `exec-${uniqueId()}`,
+            codebaseId: "codebase-abc",
+            prompt: "Run task",
+            role: "developer",
+            ...(rest as Partial<Omit<HandlerInput, "model">>),
+            model: model ?? undefined,
+        };
+    };
 
     const logDirFor = (home: string) =>
         path.join(home, ".codex", "sessions", "2024", "01", "01");
@@ -118,6 +125,49 @@ describe("StartAgentHandler", () => {
         }
     });
 
+    const createCodebaseFixture = async () => {
+        const codebasePath = fs.mkdtempSync(
+            path.join(os.tmpdir(), "start-agent-codebase-"),
+        );
+        fs.mkdirSync(path.join(codebasePath, AGENT_FOLDER_NAME, "onboarding"), {
+            recursive: true,
+        });
+        const codebase = await prisma.codebase.create({
+            data: {
+                name: `start-agent-${uniqueId()}`,
+                path: codebasePath,
+                setup: true,
+            },
+        });
+        return { codebase, codebasePath };
+    };
+
+    const runHandlerWithCodebase = async (
+        overrides: HandlerOverrides = {},
+        callback: (
+            result: Awaited<
+                ReturnType<typeof StartAgentHandler.prototype.handle>
+            >,
+            params: HandlerInput,
+        ) => Promise<void> | void,
+    ) => {
+        const { codebase, codebasePath } = await createCodebaseFixture();
+        const params = buildParams({ ...overrides, codebaseId: codebase.id });
+        const handler = new StartAgentHandler(params as any);
+        let result: Awaited<ReturnType<typeof handler.handle>> | undefined;
+        try {
+            result = await handler.handle();
+        } finally {
+            fs.rmSync(codebasePath, { recursive: true, force: true });
+        }
+
+        if (!result) {
+            throw new Error("StartAgentHandler did not resolve");
+        }
+
+        await callback(result, params);
+    };
+
     it("creates agent record, launches process, and captures new log file", async () => {
         // ensure handler sees a single new log file after spawn
         spawnMock.mockImplementationOnce(
@@ -132,51 +182,47 @@ describe("StartAgentHandler", () => {
             },
         );
 
-        const codebasePath = fs.mkdtempSync(
-            path.join(os.tmpdir(), "start-agent-codebase-"),
-        );
-        fs.mkdirSync(path.join(codebasePath, AGENT_FOLDER_NAME, "onboarding"), {
-            recursive: true,
+        await runHandlerWithCodebase({}, async (result, params) => {
+            expect(result.agentId).toBeDefined();
+            expect(result.tmuxSession).toBe(`agent_${result.agentId}`);
+
+            expect(spawnMock).toHaveBeenCalledWith(
+                "bash",
+                [
+                    expect.stringContaining("launch-agent.sh"),
+                    params.codebaseId,
+                    result.agentId,
+                ],
+                expect.objectContaining({ detached: true, stdio: "ignore" }),
+            );
+
+            const agent = await prisma.agent.findUniqueOrThrow({
+                where: { id: result.agentId },
+            });
+
+            expect(agent.executionId).toBe(params.executionId);
+            expect(agent.status).toBe(AgentStatus.LAUNCHED);
         });
-        const codebase = await prisma.codebase.create({
-            data: {
-                name: `start-agent-${uniqueId()}`,
-                path: codebasePath,
-                setup: true,
+    });
+
+    it("coerces null model input to the default value", async () => {
+        spawnMock.mockImplementationOnce(
+            (_command: string, args: string[], _options: any) => {
+                const agentId = args[2];
+                if (agentId) {
+                    createLogFile(tempHome, agentId);
+                }
+                return {
+                    unref: () => undefined,
+                };
             },
-        });
-
-        const params = buildParams({ codebaseId: codebase.id });
-        const handler = new StartAgentHandler(params);
-        let result: Awaited<ReturnType<typeof handler.handle>> | undefined;
-        try {
-            result = await handler.handle();
-        } finally {
-            fs.rmSync(codebasePath, { recursive: true, force: true });
-        }
-
-        if (!result) {
-            throw new Error("StartAgentHandler did not resolve");
-        }
-
-        expect(result.agentId).toBeDefined();
-        expect(result.tmuxSession).toBe(`agent_${result.agentId}`);
-
-        expect(spawnMock).toHaveBeenCalledWith(
-            "bash",
-            [
-                expect.stringContaining("launch-agent.sh"),
-                params.codebaseId,
-                result.agentId,
-            ],
-            expect.objectContaining({ detached: true, stdio: "ignore" }),
         );
 
-        const agent = await prisma.agent.findUniqueOrThrow({
-            where: { id: result.agentId },
+        await runHandlerWithCodebase({ model: null }, async (result) => {
+            const agent = await prisma.agent.findUniqueOrThrow({
+                where: { id: result.agentId },
+            });
+            expect(agent.model).toBe("default");
         });
-
-        expect(agent.executionId).toBe(params.executionId);
-        expect(agent.status).toBe(AgentStatus.LAUNCHED);
     });
 });
