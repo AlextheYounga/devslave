@@ -128,7 +128,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('Scan Tickets').item.json.data.codebaseId }}"
+                            "value": "={{ $('Dev Webhook').item.json.body.codebaseId }}"
                         },
                         {
                             "name": "prompt",
@@ -914,7 +914,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "f73bf941-8e2a-4b9f-8654-c91ed762a1b6",
+    "versionId": "9a6484cd-5826-4800-8af0-5a61771f4a88",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
