@@ -157,6 +157,23 @@ export async function handleAgentWorkflow(
     }
     if (executionData.executionUrl) {
         console.log(`Execution URL: ${executionData.executionUrl}`);
+        
+        // Open execution URL in system default browser
+        const { exec } = await import("child_process");
+        const { promisify } = await import("util");
+        const execAsync = promisify(exec);
+        
+        const openCommand = process.platform === "darwin" 
+            ? "open" 
+            : process.platform === "win32" 
+            ? "start" 
+            : "xdg-open";
+        
+        try {
+            await execAsync(`${openCommand} "${executionData.executionUrl}"`);
+        } catch (error) {
+            console.warn("⚠️  Could not open browser automatically.");
+        }
     }
 }
 
@@ -207,7 +224,7 @@ export async function handleCreateProjectFlow(): Promise<void> {
         setup: answers.setup,
     };
 
-    console.log("\n🔧 Submitting project setup request...\n");
+    console.log("\n🔧 Setting up project...\n");
     const response = await setupCodebase(payload);
     const message =
         response?.message ??
