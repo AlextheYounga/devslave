@@ -81,28 +81,80 @@ export default class GetExecutionLogsHandler {
             );
         }
 
+        // Prepare logs directory for potential debug output
+        const logDir = join(paths.repoRoot, "logs");
+        try {
+            mkdirSync(logDir, { recursive: true });
+        } catch {}
+
+        // Read raw body first so we can optionally persist it for debugging
+        let raw: string = "";
+        try {
+            raw = await response.text();
+        } catch {
+            // ignore text read errors
+        }
+
         let payload: any;
         try {
-            payload = await response.json();
+            payload = raw ? JSON.parse(raw) : {};
         } catch {
+            // Save raw body for inspection if JSON parsing fails
+            const debugFile = join(
+                logDir,
+                `execution-${this.executionId}.response.json`,
+            );
+            try {
+                writeFileSync(debugFile, raw || "", "utf-8");
+            } catch {}
             throw new Error("Invalid JSON response from n8n");
         }
 
+        // Support multiple n8n response shapes
         const runData: Record<string, any[]> | undefined =
-            payload?.data?.resultData?.runData;
+            payload?.data?.resultData?.runData ??
+            payload?.data?.executionData?.resultData?.runData ??
+            payload?.resultData?.runData ??
+            payload?.runData;
 
         const lines: string[] = [];
         if (runData && typeof runData === "object") {
             for (const [nodeName, executions] of Object.entries(runData)) {
                 if (!Array.isArray(executions)) continue;
                 for (const item of executions) {
-                    const status = item?.executionStatus ?? "unknown";
+                    const status =
+                        item?.executionStatus ?? item?.status ?? "unknown";
+                    const startRaw = item?.startTime ?? item?.startedAt ?? "";
                     const startTime =
-                        item?.startTime !== undefined &&
-                        item?.startTime !== null
-                            ? String(item.startTime)
+                        startRaw !== undefined && startRaw !== null
+                            ? String(startRaw)
                             : "";
                     lines.push(`${nodeName} ${status} ${startTime}`.trim());
+                }
+            }
+        }
+
+        // If nothing has been recorded in runData yet (common when execution is still running),
+        // emit a minimal set of informative lines based on high-level status and current stack.
+        if (lines.length === 0) {
+            const execStatus: string | undefined = (
+                payload?.status || payload?.data?.status
+            )?.toString();
+            const execStartedAt: string | number | undefined =
+                payload?.startedAt || payload?.data?.startedAt;
+            if (execStatus) {
+                lines.push(
+                    `Execution ${execStatus.toUpperCase()} ${execStartedAt ? String(execStartedAt) : ""}`.trim(),
+                );
+            }
+
+            const stack: any[] | undefined =
+                payload?.data?.executionData?.nodeExecutionStack;
+            if (Array.isArray(stack)) {
+                for (const entry of stack) {
+                    const name: string =
+                        entry?.node?.name || entry?.node?.id || "node";
+                    lines.push(`${name} running`);
                 }
             }
         }
@@ -111,16 +163,38 @@ export default class GetExecutionLogsHandler {
             ? Array.from(new Set(lines))
             : lines;
 
-        const logDir = join(paths.repoRoot, "logs");
-        try {
-            mkdirSync(logDir, { recursive: true });
-        } catch {
-            // best effort; writeFileSync will throw if directory truly invalid
+        const logFile = join(logDir, `execution-${this.executionId}.log`);
+        const shouldSaveResponse =
+            String(process.env.N8N_SAVE_RESPONSE || "").toLowerCase() ===
+                "true" || String(process.env.N8N_SAVE_RESPONSE) === "1";
+
+        // Optionally save the full response for debugging, or always when no lines parsed
+        if (shouldSaveResponse || outputLines.length === 0) {
+            const debugFile = join(
+                logDir,
+                `execution-${this.executionId}.response.json`,
+            );
+            try {
+                writeFileSync(
+                    debugFile,
+                    raw || JSON.stringify(payload),
+                    "utf-8",
+                );
+            } catch {}
         }
 
-        const logFile = join(logDir, `execution-${this.executionId}.log`);
         if (!this.options.skipWrite) {
-            writeFileSync(logFile, outputLines.join("\n"), "utf-8");
+            if (outputLines.length > 0) {
+                writeFileSync(logFile, outputLines.join("\n"), "utf-8");
+            } else {
+                // Write a helpful placeholder when no entries are found
+                const note =
+                    `No runData entries found for execution ${this.executionId}. ` +
+                    `Saved raw response to execution-${this.executionId}.response.json.`;
+                try {
+                    writeFileSync(logFile, note + "\n", "utf-8");
+                } catch {}
+            }
         }
 
         return {
