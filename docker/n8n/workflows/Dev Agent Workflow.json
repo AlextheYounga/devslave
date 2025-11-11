@@ -14,7 +14,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('Dev Webhook').item.json.body.codebaseId }}"
+                            "value": "={{$('GlobalVars').all()[0].json.codebaseId}}"
                         }
                     ]
                 },
@@ -22,17 +22,17 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2384, 688],
+            "position": [-2384, 928],
             "id": "ddd414db-b734-48bd-9071-d645f00b7aad",
             "name": "Scan Tickets"
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Dev Webhook').item.json.body.codebaseId }}\" \"Finished work for ticket {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"Finished work for ticket {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-368, 32],
+            "position": [-368, 320],
             "id": "df8be668-534a-4cf9-805e-3f341f63fe1d",
             "name": "Commit Dev Work",
             "credentials": {
@@ -44,11 +44,11 @@
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Dev Webhook').item.json.body.codebaseId }}\" \"QA review finished for {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"QA review finished for {{ $('Scan Tickets').item.json.data.nextTicket.id }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [1216, 448],
+            "position": [1216, 672],
             "id": "ea3d9f4b-c7e9-4eed-b7fb-d9854274e525",
             "name": "Commit QA Work",
             "credentials": {
@@ -71,7 +71,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('Dev Webhook').item.json.body.codebaseId }}"
+                            "value": "={{$('GlobalVars').all()[0].json.codebaseId}}"
                         },
                         {
                             "name": "prompt",
@@ -83,7 +83,7 @@
                         },
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
+                            "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
                         }
                     ]
                 },
@@ -91,7 +91,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1264, 176],
+            "position": [-1264, 480],
             "id": "a3341c3c-e95c-44e0-878b-cc6cfc283c8d",
             "name": "Launch Dev Agent"
         },
@@ -111,7 +111,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [96, 544],
+            "position": [96, 768],
             "id": "ea29ba87-a32b-4540-8fdd-93adbf9a0ede",
             "name": "QA Prompt"
         },
@@ -128,7 +128,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('Dev Webhook').item.json.body.codebaseId }}"
+                            "value": "={{$('GlobalVars').all()[0].json.codebaseId}}"
                         },
                         {
                             "name": "prompt",
@@ -140,7 +140,7 @@
                         },
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
+                            "value": "={{ $('GlobalVars').all()[0].json.debugMode }}"
                         }
                     ]
                 },
@@ -148,7 +148,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [320, 544],
+            "position": [320, 768],
             "id": "bd45edc9-5d20-4bf9-be40-eff50715b73a",
             "name": "Launch QA Agent"
         },
@@ -168,7 +168,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-1488, 256],
+            "position": [-1488, 592],
             "id": "fdc7ec20-07ad-479e-91b9-adaf0bd2d13b",
             "name": "Dev Prompt"
         },
@@ -176,7 +176,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-1040, 176],
+            "position": [-1040, 480],
             "id": "d535f174-f7c0-4b28-beb1-f38dadfb5b84",
             "name": "Dev Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -189,7 +189,7 @@
                     "parameters": [
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
+                            "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
                         }
                     ]
                 },
@@ -197,7 +197,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-816, 32],
+            "position": [-816, 352],
             "id": "e0e57565-5417-4214-80a8-ef56a4320af0",
             "name": "Ping Dev Agent"
         },
@@ -205,7 +205,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [544, 544],
+            "position": [544, 768],
             "id": "0ac745ac-4826-4d07-810c-8dadfb56c9d7",
             "name": "QA Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -218,7 +218,7 @@
                     "parameters": [
                         {
                             "name": "debugMode",
-                            "value": "={{ $('Dev Webhook').item.json.body.debugMode }}"
+                            "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
                         }
                     ]
                 },
@@ -226,7 +226,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [768, 480],
+            "position": [768, 704],
             "id": "dd767fbb-73d1-4e1a-bc84-3825b208b3cc",
             "name": "Ping QA Agent"
         },
@@ -236,7 +236,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [-368, 192],
+            "position": [-368, 512],
             "id": "48bf697d-50d4-4762-a199-b31f231c3221",
             "name": "Dev Agent Failed"
         },
@@ -318,7 +318,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-592, 160],
+            "position": [-592, 464],
             "id": "23e00e4d-40c5-4b7f-b1f9-90cdb9933eaa",
             "name": "Dev Agent Status"
         },
@@ -400,7 +400,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [992, 528],
+            "position": [992, 752],
             "id": "3bc97a9a-fafe-42a5-b26f-10663872b4b4",
             "name": "QA Agent Status"
         },
@@ -410,17 +410,17 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [1216, 640],
+            "position": [1216, 864],
             "id": "9de5462c-1bd4-4b22-a27a-79e77544a7d3",
             "name": "QA Agent Failed"
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/complete_feature.sh \"{{ $('Dev Webhook').item.json.body.codebaseId }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/complete_feature.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [1888, 944],
+            "position": [1888, 1264],
             "id": "01d09cda-fe20-4ef0-bf71-f31d0e781f9c",
             "name": "Complete Feature",
             "credentials": {
@@ -509,7 +509,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-2160, 528],
+            "position": [-2160, 768],
             "id": "c1274209-8f55-4d2f-a3e8-f91a92449a2e",
             "name": "Next Ticket Router"
         },
@@ -517,7 +517,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-128, 544],
+            "position": [-128, 768],
             "id": "c7dcdb5f-580c-4de1-a6d3-04dc82f862ac",
             "name": "In QA"
         },
@@ -525,7 +525,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-1936, 688],
+            "position": [-1936, 928],
             "id": "c03282e7-b309-47a7-a80b-c76ff41b19c9",
             "name": "Project Completed"
         },
@@ -536,7 +536,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [1440, 448],
+            "position": [1440, 672],
             "id": "407bcb6f-18cd-4277-a94d-e0fe115938e0",
             "name": "Check Ticket Status"
         },
@@ -567,7 +567,7 @@
             },
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
-            "position": [1664, 704],
+            "position": [1664, 1040],
             "id": "4d3d11f4-14da-4ec5-bb56-b761e18aba38",
             "name": "Passed QA?"
         },
@@ -575,17 +575,17 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-1936, 256],
+            "position": [-1936, 592],
             "id": "3f9248b0-7a4e-400f-ad58-f61023857bfd",
             "name": "In Development"
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{ $('Dev Webhook').item.json.body.codebaseId }}\" \"{{ $('Scan Tickets').item.json.data.nextTicket.branchName }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"{{ $('Scan Tickets').item.json.data.nextTicket.branchName }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-1712, 256],
+            "position": [-1712, 592],
             "id": "6134870d-45c1-4d9c-9e89-57e58e71e4b7",
             "name": "Switch to Git Branch",
             "credentials": {
@@ -604,7 +604,7 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-2608, 592],
+            "position": [-2832, 832],
             "id": "65162718-9c07-4fb6-9092-c3ea6166d625",
             "name": "Dev Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
@@ -617,9 +617,35 @@
             },
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.4,
-            "position": [-2384, 496],
+            "position": [-2608, 736],
             "id": "861d95d9-39a9-4f63-9b96-a56271cb4a17",
             "name": "Respond to Webhook"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "7371c075-652f-44df-a014-42f5e1df7b63",
+                            "name": "codebaseId",
+                            "value": "={{ $('Dev Webhook').first(0).json.body.codebaseId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "dee5b041-6021-488d-bba0-f09594a99995",
+                            "name": "debugMode",
+                            "value": "={{ $('Dev Webhook').first(0).json.body.debugMode }}",
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-2608, 928],
+            "id": "a4d373d1-f137-4f2b-9683-cf5d81001e23",
+            "name": "GlobalVars"
         }
     ],
     "pinData": {},
@@ -897,12 +923,23 @@
             "main": [
                 [
                     {
-                        "node": "Scan Tickets",
+                        "node": "Respond to Webhook",
                         "type": "main",
                         "index": 0
                     },
                     {
-                        "node": "Respond to Webhook",
+                        "node": "GlobalVars",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GlobalVars": {
+            "main": [
+                [
+                    {
+                        "node": "Scan Tickets",
                         "type": "main",
                         "index": 0
                     }
@@ -914,7 +951,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "9a6484cd-5826-4800-8af0-5a61771f4a88",
+    "versionId": "4d196540-d43d-43f1-b890-75e5c62627e3",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

@@ -3,11 +3,11 @@
     "nodes": [
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('PM Webhook').item.json.body.codebaseId }}\" \"Finished project sprint planning\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"Finished project sprint planning\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-1344, 112],
+            "position": [-1120, 112],
             "id": "2b261cc2-ae5c-4604-912f-b56bf5b7f38c",
             "name": "PM Git Commit",
             "credentials": {
@@ -34,7 +34,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-2480, 208],
+            "position": [-2240, 208],
             "id": "1ba6388d-02f1-4ee4-8fd4-dce610dd1c3e",
             "name": "PM Prompt"
         },
@@ -51,7 +51,7 @@
                         },
                         {
                             "name": "codebaseId",
-                            "value": "={{ $('PM Webhook').item.json.body.codebaseId }}"
+                            "value": "={{$('GlobalVars').all()[0].json.codebaseId}}"
                         },
                         {
                             "name": "prompt",
@@ -63,7 +63,7 @@
                         },
                         {
                             "name": "debugMode",
-                            "value": "={{ $('PM Webhook').item.json.body.debugMode }}"
+                            "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
                         },
                         {
                             "name": "model",
@@ -77,7 +77,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2240, 208],
+            "position": [-2016, 208],
             "id": "30db135b-d0da-48ef-a096-effac36d39a9",
             "name": "Launch PM Agent"
         },
@@ -159,7 +159,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-1568, 192],
+            "position": [-1344, 192],
             "id": "db99edb6-5de2-4328-bc88-e7b772287101",
             "name": "Architect Agent Status"
         },
@@ -167,7 +167,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-1120, 112],
+            "position": [-896, 112],
             "id": "fb4fcbff-dd30-4359-91fd-63d9e8dcb842",
             "name": "Finished"
         },
@@ -175,7 +175,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-2016, 208],
+            "position": [-1792, 208],
             "id": "c61a0ece-e7f6-4ef0-b1bf-9ff014ee99f6",
             "name": "PM Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -188,7 +188,7 @@
                     "parameters": [
                         {
                             "name": "debugMode",
-                            "value": "={{ $json.data.debugMode }}"
+                            "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
                         }
                     ]
                 },
@@ -196,7 +196,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1792, 144],
+            "position": [-1568, 136],
             "id": "f40361af-f774-409c-ac29-99104f8251fd",
             "name": "Ping PM Agent"
         },
@@ -206,7 +206,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [-1344, 304],
+            "position": [-1120, 304],
             "id": "c84cd641-d421-4a8d-9f0d-ee3c1957db81",
             "name": "PM Agent Failed"
         },
@@ -235,6 +235,32 @@
             "position": [-2464, 16],
             "id": "9fe6a9d4-db30-4317-8c59-6d4e46b64f3c",
             "name": "Respond to Webhook"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
+                            "name": "codebaseId",
+                            "value": "={{ $('Architect Webhook').first(0).json.body.codebaseId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1856733a-6db7-409a-a79b-234792fabacc",
+                            "name": "debugMode",
+                            "value": "={{ $('Architect Webhook').first(0).json.body.debugMode }}",
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-2464, 208],
+            "id": "bce49977-63ca-4b27-8226-af1af3efdc24",
+            "name": "GlobalVars"
         }
     ],
     "pinData": {},
@@ -323,12 +349,23 @@
             "main": [
                 [
                     {
-                        "node": "PM Prompt",
+                        "node": "Respond to Webhook",
                         "type": "main",
                         "index": 0
                     },
                     {
-                        "node": "Respond to Webhook",
+                        "node": "GlobalVars",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GlobalVars": {
+            "main": [
+                [
+                    {
+                        "node": "PM Prompt",
                         "type": "main",
                         "index": 0
                     }
@@ -340,7 +377,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "1f79b05f-fc00-49f2-91c9-bc6365aab914",
+    "versionId": "70134ce4-1abe-42c3-af0f-953e4ef68d60",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
