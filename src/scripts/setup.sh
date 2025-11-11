@@ -9,19 +9,14 @@ if [[ -z "${codebase_id}" ]]; then
     exit 1
 fi
 
-get_codebase_by_id() {
+get_codebase_path() {
     local codebase_id=$1
-    local codebase_record
+    sqlite3 "$DB_ABSOLUTE_URL" "SELECT path FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
+}
 
-    sql="SELECT * FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
-    codebase_record=$(sqlite3 "$DB_ABSOLUTE_URL" "$sql")
-
-    if [[ -z "$codebase_record" ]]; then
-        echo "Error: Codebase with ID $codebase_id not found." >&2
-        return 1
-    fi
-
-    echo "$codebase_record"
+get_codebase_data() {
+    local codebase_id=$1
+    sqlite3 "$DB_ABSOLUTE_URL" "SELECT data FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
 }
 
 # Paths
@@ -43,8 +38,14 @@ source "$scripts_dir/setup/rust_functions.sh"
 source "$scripts_dir/setup/vue_functions.sh"
 
 # Database queries
-codebase=$(get_codebase_by_id "$codebase_id")
-codebase_data=$(echo "$codebase" | cut -d'|' -f5)
+codebase_path=$(get_codebase_path "$codebase_id")
+codebase_data=$(get_codebase_data "$codebase_id")
+
+# Validate codebase exists
+if [[ -z "$codebase_path" ]]; then
+    echo "Error: Codebase with ID $codebase_id not found." >&2
+    exit 1
+fi
 
 # Handle NULL or empty data field by providing default JSON
 if [[ -z "$codebase_data" || "$codebase_data" == "NULL" ]]; then
@@ -53,7 +54,6 @@ fi
 
 setup_type=$(echo "$codebase_data" | jq -r '.setupType // "default"')
 master_prompt=$(echo "$codebase_data" | jq -r '.masterPrompt // ""')
-codebase_path=$(echo "$codebase" | cut -d'|' -f3)
 
 run_language_specific_functions() {
     if [[ "${setup_type}" == "node" ]]; then
@@ -81,7 +81,7 @@ setup_project_directory() {
     touch "${codebase_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
     echo "$master_prompt" > "${codebase_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
 
-    prompts_dir="${AGENT_REPO}/src/prompts"
+    prompts_dir="${AGENT_REPO}/src/prompts/handoff"
     cp -R "${prompts_dir}/." "${codebase_path}/${AGENT_FOLDER_NAME}/" || true
 }
 

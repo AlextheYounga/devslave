@@ -111,6 +111,11 @@ Follow-up details.
     });
 
     it("updates existing ticket status changes and emits status changed event", async () => {
+        const existingTicketPath = path.join(
+            ticketsDir(),
+            "123-existing-ticket.md",
+        );
+
         await prisma.ticket.create({
             data: {
                 codebaseId,
@@ -118,6 +123,7 @@ Follow-up details.
                 title: "Existing ticket",
                 branchName: "feat/ticket-123",
                 status: TicketStatus.OPEN,
+                ticketFile: existingTicketPath,
             },
         });
 
@@ -151,6 +157,8 @@ Updated body.
     });
 
     it("keeps existing ticket when status unchanged", async () => {
+        const stableTicketPath = path.join(ticketsDir(), "888-existing.md");
+
         await prisma.ticket.create({
             data: {
                 codebaseId,
@@ -159,6 +167,7 @@ Updated body.
                 branchName: "feat/ticket-888",
                 status: TicketStatus.QA_REVIEW,
                 description: "old description",
+                ticketFile: stableTicketPath,
             },
         });
 

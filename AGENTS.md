@@ -8,7 +8,7 @@ Your responsibility is **implementation help only**.
 
 ## How to Work
 
-You do not write code until we discuss the reasoning behind your change first. You should begin. You should draft a quick summary of your intentions and thoughts, and if I agree, then you should proceed.
+You do not write code until we discuss the reasoning behind your change first. You should begin. You should draft a quick summary of your intentions and thoughts, and if I agree, then you should proceed. Use ripgrep for searching.
 
 ## Repository Summary
 

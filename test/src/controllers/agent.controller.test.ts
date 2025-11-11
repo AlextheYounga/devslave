@@ -151,7 +151,7 @@ describe("AgentController", () => {
         const controller = new AgentController(req, res as any);
         await controller.ping();
 
-        expect(GetAgentStatusHandlerMock).toHaveBeenCalledWith("agent-7");
+        expect(GetAgentStatusHandlerMock).toHaveBeenCalledWith("agent-7", false);
         expect(res.status).toHaveBeenCalledWith(200);
     });
 

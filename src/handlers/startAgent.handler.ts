@@ -125,7 +125,7 @@ export default class StartAgentHandler {
             developer: join(paths.prompts, "onboarding", "engineer.md"),
             architect: join(paths.prompts, "onboarding", "architect.md"),
             qa: join(paths.prompts, "onboarding", "qa.md"),
-            manager: join(paths.prompts, "onboarding", "project-manager.md"),
+            manager: join(paths.prompts, "onboarding", "pm.md"),
         };
 
         const codebase = await this.db.codebase.findUniqueOrThrow({
