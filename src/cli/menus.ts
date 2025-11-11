@@ -35,7 +35,6 @@ export const SETUP_OPTIONS = [
 const MAIN_MENU_CHOICES = [
     { name: "Create Project", value: "create-project" },
     { name: "Start Agent Workflow", value: "start-agent-workflow" },
-    { name: "View Running Agents", value: "monitor-agents" },
     { name: "Utilities", value: "utilities" },
     { name: "Exit", value: "exit" },
 ];
