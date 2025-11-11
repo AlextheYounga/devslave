@@ -3,6 +3,11 @@ __trash__
 docs/projects
 dist
 
+# Database
+*.db
+*.db-shm
+*.db-wal
+
 # Logs
 logs
 *.log
