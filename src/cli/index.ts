@@ -3,7 +3,7 @@ import inquirer from "inquirer";
 import { spawn } from "child_process";
 import { join } from "path";
 import { homedir } from "os";
-import { AgentStatus } from "@prisma/client";
+import { AgentStatus, TicketStatus } from "@prisma/client";
 import { prisma } from "../prisma";
 import {
     AgentWorkflowKey,
@@ -176,6 +176,41 @@ async function handleViewRunningAgents(): Promise<void> {
         return;
     }
 
+    const codebaseIds = Array.from(
+        new Set(
+            agents
+                .map((agent) => agent.codebaseId)
+                .filter((id): id is string => Boolean(id)),
+        ),
+    );
+
+    const activeTicketMap = new Map<
+        string,
+        Awaited<ReturnType<typeof prisma.ticket.findFirst>>
+    >();
+
+    if (codebaseIds.length) {
+        const tickets = await Promise.all(
+            codebaseIds.map((codebaseId) =>
+                prisma.ticket.findFirst({
+                    where: {
+                        codebaseId,
+                        status: { not: TicketStatus.CLOSED },
+                    },
+                    orderBy: {
+                        createdAt: "asc",
+                    },
+                }),
+            ),
+        );
+
+        tickets.forEach((ticket, index) => {
+            if (ticket) {
+                activeTicketMap.set(codebaseIds[index]!, ticket);
+            }
+        });
+    }
+
     const agentChoices = agents.map((agent) => {
         const metadata = extractAgentMetadata(agent);
         const resolvedCodebaseId = agent.codebaseId ?? metadata.codebaseId;
@@ -185,8 +220,13 @@ async function handleViewRunningAgents(): Promise<void> {
             (resolvedCodebaseId ? `Codebase ${resolvedCodebaseId}` : null) ??
             "unknown codebase";
 
+        const ticket = resolvedCodebaseId
+            ? activeTicketMap.get(resolvedCodebaseId)
+            : undefined;
+        const ticketLabel = ticket ? ` • Ticket ${ticket.ticketId}` : "";
+
         return {
-            name: `[${agent.status}] ${agent.role ?? "unknown role"} • ${resolvedCodebaseName} (${agent.id})`,
+            name: `[${agent.status}] ${agent.role ?? "unknown role"} • ${resolvedCodebaseName}${ticketLabel} (${agent.id})`,
             value: agent.id,
         };
     });
