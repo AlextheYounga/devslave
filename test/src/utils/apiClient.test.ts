@@ -172,12 +172,16 @@ describe("apiClient helpers", () => {
         );
     });
 
-    it("sends workflow payload to webhook", async () => {
+    it("sends workflow payload to webhook and returns parsed response", async () => {
         const fetchSpy = jest
             .fn()
-            .mockResolvedValue(textResponse("OK", 200) as unknown as Response);
+            .mockResolvedValue(
+                jsonResponse({
+                    executionId: "exec-123",
+                }) as unknown as Response,
+            );
 
-        await triggerWebhook(
+        const result = await triggerWebhook(
             "http://n8n/webhook",
             { role: "architect" },
             fetchSpy,
@@ -192,5 +196,6 @@ describe("apiClient helpers", () => {
                 }),
             }),
         );
+        expect(result).toEqual({ executionId: "exec-123" });
     });
 });

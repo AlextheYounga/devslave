@@ -145,8 +145,19 @@ export async function handleAgentWorkflow(
     console.log(
         `\n📨 Sending workflow payload to ${config.label} webhook...\n`,
     );
-    await triggerWebhook(webhookUrl, payload);
-    console.log(`\n✅ ${config.label} workflow triggered successfully.\n`);
+    const response = await triggerWebhook(webhookUrl, payload);
+    console.log(`\n✅ ${config.label} workflow triggered successfully.`);
+
+    const executionData =
+        response && typeof response === "object"
+            ? (response as { executionId?: string; executionUrl?: string })
+            : {};
+    if (executionData.executionId) {
+        console.log(`Execution ID: ${executionData.executionId}`);
+    }
+    if (executionData.executionUrl) {
+        console.log(`Execution URL: ${executionData.executionUrl}`);
+    }
 }
 
 export async function handleCreateProjectFlow(): Promise<void> {

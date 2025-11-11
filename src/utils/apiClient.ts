@@ -184,7 +184,7 @@ export async function triggerWebhook(
     url: string,
     payload: Record<string, unknown>,
     fetcher: Fetcher = defaultFetch,
-): Promise<void> {
+): Promise<unknown> {
     const response = await fetcher(url, {
         method: "POST",
         headers: defaultHeaders,
@@ -196,6 +196,17 @@ export async function triggerWebhook(
         throw new Error(
             `Webhook request to ${url} failed with status ${response.status} ${response.statusText}. ${body}`,
         );
+    }
+
+    const rawBody = await readBody(response);
+    if (!rawBody) {
+        return undefined;
+    }
+
+    try {
+        return JSON.parse(rawBody);
+    } catch {
+        return rawBody;
     }
 }
 
