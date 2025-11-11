@@ -1,4 +1,8 @@
-import inquirer from "inquirer";
+import inquirer, {
+    type InputQuestion,
+    type ListQuestion,
+    type QuestionCollection,
+} from "inquirer";
 import {
     checkDevslaveHealth,
     checkOllamaHealth,
@@ -31,6 +35,12 @@ function modelNames(models: OllamaModel[]): string[] {
         .filter((name): name is string => Boolean(name));
 }
 
+type AgentFormAnswers = {
+    codebaseId: string;
+    model: string;
+    debugMode: boolean;
+};
+
 async function promptAgentForm(
     codebases: CodebaseSummary[],
     models: OllamaModel[],
@@ -41,9 +51,9 @@ async function promptAgentForm(
     }));
 
     const modelsList = modelNames(models);
-    const modelQuestion =
+    const modelQuestion: QuestionCollection<AgentFormAnswers> =
         modelsList.length > 0
-            ? {
+            ? ({
                   type: "list" as const,
                   name: "model",
                   message: "Select an Ollama model:",
@@ -54,19 +64,15 @@ async function promptAgentForm(
                           value: name,
                       })),
                   ],
-              }
-            : {
+              } satisfies ListQuestion<AgentFormAnswers>)
+            : ({
                   type: "input" as const,
                   name: "model",
                   message: "Model (leave blank for default):",
                   filter: (input: string) => input.trim(),
-              };
+              } satisfies InputQuestion<AgentFormAnswers>);
 
-    return inquirer.prompt<{
-        codebaseId: string;
-        model: string;
-        debugMode: boolean;
-    }>([
+    return inquirer.prompt<AgentFormAnswers>([
         {
             type: "list",
             name: "codebaseId",
