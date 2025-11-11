@@ -1,0 +1,3260 @@
+{
+    "id": "78",
+    "finished": true,
+    "mode": "webhook",
+    "retryOf": null,
+    "retrySuccessId": null,
+    "status": "success",
+    "createdAt": "2025-11-11T06:17:21.403Z",
+    "startedAt": "2025-11-11T06:17:21.416Z",
+    "stoppedAt": "2025-11-11T06:19:28.927Z",
+    "deletedAt": null,
+    "workflowId": "NDhz5JjX3in82pUa",
+    "waitTill": null,
+    "data": {
+        "startData": {},
+        "resultData": {
+            "runData": {
+                "Architect Webhook": [
+                    {
+                        "startTime": 1762841841423,
+                        "executionIndex": 0,
+                        "source": [],
+                        "hints": [],
+                        "executionTime": 0,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "headers": {
+                                                "host": "localhost:5678",
+                                                "connection": "keep-alive",
+                                                "content-type": "application/json",
+                                                "accept": "*/*",
+                                                "accept-language": "*",
+                                                "sec-fetch-mode": "cors",
+                                                "user-agent": "node",
+                                                "accept-encoding": "gzip, deflate",
+                                                "content-length": "114"
+                                            },
+                                            "params": {},
+                                            "query": {},
+                                            "body": {
+                                                "codebaseId": "cmhu68csy001mtj9jvbleu9tj",
+                                                "codebaseName": "AlwaysForward API",
+                                                "debugMode": false,
+                                                "role": "architect"
+                                            },
+                                            "webhookUrl": "http://localhost:5678/webhook/architect",
+                                            "executionMode": "production"
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "Respond to Webhook": [
+                    {
+                        "startTime": 1762841841424,
+                        "executionIndex": 1,
+                        "source": [
+                            {
+                                "previousNode": "Architect Webhook"
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 1,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "headers": {
+                                                "host": "localhost:5678",
+                                                "connection": "keep-alive",
+                                                "content-type": "application/json",
+                                                "accept": "*/*",
+                                                "accept-language": "*",
+                                                "sec-fetch-mode": "cors",
+                                                "user-agent": "node",
+                                                "accept-encoding": "gzip, deflate",
+                                                "content-length": "114"
+                                            },
+                                            "params": {},
+                                            "query": {},
+                                            "body": {
+                                                "codebaseId": "cmhu68csy001mtj9jvbleu9tj",
+                                                "codebaseName": "AlwaysForward API",
+                                                "debugMode": false,
+                                                "role": "architect"
+                                            },
+                                            "webhookUrl": "http://localhost:5678/webhook/architect",
+                                            "executionMode": "production"
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "Architect Prompt": [
+                    {
+                        "startTime": 1762841841425,
+                        "executionIndex": 2,
+                        "source": [
+                            {
+                                "previousNode": "Architect Webhook"
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 1,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "architect_prompt": "You are an engineering architect. Please read agent/onboarding/architect.md to get started"
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "Launch Architect Agent": [
+                    {
+                        "startTime": 1762841841426,
+                        "executionIndex": 3,
+                        "source": [
+                            {
+                                "previousNode": "Architect Prompt"
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 621,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent started",
+                                            "data": {
+                                                "executionId": "78",
+                                                "codebaseId": "cmhu68csy001mtj9jvbleu9tj",
+                                                "prompt": "You are an engineering architect. Please read agent/onboarding/architect.md to get started",
+                                                "role": "architect",
+                                                "debugMode": false,
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv"
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "Architect Poll Delay": [
+                    {
+                        "startTime": 1762841842048,
+                        "executionIndex": 4,
+                        "source": [
+                            {
+                                "previousNode": "Launch Architect Agent"
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5002,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent started",
+                                            "data": {
+                                                "executionId": "78",
+                                                "codebaseId": "cmhu68csy001mtj9jvbleu9tj",
+                                                "prompt": "You are an engineering architect. Please read agent/onboarding/architect.md to get started",
+                                                "role": "architect",
+                                                "debugMode": false,
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv"
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841847138,
+                        "executionIndex": 7,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5000,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 5686
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841852174,
+                        "executionIndex": 10,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 1
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 10723
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841857212,
+                        "executionIndex": 13,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 2
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5000,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 15760
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841862249,
+                        "executionIndex": 16,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 3
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 20796
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841867283,
+                        "executionIndex": 19,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 4
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 25832
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841872319,
+                        "executionIndex": 22,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 5
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5002,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 30867
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841877358,
+                        "executionIndex": 25,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 6
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5002,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 35907
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841882394,
+                        "executionIndex": 28,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 7
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5002,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 40944
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841887432,
+                        "executionIndex": 31,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 8
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 45981
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841892469,
+                        "executionIndex": 34,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 9
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5002,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 51018
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841897506,
+                        "executionIndex": 37,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 10
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 56055
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841902541,
+                        "executionIndex": 40,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 11
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5003,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 61090
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841907582,
+                        "executionIndex": 43,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 12
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5000,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 66129
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841912617,
+                        "executionIndex": 46,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 13
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5002,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 71165
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841917653,
+                        "executionIndex": 49,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 14
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 76202
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841922689,
+                        "executionIndex": 52,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 15
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5002,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 81238
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841927724,
+                        "executionIndex": 55,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 16
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 86274
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841932760,
+                        "executionIndex": 58,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 17
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 91309
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841937791,
+                        "executionIndex": 61,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 18
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 96341
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841942825,
+                        "executionIndex": 64,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 19
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 101375
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841947861,
+                        "executionIndex": 67,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 20
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 106410
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841952897,
+                        "executionIndex": 70,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 21
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 111446
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841957934,
+                        "executionIndex": 73,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 22
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5000,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 116482
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841962970,
+                        "executionIndex": 76,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeOutput": 2,
+                                "previousNodeRun": 23
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 5001,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 121518
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "Ping Architect Agent": [
+                    {
+                        "startTime": 1762841847050,
+                        "executionIndex": 5,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay"
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 84,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 5686
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841852139,
+                        "executionIndex": 8,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 1
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 32,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 10723
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841857176,
+                        "executionIndex": 11,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 2
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 32,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 15760
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841862213,
+                        "executionIndex": 14,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 3
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 31,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 20796
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841867251,
+                        "executionIndex": 17,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 4
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 29,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 25832
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841872285,
+                        "executionIndex": 20,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 5
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 31,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 30867
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841877321,
+                        "executionIndex": 23,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 6
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 34,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 35907
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841882360,
+                        "executionIndex": 26,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 7
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 32,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 40944
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841887396,
+                        "executionIndex": 29,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 8
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 33,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 45981
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841892433,
+                        "executionIndex": 32,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 9
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 33,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 51018
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841897471,
+                        "executionIndex": 35,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 10
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 32,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 56055
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841902507,
+                        "executionIndex": 38,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 11
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 31,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 61090
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841907545,
+                        "executionIndex": 41,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 12
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 33,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 66129
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841912583,
+                        "executionIndex": 44,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 13
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 30,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 71165
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841917620,
+                        "executionIndex": 47,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 14
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 30,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 76202
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841922655,
+                        "executionIndex": 50,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 15
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 31,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 81238
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841927692,
+                        "executionIndex": 53,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 16
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 30,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 86274
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841932726,
+                        "executionIndex": 56,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 17
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 31,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 91309
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841937761,
+                        "executionIndex": 59,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 18
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 27,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 96341
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841942792,
+                        "executionIndex": 62,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 19
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 30,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 101375
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841947826,
+                        "executionIndex": 65,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 20
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 32,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 106410
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841952862,
+                        "executionIndex": 68,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 21
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 32,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 111446
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841957898,
+                        "executionIndex": 71,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 22
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 32,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 116482
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841962934,
+                        "executionIndex": 74,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 23
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 33,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 121518
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841967972,
+                        "executionIndex": 77,
+                        "source": [
+                            {
+                                "previousNode": "Architect Poll Delay",
+                                "previousNodeRun": 24
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 68,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: COMPLETED",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "COMPLETED",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 126592
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "Architect Agent Status": [
+                    {
+                        "startTime": 1762841847135,
+                        "executionIndex": 6,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent"
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 5686
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841852172,
+                        "executionIndex": 9,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 1
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 10723
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841857209,
+                        "executionIndex": 12,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 2
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 15760
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841862245,
+                        "executionIndex": 15,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 3
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 4,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 20796
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841867280,
+                        "executionIndex": 18,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 4
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 25832
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841872316,
+                        "executionIndex": 21,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 5
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 30867
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841877356,
+                        "executionIndex": 24,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 6
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 35907
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841882392,
+                        "executionIndex": 27,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 7
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 40944
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841887430,
+                        "executionIndex": 30,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 8
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 45981
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841892466,
+                        "executionIndex": 33,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 9
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 51018
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841897503,
+                        "executionIndex": 36,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 10
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 56055
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841902539,
+                        "executionIndex": 39,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 11
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 61090
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841907578,
+                        "executionIndex": 42,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 12
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 4,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 66129
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841912614,
+                        "executionIndex": 45,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 13
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 71165
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841917650,
+                        "executionIndex": 48,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 14
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 76202
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841922686,
+                        "executionIndex": 51,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 15
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 81238
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841927722,
+                        "executionIndex": 54,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 16
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 86274
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841932757,
+                        "executionIndex": 57,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 17
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 91309
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841937789,
+                        "executionIndex": 60,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 18
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 96341
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841942823,
+                        "executionIndex": 63,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 19
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 101375
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841947859,
+                        "executionIndex": 66,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 20
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 106410
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841952895,
+                        "executionIndex": 69,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 21
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 111446
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841957930,
+                        "executionIndex": 72,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 22
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 116482
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841962967,
+                        "executionIndex": 75,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 23
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 3,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [],
+                                [],
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: RUNNING",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "RUNNING",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 121518
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        "startTime": 1762841968040,
+                        "executionIndex": 78,
+                        "source": [
+                            {
+                                "previousNode": "Ping Architect Agent",
+                                "previousNodeRun": 24
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 2,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "success": true,
+                                            "message": "Agent status: COMPLETED",
+                                            "data": {
+                                                "agentId": "cmhu6im910000tj9jk5hjs8rv",
+                                                "status": "COMPLETED",
+                                                "tmuxSession": "agent_cmhu6im910000tj9jk5hjs8rv",
+                                                "duration": 126592
+                                            }
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ],
+                                [],
+                                []
+                            ]
+                        }
+                    }
+                ],
+                "Architect Git Commit": [
+                    {
+                        "startTime": 1762841968042,
+                        "executionIndex": 79,
+                        "source": [
+                            {
+                                "previousNode": "Architect Agent Status",
+                                "previousNodeRun": 24
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 884,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "code": 0,
+                                            "signal": null,
+                                            "stdout": "[master 804573e] Finished architect outline\n 3 files changed, 213 insertions(+)\n create mode 100644 .pre-commit-config.yaml\n create mode 100644 agent/architect.md\n create mode 100644 agent/outline.md",
+                                            "stderr": "Detect hardcoded secrets.................................................Passed"
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "Finished": [
+                    {
+                        "startTime": 1762841968927,
+                        "executionIndex": 80,
+                        "source": [
+                            {
+                                "previousNode": "Architect Git Commit"
+                            }
+                        ],
+                        "hints": [],
+                        "executionTime": 0,
+                        "executionStatus": "success",
+                        "data": {
+                            "main": [
+                                [
+                                    {
+                                        "json": {
+                                            "code": 0,
+                                            "signal": null,
+                                            "stdout": "[master 804573e] Finished architect outline\n 3 files changed, 213 insertions(+)\n create mode 100644 .pre-commit-config.yaml\n create mode 100644 agent/architect.md\n create mode 100644 agent/outline.md",
+                                            "stderr": "Detect hardcoded secrets.................................................Passed"
+                                        },
+                                        "pairedItem": {
+                                            "item": 0
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ]
+            },
+            "lastNodeExecuted": "Finished"
+        },
+        "executionData": {
+            "contextData": {},
+            "nodeExecutionStack": [],
+            "waitingExecution": {}
+        }
+    },
+    "workflowData": {
+        "id": "NDhz5JjX3in82pUa",
+        "name": "Architect Agent Workflow",
+        "nodes": [
+            {
+                "parameters": {
+                    "mode": "manual",
+                    "duplicateItem": false,
+                    "assignments": {
+                        "assignments": [
+                            {
+                                "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+                                "name": "architect_prompt",
+                                "value": "You are an engineering architect. Please read agent/onboarding/architect.md to get started",
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "includeOtherFields": false,
+                    "options": {}
+                },
+                "type": "n8n-nodes-base.set",
+                "typeVersion": 3.4,
+                "position": [-2400, 224],
+                "id": "a931b171-9017-4c45-85ba-815acf800090",
+                "name": "Architect Prompt"
+            },
+            {
+                "parameters": {
+                    "authentication": "password",
+                    "resource": "command",
+                    "operation": "execute",
+                    "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{ $('Launch Architect Agent').item.json.data.codebaseId }}\" \"Finished architect outline\"",
+                    "cwd": "/"
+                },
+                "type": "n8n-nodes-base.ssh",
+                "typeVersion": 1,
+                "position": [-1280, 128],
+                "id": "6aaf11ac-43ee-40c1-9ca2-c06c889f68ee",
+                "name": "Architect Git Commit",
+                "credentials": {
+                    "sshPassword": {
+                        "id": "rZo9VRK76TIBbM2v",
+                        "name": "SSH Password account"
+                    }
+                },
+                "onError": "continueRegularOutput"
+            },
+            {
+                "parameters": {
+                    "preBuiltAgentsCalloutHttpRequest": "",
+                    "curlImport": "",
+                    "method": "POST",
+                    "url": "http://app:3000/api/agent/start",
+                    "authentication": "none",
+                    "provideSslCertificates": false,
+                    "sendQuery": false,
+                    "sendHeaders": false,
+                    "sendBody": true,
+                    "contentType": "json",
+                    "specifyBody": "keypair",
+                    "bodyParameters": {
+                        "parameters": [
+                            {
+                                "name": "executionId",
+                                "value": "={{ $execution.id }}"
+                            },
+                            {
+                                "name": "codebaseId",
+                                "value": "={{ $('Architect Webhook').item.json.body.codebaseId }}"
+                            },
+                            {
+                                "name": "prompt",
+                                "value": "={{ $json.architect_prompt }}"
+                            },
+                            {
+                                "name": "role",
+                                "value": "architect"
+                            },
+                            {
+                                "name": "debugMode",
+                                "value": "={{ $('Architect Webhook').item.json.body.debugMode }}"
+                            }
+                        ]
+                    },
+                    "options": {
+                        "timeout": 10000
+                    },
+                    "infoMessage": ""
+                },
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [-2176, 224],
+                "id": "28ed85c5-35ac-41d8-8939-22a7c7649843",
+                "name": "Launch Architect Agent"
+            },
+            {
+                "parameters": {
+                    "resume": "timeInterval",
+                    "amount": 5,
+                    "unit": "seconds"
+                },
+                "type": "n8n-nodes-base.wait",
+                "typeVersion": 1.1,
+                "position": [-1952, 224],
+                "id": "91ed5aa2-c77b-4727-846e-aa389fe8b5ef",
+                "name": "Architect Poll Delay",
+                "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
+            },
+            {
+                "parameters": {
+                    "preBuiltAgentsCalloutHttpRequest": "",
+                    "curlImport": "",
+                    "method": "GET",
+                    "url": "=http://app:3000/api/agent/{{ $json.data.agentId }}/status",
+                    "authentication": "none",
+                    "provideSslCertificates": false,
+                    "sendQuery": true,
+                    "specifyQuery": "keypair",
+                    "queryParameters": {
+                        "parameters": [
+                            {
+                                "name": "debugMode",
+                                "value": "={{ $json.data.debugMode }}"
+                            }
+                        ]
+                    },
+                    "sendHeaders": false,
+                    "sendBody": false,
+                    "options": {},
+                    "infoMessage": ""
+                },
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.2,
+                "position": [-1728, 152],
+                "id": "a56ee762-9d5b-4c42-bbe5-f2775f15ad08",
+                "name": "Ping Architect Agent"
+            },
+            {
+                "parameters": {
+                    "mode": "rules",
+                    "rules": {
+                        "values": [
+                            {
+                                "conditions": {
+                                    "options": {
+                                        "caseSensitive": true,
+                                        "leftValue": "",
+                                        "typeValidation": "strict",
+                                        "version": 2
+                                    },
+                                    "conditions": [
+                                        {
+                                            "leftValue": "={{ $json.data.status }}",
+                                            "rightValue": "COMPLETED",
+                                            "operator": {
+                                                "type": "string",
+                                                "operation": "equals"
+                                            },
+                                            "id": "91206cf7-6d2e-46af-84e5-19d60a718404"
+                                        }
+                                    ],
+                                    "combinator": "and"
+                                },
+                                "renameOutput": false
+                            },
+                            {
+                                "conditions": {
+                                    "options": {
+                                        "caseSensitive": true,
+                                        "leftValue": "",
+                                        "typeValidation": "strict",
+                                        "version": 2
+                                    },
+                                    "conditions": [
+                                        {
+                                            "id": "88a54ecf-c5f3-4fa9-84ba-be8c60d9de38",
+                                            "leftValue": "={{ $json.data.status }}",
+                                            "rightValue": "FAILED",
+                                            "operator": {
+                                                "type": "string",
+                                                "operation": "equals",
+                                                "name": "filter.operator.equals"
+                                            }
+                                        }
+                                    ],
+                                    "combinator": "and"
+                                },
+                                "renameOutput": false
+                            },
+                            {
+                                "conditions": {
+                                    "options": {
+                                        "caseSensitive": true,
+                                        "leftValue": "",
+                                        "typeValidation": "strict",
+                                        "version": 2
+                                    },
+                                    "conditions": [
+                                        {
+                                            "id": "70dcdcf1-f3ae-4f06-8ac8-92628247ccc0",
+                                            "leftValue": "={{ $json.data.status }}",
+                                            "rightValue": "RUNNING",
+                                            "operator": {
+                                                "type": "string",
+                                                "operation": "equals",
+                                                "name": "filter.operator.equals"
+                                            }
+                                        }
+                                    ],
+                                    "combinator": "and"
+                                },
+                                "renameOutput": false
+                            }
+                        ]
+                    },
+                    "looseTypeValidation": false,
+                    "options": {}
+                },
+                "type": "n8n-nodes-base.switch",
+                "typeVersion": 3.3,
+                "position": [-1504, 208],
+                "id": "a5cb5c36-71ef-4125-b963-6e3851ce61f8",
+                "name": "Architect Agent Status"
+            },
+            {
+                "parameters": {
+                    "errorType": "errorMessage",
+                    "errorMessage": "Dev Agent Failed"
+                },
+                "type": "n8n-nodes-base.stopAndError",
+                "typeVersion": 1,
+                "position": [-1280, 320],
+                "id": "b96153dc-56d0-4b39-8f63-035a1f9bc42a",
+                "name": "Architect Agent Failed"
+            },
+            {
+                "parameters": {},
+                "type": "n8n-nodes-base.noOp",
+                "typeVersion": 1,
+                "position": [-1056, 128],
+                "id": "f04d7402-0a37-4112-93f1-bde41384b655",
+                "name": "Finished"
+            },
+            {
+                "parameters": {
+                    "multipleMethods": false,
+                    "httpMethod": "POST",
+                    "path": "architect",
+                    "authentication": "none",
+                    "responseMode": "responseNode",
+                    "webhookNotice": "",
+                    "options": {}
+                },
+                "type": "n8n-nodes-base.webhook",
+                "typeVersion": 2.1,
+                "position": [-2624, 128],
+                "id": "34fee462-bf14-4ec1-90c2-637f1d3c0032",
+                "name": "Architect Webhook",
+                "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
+            },
+            {
+                "parameters": {
+                    "enableResponseOutput": false,
+                    "generalNotice": "",
+                    "respondWith": "json",
+                    "webhookNotice": "",
+                    "responseBody": "={\n  \"message\": \"Workflow was started\",\n  \"executionId\": {{ $execution.id }},\n  \"executionUrl\": \"127.0.0.1:5678/workflow/{{ $workflow.id }}/executions/{{ $execution.id }}\"\n}",
+                    "options": {}
+                },
+                "type": "n8n-nodes-base.respondToWebhook",
+                "typeVersion": 1.4,
+                "position": [-2400, 32],
+                "id": "d4437d36-b622-4115-8d89-917dcb764d12",
+                "name": "Respond to Webhook"
+            }
+        ],
+        "connections": {
+            "Architect Prompt": {
+                "main": [
+                    [
+                        {
+                            "node": "Launch Architect Agent",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Launch Architect Agent": {
+                "main": [
+                    [
+                        {
+                            "node": "Architect Poll Delay",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Architect Poll Delay": {
+                "main": [
+                    [
+                        {
+                            "node": "Ping Architect Agent",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Ping Architect Agent": {
+                "main": [
+                    [
+                        {
+                            "node": "Architect Agent Status",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Architect Agent Status": {
+                "main": [
+                    [
+                        {
+                            "node": "Architect Git Commit",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ],
+                    [
+                        {
+                            "node": "Architect Agent Failed",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ],
+                    [
+                        {
+                            "node": "Architect Poll Delay",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Architect Git Commit": {
+                "main": [
+                    [
+                        {
+                            "node": "Finished",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Architect Webhook": {
+                "main": [
+                    [
+                        {
+                            "node": "Architect Prompt",
+                            "type": "main",
+                            "index": 0
+                        },
+                        {
+                            "node": "Respond to Webhook",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Respond to Webhook": {
+                "main": [[]]
+            }
+        },
+        "settings": {
+            "executionOrder": "v1"
+        }
+    },
+    "customData": {}
+}

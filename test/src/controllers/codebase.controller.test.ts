@@ -1,8 +1,10 @@
 import CodebaseController from "../../../src/controllers/codebase.controller";
 import GetCodebaseHandler from "../../../src/handlers/getCodebase.handler";
+import GetAllCodebasesHandler from "../../../src/handlers/getAllCodebases.handler";
 import SetupCodebaseHandler from "../../../src/handlers/setupCodebase.handler";
 
 jest.mock("../../../src/handlers/getCodebase.handler");
+jest.mock("../../../src/handlers/getAllCodebases.handler");
 jest.mock("../../../src/handlers/setupCodebase.handler");
 
 type MockResponse = {
@@ -18,21 +20,29 @@ const makeResponse = (): MockResponse => ({
 const GetCodebaseHandlerMock = GetCodebaseHandler as jest.MockedClass<
     typeof GetCodebaseHandler
 >;
+const GetAllCodebasesHandlerMock = GetAllCodebasesHandler as jest.MockedClass<
+    typeof GetAllCodebasesHandler
+>;
 const SetupCodebaseHandlerMock = SetupCodebaseHandler as jest.MockedClass<
     typeof SetupCodebaseHandler
 >;
 
 describe("CodebaseController", () => {
     const getHandle = jest.fn();
+    const getAllHandle = jest.fn();
     const setupHandle = jest.fn();
 
     beforeEach(() => {
         jest.clearAllMocks();
         getHandle.mockReset();
+        getAllHandle.mockReset();
         setupHandle.mockReset();
 
         GetCodebaseHandlerMock.mockImplementation(
             () => ({ handle: getHandle }) as any,
+        );
+        GetAllCodebasesHandlerMock.mockImplementation(
+            () => ({ handle: getAllHandle }) as any,
         );
         SetupCodebaseHandlerMock.mockImplementation(
             () => ({ handle: setupHandle }) as any,
@@ -62,6 +72,30 @@ describe("CodebaseController", () => {
         expect(res.json.mock.calls[0][0].success).toBe(false);
     });
 
+    it("returns all codebases when handler succeeds", async () => {
+        const list = [{ id: "code-1" }];
+        getAllHandle.mockResolvedValue(list);
+        const req: any = { body: {} };
+        const res = makeResponse();
+
+        await new CodebaseController(req, res as any).getAll();
+
+        expect(GetAllCodebasesHandlerMock).toHaveBeenCalledTimes(1);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json.mock.calls[0][0].data.codebases).toEqual(list);
+    });
+
+    it("returns 500 when getAll handler throws", async () => {
+        getAllHandle.mockRejectedValue(new Error("fail"));
+        const req: any = { body: {} };
+        const res = makeResponse();
+
+        await new CodebaseController(req, res as any).getAll();
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json.mock.calls[0][0].success).toBe(false);
+    });
+
     it("validates setup payload", async () => {
         const req: any = { body: { executionId: "exec" } };
         const res = makeResponse();
@@ -76,7 +110,7 @@ describe("CodebaseController", () => {
         setupHandle.mockResolvedValue({ stdout: "done" });
         const payload = {
             executionId: "exec-1",
-            codebaseId: "code-1",
+            name: "code-1",
             folderName: "folder",
             prompt: "boot",
         };
@@ -94,7 +128,7 @@ describe("CodebaseController", () => {
         setupHandle.mockRejectedValue(new Error("boom"));
         const payload = {
             executionId: "exec-1",
-            codebaseId: "code-1",
+            name: "code-1",
             folderName: "folder",
             prompt: "boot",
         };

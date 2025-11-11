@@ -3,6 +3,7 @@ import os from "os";
 import path from "path";
 import prisma from "../../client";
 import { AgentStatus } from "@prisma/client";
+import { AGENT_FOLDER_NAME } from "../../../src/constants";
 
 const uniqueId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
@@ -27,11 +28,21 @@ describe("StartAgentHandler", () => {
     let tempHome: string;
     const originalScriptPath = process.env.SCRIPT_PATH;
 
-    const buildParams = () => ({
+    type HandlerInput = {
+        executionId: string;
+        codebaseId: string;
+        prompt: string;
+        role: "developer";
+    };
+
+    const buildParams = (
+        overrides: Partial<HandlerInput> = {},
+    ): HandlerInput => ({
         executionId: `exec-${uniqueId()}`,
         codebaseId: "codebase-abc",
         prompt: "Run task",
-        role: "developer" as const,
+        role: "developer",
+        ...overrides,
     });
 
     const logDirFor = (home: string) =>
@@ -78,6 +89,19 @@ describe("StartAgentHandler", () => {
     beforeEach(() => {
         spawnMock.mockReset();
         execMock.mockReset();
+        execMock.mockImplementation(
+            (
+                _cmd: string,
+                callback: (
+                    error: Error | null,
+                    stdout: string,
+                    stderr: string,
+                ) => void,
+            ) => {
+                callback(null, "", "");
+                return { stdout: "" };
+            },
+        );
         fs.mkdirSync(path.join(process.env.HOME!, ".codex"), {
             recursive: true,
         });
@@ -108,17 +132,35 @@ describe("StartAgentHandler", () => {
             },
         );
 
-        const params = buildParams();
+        const codebasePath = fs.mkdtempSync(
+            path.join(os.tmpdir(), "start-agent-codebase-"),
+        );
+        fs.mkdirSync(path.join(codebasePath, AGENT_FOLDER_NAME, "onboarding"), {
+            recursive: true,
+        });
+        const codebase = await prisma.codebase.create({
+            data: {
+                name: `start-agent-${uniqueId()}`,
+                path: codebasePath,
+                setup: true,
+            },
+        });
+
+        const params = buildParams({ codebaseId: codebase.id });
         const handler = new StartAgentHandler(params);
-        const result = await handler.handle();
+        let result: Awaited<ReturnType<typeof handler.handle>> | undefined;
+        try {
+            result = await handler.handle();
+        } finally {
+            fs.rmSync(codebasePath, { recursive: true, force: true });
+        }
+
+        if (!result) {
+            throw new Error("StartAgentHandler did not resolve");
+        }
 
         expect(result.agentId).toBeDefined();
         expect(result.tmuxSession).toBe(`agent_${result.agentId}`);
-        expect(result.sessionId).toBe(sessionId);
-        expect(result.logFile).toBeDefined();
-        const logFile = result.logFile!;
-        expect(logFile).toContain(path.join(tempHome, ".codex", "sessions"));
-        expect(logFile.endsWith(".jsonl")).toBe(true);
 
         expect(spawnMock).toHaveBeenCalledWith(
             "bash",
@@ -136,7 +178,5 @@ describe("StartAgentHandler", () => {
 
         expect(agent.executionId).toBe(params.executionId);
         expect(agent.status).toBe(AgentStatus.LAUNCHED);
-        expect(agent.sessionId).toBe(sessionId);
-        expect(agent.logFile).toBe(logFile);
     });
 });

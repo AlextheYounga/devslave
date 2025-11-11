@@ -1,7 +1,7 @@
 import TicketsController from "../../../src/controllers/tickets.controller";
-import ScanTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
+import ScanAllTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
 
-jest.mock("../../../src/handlers/scanTickets.handler");
+jest.mock("../../../src/handlers/scanAllTickets.handler");
 
 type MockResponse = {
     status: jest.Mock;
@@ -13,8 +13,8 @@ const makeResponse = (): MockResponse => ({
     json: jest.fn().mockReturnThis(),
 });
 
-const ScanTicketsHandlerMock = ScanTicketsHandler as jest.MockedClass<
-    typeof ScanTicketsHandler
+const ScanAllTicketsHandlerMock = ScanAllTicketsHandler as jest.MockedClass<
+    typeof ScanAllTicketsHandler
 >;
 
 describe("TicketsController", () => {
@@ -23,7 +23,7 @@ describe("TicketsController", () => {
     beforeEach(() => {
         jest.clearAllMocks();
         scanHandle.mockReset();
-        ScanTicketsHandlerMock.mockImplementation(
+        ScanAllTicketsHandlerMock.mockImplementation(
             () => ({ handle: scanHandle }) as any,
         );
     });
@@ -35,7 +35,7 @@ describe("TicketsController", () => {
         await new TicketsController(req, res as any).scan();
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(ScanTicketsHandlerMock).not.toHaveBeenCalled();
+        expect(ScanAllTicketsHandlerMock).not.toHaveBeenCalled();
     });
 
     it("delegates to handler on success", async () => {
@@ -46,7 +46,7 @@ describe("TicketsController", () => {
 
         await new TicketsController(req, res as any).scan();
 
-        expect(ScanTicketsHandlerMock).toHaveBeenCalledWith(payload);
+        expect(ScanAllTicketsHandlerMock).toHaveBeenCalledWith(payload);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json.mock.calls[0][0].success).toBe(true);
     });

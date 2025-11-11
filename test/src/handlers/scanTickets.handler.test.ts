@@ -1,10 +1,48 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { execSync } from "child_process";
 import { TicketStatus } from "@prisma/client";
 import prisma from "../../client";
 import ScanTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
 import { AGENT_FOLDER_NAME } from "../../../src/constants";
+
+jest.mock("child_process", () => {
+    const actual = jest.requireActual(
+        "child_process",
+    ) as typeof import("child_process");
+    return {
+        ...actual,
+        execSync: jest.fn(),
+    };
+});
+
+const FIXTURE_DIR = path.join(process.cwd(), "test/fixtures");
+const TICKET_TEMPLATE = fs.readFileSync(
+    path.join(FIXTURE_DIR, "tickets", "ticket-template.md"),
+    "utf-8",
+);
+
+const mockedExecSync = execSync as jest.MockedFunction<typeof execSync>;
+
+type TicketFixtureOptions = {
+    id: string;
+    title: string;
+    status?: string;
+    body?: string;
+};
+
+const renderTicketFixture = ({
+    id,
+    title,
+    status = "open",
+    body = "Task details here.",
+}: TicketFixtureOptions) => {
+    return TICKET_TEMPLATE.replace(/{{id}}/g, id)
+        .replace(/{{title}}/g, title)
+        .replace(/{{status}}/g, status)
+        .replace(/{{body}}/g, body);
+};
 
 describe("ScanTicketsHandler", () => {
     let tempDir: string;
@@ -21,6 +59,15 @@ describe("ScanTicketsHandler", () => {
         fs.writeFileSync(fullPath, contents, "utf-8");
         return fullPath;
     };
+
+    const mockFeatureBranches = (branches: string[] = []) => {
+        mockedExecSync.mockReturnValue(branches.join("\n"));
+    };
+
+    beforeEach(() => {
+        mockedExecSync.mockReset();
+        mockedExecSync.mockReturnValue("");
+    });
 
     beforeEach(async () => {
         tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "scan-handler-"));
@@ -56,26 +103,22 @@ describe("ScanTicketsHandler", () => {
     it("creates tickets for markdown files and returns open ticket as nextTicket", async () => {
         writeTicket(
             "001-first-ticket.md",
-            `---
-id: '001'
-title: First Ticket
-status: open
----
-
-Task details here.
-`,
+            renderTicketFixture({
+                id: "001",
+                title: "First Ticket",
+                status: "open",
+                body: "Task details here.",
+            }),
         );
 
         writeTicket(
             "002-second-ticket.md",
-            `---
-id: '002'
-title: Second Ticket
-status: qa-review
----
-
-Follow-up details.
-`,
+            renderTicketFixture({
+                id: "002",
+                title: "Second Ticket",
+                status: "qa-review",
+                body: "Follow-up details.",
+            }),
         );
 
         const handler = new ScanTicketsHandler({ executionId, codebaseId });
@@ -129,14 +172,12 @@ Follow-up details.
 
         writeTicket(
             "123-existing-ticket.md",
-            `---
-id: '123'
-title: Existing ticket
-status: in-progress
----
-
-Updated body.
-`,
+            renderTicketFixture({
+                id: "123",
+                title: "Existing ticket",
+                status: "in-progress",
+                body: "Updated body.",
+            }),
         );
 
         const handler = new ScanTicketsHandler({ executionId, codebaseId });
@@ -156,7 +197,7 @@ Updated body.
         expect(ticket.status).toBe(TicketStatus.IN_PROGRESS);
     });
 
-    it("keeps existing ticket when status unchanged", async () => {
+    it("updates stored ticket metadata even when status unchanged", async () => {
         const stableTicketPath = path.join(ticketsDir(), "888-existing.md");
 
         await prisma.ticket.create({
@@ -173,14 +214,12 @@ Updated body.
 
         writeTicket(
             "888-existing.md",
-            `---
-id: '888'
-title: Existing stable ticket
-status: qa-review
----
-
-Fresh description that should replace the old one.
-`,
+            renderTicketFixture({
+                id: "888",
+                title: "Existing stable ticket",
+                status: "qa-review",
+                body: "Fresh description that should replace the old one.",
+            }),
         );
 
         const handler = new ScanTicketsHandler({ executionId, codebaseId });
@@ -189,7 +228,7 @@ Fresh description that should replace the old one.
         expect(result.tickets).toHaveLength(1);
         expect(result.tickets[0]).toMatchObject({
             ticketId: "888",
-            action: "unchanged",
+            action: "updated",
             status: TicketStatus.QA_REVIEW,
         });
 
@@ -218,5 +257,65 @@ Content that should be ignored.
 
         const tickets = await prisma.ticket.findMany({ where: { codebaseId } });
         expect(tickets).toHaveLength(0);
+    });
+
+    it("prefers the latest matching feature branch ticket when it is still active", async () => {
+        writeTicket(
+            "001-first-ticket.md",
+            renderTicketFixture({
+                id: "001",
+                title: "First Ticket",
+                status: "open",
+                body: "Ticket 001 body.",
+            }),
+        );
+
+        writeTicket(
+            "002-second-ticket.md",
+            renderTicketFixture({
+                id: "002",
+                title: "Second Ticket",
+                status: "qa-review",
+                body: "Ticket 002 body.",
+            }),
+        );
+
+        const handler = new ScanTicketsHandler({ executionId, codebaseId });
+        mockFeatureBranches(["feat/ticket-001", "feat/ticket-002"]);
+
+        const result = await handler.handle();
+
+        expect(result.nextTicket?.ticketId).toBe("002");
+        expect(result.nextTicket?.status).toBe(TicketStatus.QA_REVIEW);
+    });
+
+    it("falls back to the oldest active ticket when the latest branch ticket is closed", async () => {
+        writeTicket(
+            "001-first-ticket.md",
+            renderTicketFixture({
+                id: "001",
+                title: "First Ticket",
+                status: "open",
+                body: "Ticket 001 body.",
+            }),
+        );
+
+        writeTicket(
+            "002-second-ticket.md",
+            renderTicketFixture({
+                id: "002",
+                title: "Second Ticket",
+                status: "closed",
+                body: "Ticket 002 body.",
+            }),
+        );
+
+        const handler = new ScanTicketsHandler({ executionId, codebaseId });
+        mockFeatureBranches(["feat/ticket-001", "feat/ticket-002"]);
+
+        const result = await handler.handle();
+
+        expect(result.nextTicket?.ticketId).toBe("001");
+        expect(result.nextTicket?.status).toBe(TicketStatus.OPEN);
     });
 });
