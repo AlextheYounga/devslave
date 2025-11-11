@@ -1,8 +1,4 @@
-import inquirer, {
-    type InputQuestion,
-    type ListQuestion,
-    type QuestionCollection,
-} from "inquirer";
+import inquirer from "inquirer";
 import {
     checkDevslaveHealth,
     checkOllamaHealth,
@@ -14,11 +10,7 @@ import {
     type CodebaseSummary,
     type OllamaModel,
 } from "../utils/apiClient";
-import {
-    AgentWorkflowKey,
-    SETUP_OPTIONS,
-    WORKFLOW_CONFIG,
-} from "./menus";
+import { AgentWorkflowKey, SETUP_OPTIONS, WORKFLOW_CONFIG } from "./menus";
 
 function requireInput(fieldLabel: string) {
     return (value: string) => {
@@ -51,10 +43,10 @@ async function promptAgentForm(
     }));
 
     const modelsList = modelNames(models);
-    const modelQuestion: QuestionCollection<AgentFormAnswers> =
+    const modelQuestion =
         modelsList.length > 0
-            ? ({
-                  type: "list" as const,
+            ? {
+                  type: "list",
                   name: "model",
                   message: "Select an Ollama model:",
                   choices: [
@@ -64,15 +56,15 @@ async function promptAgentForm(
                           value: name,
                       })),
                   ],
-              } satisfies ListQuestion<AgentFormAnswers>)
-            : ({
-                  type: "input" as const,
+              }
+            : {
+                  type: "input",
                   name: "model",
                   message: "Model (leave blank for default):",
                   filter: (input: string) => input.trim(),
-              } satisfies InputQuestion<AgentFormAnswers>);
+              };
 
-    return inquirer.prompt<AgentFormAnswers>([
+    const questions = [
         {
             type: "list",
             name: "codebaseId",
@@ -86,7 +78,9 @@ async function promptAgentForm(
             message: "Enable debug mode?",
             default: false,
         },
-    ]);
+    ] as any;
+
+    return inquirer.prompt<AgentFormAnswers>(questions);
 }
 
 async function runPreflightWithLogs(): Promise<OllamaModel[]> {
@@ -148,7 +142,9 @@ export async function handleAgentWorkflow(
     };
 
     const webhookUrl = getWebhookUrl(key);
-    console.log(`\n📨 Sending workflow payload to ${config.label} webhook...\n`);
+    console.log(
+        `\n📨 Sending workflow payload to ${config.label} webhook...\n`,
+    );
     await triggerWebhook(webhookUrl, payload);
     console.log(`\n✅ ${config.label} workflow triggered successfully.\n`);
 }

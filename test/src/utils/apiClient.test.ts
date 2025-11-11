@@ -43,9 +43,11 @@ describe("apiClient helpers", () => {
     });
 
     it("throws when health endpoint fails", async () => {
-        const fetchSpy = jest.fn().mockResolvedValue(
-            textResponse("boom", 500) as unknown as Response,
-        );
+        const fetchSpy = jest
+            .fn()
+            .mockResolvedValue(
+                textResponse("boom", 500) as unknown as Response,
+            );
 
         await expect(
             checkDevslaveHealth(fetchSpy, "http://app:3000"),
@@ -62,10 +64,7 @@ describe("apiClient helpers", () => {
             }),
         );
 
-        const models = await fetchOllamaModels(
-            fetchSpy,
-            "http://ollama:11434",
-        );
+        const models = await fetchOllamaModels(fetchSpy, "http://ollama:11434");
 
         expect(fetchSpy).toHaveBeenCalledWith(
             "http://ollama:11434/api/tags",
@@ -85,10 +84,7 @@ describe("apiClient helpers", () => {
                 }),
             );
 
-        const models = await fetchOllamaModels(
-            fetchSpy,
-            "http://ollama:11434",
-        );
+        const models = await fetchOllamaModels(fetchSpy, "http://ollama:11434");
 
         expect(fetchSpy).toHaveBeenNthCalledWith(
             1,
@@ -181,7 +177,11 @@ describe("apiClient helpers", () => {
             .fn()
             .mockResolvedValue(textResponse("OK", 200) as unknown as Response);
 
-        await triggerWebhook("http://n8n/webhook", { role: "architect" }, fetchSpy);
+        await triggerWebhook(
+            "http://n8n/webhook",
+            { role: "architect" },
+            fetchSpy,
+        );
 
         expect(fetchSpy).toHaveBeenCalledWith(
             "http://n8n/webhook",

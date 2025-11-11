@@ -91,7 +91,9 @@ async function requestJsonWithFallback<T>(
         lastError = error;
     }
 
-    throw lastError ?? new Error(`No successful response for ${paths.join(", ")}`);
+    throw (
+        lastError ?? new Error(`No successful response for ${paths.join(", ")}`)
+    );
 }
 
 export type OllamaModel = {

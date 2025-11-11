@@ -10,10 +10,7 @@ import {
     promptUtilitiesMenu,
     promptWorkflowMenu,
 } from "./menus";
-import {
-    handleAgentWorkflow,
-    handleCreateProjectFlow,
-} from "./workflows";
+import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
 
 dotenv.config();
 
