@@ -22,7 +22,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-3520, 784],
+            "position": [-3920, 912],
             "id": "6c3267be-6e21-471d-94fd-50b1b0256bc8",
             "name": "Scan Tickets"
         },
@@ -32,7 +32,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-944, 640],
+            "position": [-1904, 256],
             "id": "c12d8a2a-10ab-42d7-b628-0f206a3ca235",
             "name": "Commit Dev Work",
             "credentials": {
@@ -48,7 +48,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [720, 608],
+            "position": [-320, 672],
             "id": "bc2a283c-51f0-4486-8cf4-94e1abe2f03a",
             "name": "Commit QA Work",
             "credentials": {
@@ -91,7 +91,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2400, 272],
+            "position": [-2800, 392],
             "id": "d9a4f481-bb55-4826-8d9b-f8d9216bb1c0",
             "name": "Launch Dev Agent"
         },
@@ -111,7 +111,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-496, 640],
+            "position": [-1440, 768],
             "id": "ee0128bf-aa72-42bb-9f77-e7538a660990",
             "name": "QA Prompt"
         },
@@ -148,7 +148,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-272, 640],
+            "position": [-1216, 768],
             "id": "76c8044c-423a-4966-883e-a3b42388041c",
             "name": "Launch QA Agent"
         },
@@ -168,7 +168,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-2624, 352],
+            "position": [-3024, 472],
             "id": "8f78ac1d-867a-45ce-9a96-c62e2a3dfa4f",
             "name": "Dev Prompt"
         },
@@ -176,7 +176,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-2176, 272],
+            "position": [-2576, 392],
             "id": "c6394e89-506d-47e8-b854-2ccdd25c1838",
             "name": "Dev Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -197,7 +197,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1952, 208],
+            "position": [-2352, 248],
             "id": "c9174298-7d36-47c6-8ac4-2c74750551c4",
             "name": "Ping Dev Agent"
         },
@@ -205,7 +205,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-48, 640],
+            "position": [-992, 768],
             "id": "bd87add3-db61-404e-97ee-00b9fc72114f",
             "name": "QA Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -226,7 +226,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [176, 576],
+            "position": [-768, 704],
             "id": "a205d7d3-7262-40a6-a00c-fdb08898c1e3",
             "name": "Ping QA Agent"
         },
@@ -236,7 +236,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [-1504, 368],
+            "position": [-1904, 416],
             "id": "6cd83539-3237-4935-ac62-d1d385d974c9",
             "name": "Dev Agent Failed"
         },
@@ -318,7 +318,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-1728, 256],
+            "position": [-2128, 376],
             "id": "20e311b7-935c-4d92-8643-63a8dc9961bf",
             "name": "Dev Agent Status"
         },
@@ -400,7 +400,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [400, 624],
+            "position": [-544, 752],
             "id": "fb0dca0d-c0fc-44f3-942c-5177b6c393ab",
             "name": "QA Agent Status"
         },
@@ -410,7 +410,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [624, 736],
+            "position": [-320, 864],
             "id": "e715263a-65de-49cd-bcf6-3c87694e03ee",
             "name": "QA Agent Failed"
         },
@@ -420,7 +420,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [1392, 1088],
+            "position": [352, 1168],
             "id": "aff62ddf-430b-4ef4-adda-0d69022e47e6",
             "name": "Complete Feature",
             "credentials": {
@@ -509,7 +509,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-3296, 624],
+            "position": [-3696, 752],
             "id": "decdbd46-f9b4-4f98-9e4e-17cd5b9599df",
             "name": "Next Ticket Router"
         },
@@ -517,7 +517,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-720, 640],
+            "position": [-1664, 768],
             "id": "b7b65fb2-fef5-40fb-96d7-336d1964ea01",
             "name": "In QA"
         },
@@ -525,7 +525,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-3072, 784],
+            "position": [-3472, 912],
             "id": "3e6295ef-6dbb-481e-b682-20e863087017",
             "name": "Project Completed"
         },
@@ -536,7 +536,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [944, 608],
+            "position": [-96, 672],
             "id": "23a28fc6-b80d-47bb-80f9-a9612ded054a",
             "name": "Check Ticket Status"
         },
@@ -567,7 +567,7 @@
             },
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
-            "position": [1168, 864],
+            "position": [128, 928],
             "id": "bf02fa04-f65b-42df-8620-96baeac8ccb4",
             "name": "Passed QA?"
         },
@@ -575,7 +575,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.noOp",
             "typeVersion": 1,
-            "position": [-3072, 352],
+            "position": [-3472, 472],
             "id": "dba7d92d-38b7-493c-a6f5-2dfb8e2efef1",
             "name": "In Development"
         },
@@ -585,7 +585,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-2848, 352],
+            "position": [-3248, 472],
             "id": "84e8c8f4-5203-4432-9481-17352893de8f",
             "name": "Switch to Git Branch",
             "credentials": {
@@ -603,10 +603,22 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-3744, 784],
+            "position": [-4144, 816],
             "id": "f6bd7288-7e08-46a4-afe3-d19a28766b18",
             "name": "Dev Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"message\": \"Workflow was started\",\n  \"executionId\": {{ $execution.id }},\n  \"executionUrl\": \"127.0.0.1:5678/workflow/{{ $workflow.id }}/executions/{{ $execution.id }}\"\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.4,
+            "position": [-3920, 720],
+            "id": "f06ec8aa-3e88-40fa-a886-3d3e658d600e",
+            "name": "Respond to Webhook"
         }
     ],
     "pinData": {},
@@ -890,6 +902,11 @@
                         "node": "Scan Tickets",
                         "type": "main",
                         "index": 0
+                    },
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
                     }
                 ]
             ]
@@ -899,7 +916,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "685a1429-e1ca-40fe-a4b7-a38f2e4bdb1d",
+    "versionId": "688a0457-0d7c-4212-87d6-c2f012e9786e",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
