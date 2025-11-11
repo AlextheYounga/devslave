@@ -55,7 +55,7 @@ fi
 if [[ "$is_gpt_oss" == true ]]; then
     # Run with OSS flag
     codex --oss --model="$model" --dangerously-bypass-approvals-and-sandbox --cd="$codebase_path" "$prompt"
-elif [[ -n "$model" && "$model" != "null" ]]; then
+elif [[ -n "$model" && "$model" != "default" ]]; then
     # Run with just specified model
     codex --model="$model" --dangerously-bypass-approvals-and-sandbox --cd="$codebase_path" "$prompt"
 else
