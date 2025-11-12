@@ -54,6 +54,12 @@ export class CodebaseSetupCompleted extends BaseEvent {
     }
 }
 
+export class ProjectPhaseTransition extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
 // Agent-related events
 
 export class AgentPreparing extends BaseEvent {

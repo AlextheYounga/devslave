@@ -41,15 +41,23 @@ model Agent {
     @@map("agents")
 }
 
+enum ProjectPhase {
+    DESIGN
+    PLANNING
+    DEVELOPMENT
+    COMPLETE
+}
+
 model Codebase {
-    id        String   @id @default(cuid())
+    id        String       @id @default(cuid())
     name      String
     path      String
-    setup     Boolean  @default(false)
+    setup     Boolean      @default(false)
     data      Json?
-    active    Boolean  @default(true)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    phase     ProjectPhase @default(DESIGN)
+    active    Boolean      @default(true)
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
 
     tickets Ticket[]
     agents  Agent[]

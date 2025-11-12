@@ -20,6 +20,10 @@ router.get("/api/codebase/:id", async (req: Request, res: Response) => {
     return new CodebaseController(req, res).get();
 });
 
+router.put("/api/codebase/:id/phase", async (req: Request, res: Response) => {
+    return new CodebaseController(req, res).updatePhase();
+});
+
 router.get("/api/codebases", async (req: Request, res: Response) => {
     return new CodebaseController(req, res).getAll();
 });

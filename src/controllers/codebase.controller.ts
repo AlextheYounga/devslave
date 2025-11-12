@@ -3,6 +3,7 @@ import { validateRequiredFields } from "../utils/validation";
 import GetCodebaseHandler from "../handlers/getCodebase.handler";
 import GetAllCodebasesHandler from "../handlers/getAllCodebases.handler";
 import SetupCodebaseHandler from "../handlers/setupCodebase.handler";
+import UpdatePhaseHandler from "../handlers/updatePhase.handler";
 
 export default class CodebaseController {
     private req: Request;
@@ -26,7 +27,7 @@ export default class CodebaseController {
                 data: { codebase },
             });
         } catch (error: any) {
-            console.error("Error in CodebaseController->scan:", error);
+            console.error("Error in CodebaseController->get:", error);
             return this.res.status(500).json({
                 success: false,
                 error: error?.message ?? String(error),
@@ -46,7 +47,44 @@ export default class CodebaseController {
                 },
             });
         } catch (error: any) {
-            console.error("Error in CodebaseController->scan:", error);
+            console.error("Error in CodebaseController->getAll:", error);
+            return this.res.status(500).json({
+                success: false,
+                error: error?.message ?? String(error),
+            });
+        }
+    }
+
+    async updatePhase() {
+        try {
+            const codebaseId = this.req.params.id!;
+            const requiredFields = ["phase", "executionId"];
+            const validation = validateRequiredFields(
+                this.data,
+                requiredFields,
+            );
+            if (!validation.isValid) {
+                return this.res.status(400).json({
+                    success: false,
+                    error: validation.error,
+                });
+            }
+
+            const phaseHandler = await new UpdatePhaseHandler({
+                codebaseId: codebaseId,
+                ...this.data,
+            });
+            const codebase = await phaseHandler.handle();
+
+            return this.res.status(200).json({
+                success: true,
+                message: "Codebase retrieved successfully",
+                data: {
+                    codebase,
+                },
+            });
+        } catch (error: any) {
+            console.error("Error in CodebaseController->updatePhase:", error);
             return this.res.status(500).json({
                 success: false,
                 error: error?.message ?? String(error),
@@ -83,7 +121,7 @@ export default class CodebaseController {
                 data: { ...this.data, ...result },
             });
         } catch (error: any) {
-            console.error("Error in CodebaseController->scan:", error);
+            console.error("Error in CodebaseController->setup:", error);
             return this.res.status(500).json({
                 success: false,
                 error: error?.message ?? String(error),
