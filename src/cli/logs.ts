@@ -44,15 +44,20 @@ function extractField(
     return undefined;
 }
 
-export function eventMatchesTarget(
+export function eventMatchesAgentIdentifiers(
     eventData: unknown,
-    codebaseId: string,
-    executionId: string,
+    agentId?: string,
+    executionId?: string,
 ): boolean {
-    const eventCodebaseId = extractField(eventData, "codebaseId");
+    const eventAgentId = extractField(eventData, "agentId");
     const eventExecutionId = extractField(eventData, "executionId");
 
-    return eventCodebaseId === codebaseId && eventExecutionId === executionId;
+    const matchesAgent = agentId ? eventAgentId === agentId : false;
+    const matchesExecution = executionId
+        ? eventExecutionId === executionId
+        : false;
+
+    return matchesAgent || matchesExecution;
 }
 
 export function formatEventsForLogFile(events: EventLike[]): string {

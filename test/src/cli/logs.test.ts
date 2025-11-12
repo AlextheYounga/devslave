@@ -1,22 +1,28 @@
 import {
-    eventMatchesTarget,
+    eventMatchesAgentIdentifiers,
     formatEventsForLogFile,
 } from "../../../src/cli/logs";
 
-describe("eventMatchesTarget", () => {
-    it("matches when the identifiers exist at the top level", () => {
-        const data = { codebaseId: "cb1", executionId: "exec1" };
-        expect(eventMatchesTarget(data, "cb1", "exec1")).toBe(true);
+describe("eventMatchesAgentIdentifiers", () => {
+    it("matches when the agentId exists at the top level", () => {
+        const data = { agentId: "agent-1" };
+        expect(eventMatchesAgentIdentifiers(data, "agent-1", "exec-1")).toBe(
+            true,
+        );
     });
 
-    it("matches when the identifiers live under the data key", () => {
-        const data = { data: { codebaseId: "cb2", executionId: "exec2" } };
-        expect(eventMatchesTarget(data, "cb2", "exec2")).toBe(true);
+    it("matches when the executionId exists nested under data", () => {
+        const data = { data: { executionId: "exec-2" } };
+        expect(eventMatchesAgentIdentifiers(data, "agent-x", "exec-2")).toBe(
+            true,
+        );
     });
 
-    it("returns false when identifiers do not match", () => {
-        const data = { codebaseId: "cb1", executionId: "exec1" };
-        expect(eventMatchesTarget(data, "cb-mismatch", "exec1")).toBe(false);
+    it("returns false when neither identifier matches", () => {
+        const data = { agentId: "agent-1", executionId: "exec-1" };
+        expect(eventMatchesAgentIdentifiers(data, "agent-2", "exec-3")).toBe(
+            false,
+        );
     });
 });
 

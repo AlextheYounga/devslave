@@ -5,6 +5,12 @@ import { execSync } from "child_process";
 import { PrismaClient, Agent, AgentStatus } from "@prisma/client";
 import { AgentRunning, AgentCompleted, AgentFailed } from "../events";
 
+type AgentStatusParams = {
+    agentId: string;
+    debugMode: boolean;
+    executionId: string | undefined;
+};
+
 type AgentStatusResult = {
     agentId: string;
     status: AgentStatus;
@@ -14,24 +20,22 @@ type AgentStatusResult = {
 
 export default class GetAgentStatusHandler {
     private db: PrismaClient;
-    public agentId: string;
-    public debugMode: boolean;
+    private params: AgentStatusParams;
     public tmuxSession: string | null = null;
     private eventData: any;
 
-    constructor(agentId: string, debugMode: boolean) {
+    constructor(params: AgentStatusParams) {
         this.db = prisma;
-        this.agentId = agentId;
-        this.debugMode = debugMode;
-        this.eventData = { agentId };
+        this.params = params;
+        this.eventData = { ...params };
     }
 
     async handle(): Promise<AgentStatusResult> {
         let publishableEvent = new AgentRunning(this.eventData);
         const agent = await this.db.agent.findUniqueOrThrow({
-            where: { id: this.agentId },
+            where: { id: this.params.agentId },
         });
-        if (this.debugMode) return this.debugResponse(agent);
+        if (this.params.debugMode) return this.debugResponse(agent);
 
         this.tmuxSession = agent.tmuxSession;
         if (!this.tmuxSession) {
@@ -69,7 +73,7 @@ export default class GetAgentStatusHandler {
 
         const duration = this.getAgentRunDuration(agent.createdAt);
         return {
-            agentId: this.agentId,
+            agentId: this.params.agentId,
             status: nextStatus,
             tmuxSession: this.tmuxSession,
             duration: duration,
@@ -111,7 +115,7 @@ export default class GetAgentStatusHandler {
     }
 
     private capturePaneContent() {
-        const paneFile = `/tmp/agent_cache/agent_${this.agentId}_pane.txt`;
+        const paneFile = `/tmp/agent_cache/agent_${this.params.agentId}_pane.txt`;
         execSync(`touch ${paneFile}`);
         execSync(`tmux capture-pane -p -t ${this.tmuxSession}:0 > ${paneFile}`);
         return paneFile;
@@ -124,7 +128,7 @@ export default class GetAgentStatusHandler {
     }
 
     private isContentUnchanged(newHash: string) {
-        const hashFile = `/tmp/agent_cache/agent_${this.agentId}_hash.txt`;
+        const hashFile = `/tmp/agent_cache/agent_${this.params.agentId}_hash.txt`;
 
         const lastContentHash = existsSync(hashFile)
             ? readFileSync(hashFile, "utf-8").trim()
@@ -148,7 +152,7 @@ export default class GetAgentStatusHandler {
 
     private async updateAgentRecord(status: AgentStatus): Promise<void> {
         await this.db.agent.update({
-            where: { id: this.agentId },
+            where: { id: this.params.agentId },
             data: {
                 status: status,
             },

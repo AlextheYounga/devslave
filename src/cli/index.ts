@@ -8,7 +8,7 @@ import { AgentStatus, TicketStatus } from "@prisma/client";
 import { prisma } from "../prisma";
 import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
-import { eventMatchesTarget, formatEventsForLogFile } from "./logs";
+import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "./logs";
 
 dotenv.config();
 
@@ -189,26 +189,8 @@ async function attachToAgentTmux(agent: AgentWithCodebase): Promise<void> {
     }
 }
 
-async function viewAgentLogs(
-    agent: AgentWithCodebase,
-    metadata: AgentMetadata,
-): Promise<void> {
-    const codebaseId = agent.codebaseId ?? metadata.codebaseId;
+async function viewAgentLogs(agent: AgentWithCodebase): Promise<void> {
     const executionId = agent.executionId;
-
-    if (!codebaseId) {
-        console.log(
-            "\n⚠️  Unable to determine codebase for this agent; cannot fetch logs.\n",
-        );
-        return;
-    }
-
-    if (!executionId) {
-        console.log(
-            "\n⚠️  Agent is missing an execution ID; cannot fetch logs.\n",
-        );
-        return;
-    }
 
     console.log("\n📜 Gathering event logs...\n");
     const events = await prisma.events.findMany({
@@ -216,7 +198,7 @@ async function viewAgentLogs(
     });
 
     const relevantEvents = events.filter((event) =>
-        eventMatchesTarget(event.data, codebaseId, executionId),
+        eventMatchesAgentIdentifiers(event.data, agent.id, executionId),
     );
 
     if (!relevantEvents.length) {
@@ -311,11 +293,9 @@ async function handleViewRunningAgents(): Promise<void> {
     }
 
     const agentLabelMap = new Map<string, string>();
-    const agentMetadataMap = new Map<string, AgentMetadata>();
 
     const agentChoices = agents.map((agent) => {
         const metadata = extractAgentMetadata(agent);
-        agentMetadataMap.set(agent.id, metadata);
 
         const resolvedCodebaseId = agent.codebaseId ?? metadata.codebaseId;
         const resolvedCodebaseName =
@@ -365,7 +345,6 @@ async function handleViewRunningAgents(): Promise<void> {
         return;
     }
 
-    const metadata = agentMetadataMap.get(selectedAgent.id) ?? {};
     const agentLabel =
         agentLabelMap.get(selectedAgent.id) ??
         `[${selectedAgent.status}] ${selectedAgent.role ?? "Agent"} (${selectedAgent.id})`;
@@ -382,7 +361,7 @@ async function handleViewRunningAgents(): Promise<void> {
         }
 
         if (action === "logs") {
-            await viewAgentLogs(selectedAgent, metadata);
+            await viewAgentLogs(selectedAgent);
         }
     }
 }

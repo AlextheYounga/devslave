@@ -23,7 +23,15 @@ export default class AgentController {
             const debugMode = this.req?.query?.debugMode
                 ? this.req.query.debugMode === "true"
                 : false;
-            const agentHandler = new GetAgentStatusHandler(agentId, debugMode);
+            const executionId = this.req?.query?.executionId as
+                | string
+                | undefined;
+
+            const agentHandler = new GetAgentStatusHandler({
+                agentId,
+                debugMode,
+                executionId,
+            });
             const result = await agentHandler.handle();
 
             return this.res.status(200).json({
