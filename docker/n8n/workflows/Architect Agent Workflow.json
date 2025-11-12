@@ -8,7 +8,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "architect_prompt",
-                            "value": "You are an engineering architect. Please read agent/onboarding/architect.md to get started",
+                            "value": "=You are an engineering architect. Please read {{$json.agentFolder}}/onboarding/architect.md to get started",
                             "type": "string"
                         }
                     ]
@@ -204,32 +204,6 @@
         },
         {
             "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
-                            "name": "codebaseId",
-                            "value": "={{ $('Architect Webhook').first(0).json.body.codebaseId }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "1856733a-6db7-409a-a79b-234792fabacc",
-                            "name": "debugMode",
-                            "value": "={{ $('Architect Webhook').first(0).json.body.debugMode }}",
-                            "type": "boolean"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [-2464, 240],
-            "id": "08f97d49-1a07-44a5-b5ba-0448635f21a4",
-            "name": "GlobalVars"
-        },
-        {
-            "parameters": {
                 "method": "PUT",
                 "url": "=http://app:3000/api/codebase/{{$('GlobalVars').all()[0].json.codebaseId}}/phase",
                 "sendBody": true,
@@ -293,6 +267,50 @@
             "position": [-672, 144],
             "id": "15d5f845-9dfb-470c-b795-a7b4cf3b8951",
             "name": "Trigger PM Agent"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
+                            "name": "codebaseId",
+                            "value": "={{ $json.body.codebaseId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1856733a-6db7-409a-a79b-234792fabacc",
+                            "name": "debugMode",
+                            "value": "={{ $json.body.debugMode }}",
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "fd1d59c2-3700-432f-8ab7-cf4979f4a906",
+                            "name": "codebasePath",
+                            "value": "={{ $json.body.codebasePath }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1978415e-66e2-44f2-a926-bdf6fba8ad11",
+                            "name": "codebaseName",
+                            "value": "={{ $json.body.codebaseName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "0efc45af-5d16-4ff0-b8cf-2ec45e567007",
+                            "name": "agentFolder",
+                            "value": "={{ $json.body.agentFolder }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-2448, 240],
+            "id": "cca2096c-528c-4826-a0fe-02be6e5120b5",
+            "name": "GlobalVars"
         }
     ],
     "pinData": {},
@@ -377,17 +395,6 @@
                 ]
             ]
         },
-        "GlobalVars": {
-            "main": [
-                [
-                    {
-                        "node": "Architect Prompt",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "Transition to Planning Phase": {
             "main": [
                 [
@@ -414,13 +421,24 @@
                     }
                 ]
             ]
+        },
+        "GlobalVars": {
+            "main": [
+                [
+                    {
+                        "node": "Architect Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "active": true,
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "cf15a436-6feb-47ed-b709-800646021fa8",
+    "versionId": "094e2f7b-4d1d-4f8f-bde5-5df2c1f75cec",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

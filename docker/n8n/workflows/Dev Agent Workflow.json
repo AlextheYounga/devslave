@@ -630,32 +630,6 @@
         },
         {
             "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "7371c075-652f-44df-a014-42f5e1df7b63",
-                            "name": "codebaseId",
-                            "value": "={{ $('Dev Webhook').first(0).json.body.codebaseId }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "dee5b041-6021-488d-bba0-f09594a99995",
-                            "name": "debugMode",
-                            "value": "={{ $('Dev Webhook').first(0).json.body.debugMode }}",
-                            "type": "boolean"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [-3712, 1744],
-            "id": "d9747400-a863-4ce3-b4a8-97e02fea9d36",
-            "name": "GlobalVars"
-        },
-        {
-            "parameters": {
                 "respondWith": "json",
                 "responseBody": "={\n  \"message\": \"Workflow was started\",\n  \"executionId\": {{ $execution.id }},\n  \"executionUrl\": \"127.0.0.1:5678/workflow/{{ $workflow.id }}/executions/{{ $execution.id }}\"\n}",
                 "options": {}
@@ -679,6 +653,50 @@
             "id": "a387b35c-fac9-4547-b361-87eb99548e75",
             "name": "Dev Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
+                            "name": "codebaseId",
+                            "value": "={{ $json.body.codebaseId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1856733a-6db7-409a-a79b-234792fabacc",
+                            "name": "debugMode",
+                            "value": "={{ $json.body.debugMode }}",
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "fd1d59c2-3700-432f-8ab7-cf4979f4a906",
+                            "name": "codebasePath",
+                            "value": "={{ $json.body.codebasePath }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1978415e-66e2-44f2-a926-bdf6fba8ad11",
+                            "name": "codebaseName",
+                            "value": "={{ $json.body.codebaseName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "0efc45af-5d16-4ff0-b8cf-2ec45e567007",
+                            "name": "agentFolder",
+                            "value": "={{ $json.body.agentFolder }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-3712, 1744],
+            "id": "aa3540c5-b008-4ccd-bc80-f7aab33aa791",
+            "name": "GlobalVars"
         }
     ],
     "pinData": {},
@@ -963,17 +981,6 @@
                 ]
             ]
         },
-        "GlobalVars": {
-            "main": [
-                [
-                    {
-                        "node": "Scan Tickets",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "Dev Webhook": {
             "main": [
                 [
@@ -989,13 +996,24 @@
                     }
                 ]
             ]
+        },
+        "GlobalVars": {
+            "main": [
+                [
+                    {
+                        "node": "Scan Tickets",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "active": true,
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "565aef77-bcee-4038-a531-1a164a8da9e9",
+    "versionId": "92b50abb-4b94-4913-aa5d-ce22588d5807",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

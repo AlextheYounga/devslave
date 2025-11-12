@@ -25,7 +25,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "pm_prompt",
-                            "value": "You are an expert software project manager. Please read agent/onboarding/pm.md to get started",
+                            "value": "=You are an expert software project manager. Please read {{$json.agentFolder}}/onboarding/pm.md to get started",
                             "type": "string"
                         }
                     ]
@@ -123,32 +123,6 @@
             "position": [-1296, 416],
             "id": "c84cd641-d421-4a8d-9f0d-ee3c1957db81",
             "name": "PM Agent Failed"
-        },
-        {
-            "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
-                            "name": "codebaseId",
-                            "value": "={{ $('PM Webhook').first(0).json.body.codebaseId }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "1856733a-6db7-409a-a79b-234792fabacc",
-                            "name": "debugMode",
-                            "value": "={{ $('PM Webhook').first(0).json.body.debugMode }}",
-                            "type": "boolean"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [-2640, 320],
-            "id": "bce49977-63ca-4b27-8226-af1af3efdc24",
-            "name": "GlobalVars"
         },
         {
             "parameters": {
@@ -297,6 +271,50 @@
             "position": [-848, 224],
             "id": "4496718f-51da-47ef-8a6f-52dea0407906",
             "name": "Trigger Development Agents"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
+                            "name": "codebaseId",
+                            "value": "={{ $json.body.codebaseId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1856733a-6db7-409a-a79b-234792fabacc",
+                            "name": "debugMode",
+                            "value": "={{ $json.body.debugMode }}",
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "fd1d59c2-3700-432f-8ab7-cf4979f4a906",
+                            "name": "codebasePath",
+                            "value": "={{ $json.body.codebasePath }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1978415e-66e2-44f2-a926-bdf6fba8ad11",
+                            "name": "codebaseName",
+                            "value": "={{ $json.body.codebaseName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "0efc45af-5d16-4ff0-b8cf-2ec45e567007",
+                            "name": "agentFolder",
+                            "value": "={{ $json.body.agentFolder }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-2640, 320],
+            "id": "c39d20dc-ba5c-4034-b7f5-7623607fb662",
+            "name": "GlobalVars"
         }
     ],
     "pinData": {},
@@ -356,17 +374,6 @@
                 ]
             ]
         },
-        "GlobalVars": {
-            "main": [
-                [
-                    {
-                        "node": "PM Prompt",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "PM Agent Status": {
             "main": [
                 [
@@ -418,13 +425,24 @@
                     }
                 ]
             ]
+        },
+        "GlobalVars": {
+            "main": [
+                [
+                    {
+                        "node": "PM Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "active": true,
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "8709cf04-7d66-4d91-9dfd-47cd5cf54419",
+    "versionId": "3d3fcd9f-9b44-411a-baa2-916d7a3b1b94",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

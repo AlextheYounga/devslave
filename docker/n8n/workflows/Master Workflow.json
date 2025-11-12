@@ -15,32 +15,6 @@
         },
         {
             "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "7371c075-652f-44df-a014-42f5e1df7b63",
-                            "name": "codebaseId",
-                            "value": "={{ $('Master Webhook').first(0).json.body.codebaseId }}",
-                            "type": "string"
-                        },
-                        {
-                            "id": "dee5b041-6021-488d-bba0-f09594a99995",
-                            "name": "debugMode",
-                            "value": "={{ $('Master Webhook').first(0).json.body.debugMode }}",
-                            "type": "boolean"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [-96, 96],
-            "id": "4a57791b-3183-4797-acfd-138f2c1948bd",
-            "name": "GlobalVars"
-        },
-        {
-            "parameters": {
                 "rules": {
                     "values": [
                         {
@@ -117,7 +91,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [352, 80],
+            "position": [128, 80],
             "id": "6228cf4e-43f0-4aff-83ef-719d259817bc",
             "name": "Project Phase Router"
         },
@@ -142,7 +116,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [128, 96],
+            "position": [-96, 96],
             "id": "f1ee80f0-d076-4da8-a49b-1b3f6b8aeb02",
             "name": "Get Project Phase"
         },
@@ -152,12 +126,12 @@
                 "url": "http://n8n:5678/webhook/pm",
                 "sendBody": true,
                 "specifyBody": "json",
-                "jsonBody": "={{ $('GlobalVars').last().json }}",
+                "jsonBody": "={{ $('Master Webhook').first().json.body }}",
                 "options": {}
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [576, 96],
+            "position": [352, 96],
             "id": "a081ff73-a2bf-461e-80b7-c164338e5cfd",
             "name": "Trigger PM Agent"
         },
@@ -167,12 +141,12 @@
                 "url": "http://n8n:5678/webhook/architect",
                 "sendBody": true,
                 "specifyBody": "json",
-                "jsonBody": "={{ $('GlobalVars').last().json }}",
+                "jsonBody": "={{ $('Master Webhook').first().json.body }}",
                 "options": {}
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [576, -96],
+            "position": [352, -96],
             "id": "32907cba-1174-437b-aa16-b1cea952b909",
             "name": "Trigger Architect Agent"
         },
@@ -182,29 +156,18 @@
                 "url": "http://n8n:5678/webhook/development",
                 "sendBody": true,
                 "specifyBody": "json",
-                "jsonBody": "={{ $('GlobalVars').last().json }}",
+                "jsonBody": "={{ $('Master Webhook').first().json.body }}",
                 "options": {}
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [576, 288],
+            "position": [352, 288],
             "id": "4e692f89-8eb7-4c17-9418-a749a86bd26a",
             "name": "Trigger Development Agents"
         }
     ],
     "pinData": {},
     "connections": {
-        "GlobalVars": {
-            "main": [
-                [
-                    {
-                        "node": "Get Project Phase",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "Master Webhook": {
             "main": [
                 [
@@ -214,7 +177,7 @@
                         "index": 0
                     },
                     {
-                        "node": "GlobalVars",
+                        "node": "Get Project Phase",
                         "type": "main",
                         "index": 0
                     }
@@ -262,7 +225,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "9f44cd0d-dbf7-4e71-ad33-10a619a19c81",
+    "versionId": "d4a659a9-079a-434d-b78b-4d0414271170",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
