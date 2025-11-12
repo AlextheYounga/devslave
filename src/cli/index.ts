@@ -5,12 +5,7 @@ import { join } from "path";
 import { homedir } from "os";
 import { AgentStatus, TicketStatus } from "@prisma/client";
 import { prisma } from "../prisma";
-import {
-    AgentWorkflowKey,
-    promptMainMenu,
-    promptUtilitiesMenu,
-    promptWorkflowMenu,
-} from "./menus";
+import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
 
 dotenv.config();
@@ -323,14 +318,6 @@ async function handleUtilitiesMenu(): Promise<void> {
     await handleUtilityChoice(choice);
 }
 
-async function handleWorkflowMenu(): Promise<void> {
-    const workflow = await promptWorkflowMenu();
-    if (workflow === "back") {
-        return;
-    }
-    await handleAgentWorkflow(workflow as AgentWorkflowKey);
-}
-
 export async function startCli(): Promise<void> {
     console.log("\n🛠️  DevSlave CLI\n");
 
@@ -346,7 +333,7 @@ export async function startCli(): Promise<void> {
                     await handleViewRunningAgents();
                     break;
                 case "start-agent-workflow":
-                    await handleWorkflowMenu();
+                    await handleAgentWorkflow();
                     break;
                 case "utilities":
                     await handleUtilitiesMenu();

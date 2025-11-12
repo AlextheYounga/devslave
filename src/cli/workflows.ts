@@ -10,7 +10,7 @@ import {
     type CodebaseSummary,
     type OllamaModel,
 } from "../utils/apiClient";
-import { AgentWorkflowKey, SETUP_OPTIONS, WORKFLOW_CONFIG } from "./menus";
+import { SETUP_OPTIONS } from "./menus";
 
 function requireInput(fieldLabel: string) {
     return (value: string) => {
@@ -104,20 +104,22 @@ async function runPreflightWithLogs(): Promise<OllamaModel[]> {
     return models;
 }
 
-function getWebhookUrl(key: AgentWorkflowKey): string {
-    const config = WORKFLOW_CONFIG[key];
-    const url = process.env[config.envVar];
+const MASTER_WEBHOOK_ENV = "N8N_MASTER_WEBHOOK_URL";
+
+export function getMasterWorkflowWebhookUrl(
+    env: NodeJS.ProcessEnv = process.env,
+): string {
+    const url = env[MASTER_WEBHOOK_ENV]?.trim();
     if (!url) {
-        throw new Error(`Missing ${config.envVar} environment variable.`);
+        throw new Error(
+            `Missing ${MASTER_WEBHOOK_ENV} environment variable.`,
+        );
     }
     return url;
 }
 
-export async function handleAgentWorkflow(
-    key: AgentWorkflowKey,
-): Promise<void> {
-    const config = WORKFLOW_CONFIG[key];
-    console.log(`\n🚦 Running pre-flight checks for ${config.label}...\n`);
+export async function handleAgentWorkflow(): Promise<void> {
+    console.log(`\n🚦 Running pre-flight checks for Master Workflow...\n`);
     const models = await runPreflightWithLogs();
 
     const codebases = await fetchActiveCodebases();
@@ -139,13 +141,14 @@ export async function handleAgentWorkflow(
         codebaseName: codebase.name,
         model: answers.model || undefined,
         debugMode: answers.debugMode,
-        role: config.role,
     };
 
-    const webhookUrl = getWebhookUrl(key);
-    console.log(`\n📨 Sending workflow payload to ${config.label} webhook...`);
+    const webhookUrl = getMasterWorkflowWebhookUrl();
+    console.log(
+        `\n📨 Sending workflow payload to Master Workflow webhook...`,
+    );
     const response = await triggerWebhook(webhookUrl, payload);
-    console.log(`\n✅ ${config.label} workflow triggered successfully.`);
+    console.log(`\n✅ Master workflow triggered successfully.`);
 
     const executionData =
         response && typeof response === "object"

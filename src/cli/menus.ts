@@ -1,28 +1,5 @@
 import inquirer from "inquirer";
 
-export type AgentWorkflowKey = "architect" | "project-manager" | "development";
-
-export const WORKFLOW_CONFIG: Record<
-    AgentWorkflowKey,
-    { label: string; envVar: string; role: string }
-> = {
-    architect: {
-        label: "Architect Agent",
-        envVar: "N8N_ARCHITECT_WEBHOOK_URL",
-        role: "architect",
-    },
-    "project-manager": {
-        label: "Project Manager Agent",
-        envVar: "N8N_PM_WEBHOOK_URL",
-        role: "manager",
-    },
-    development: {
-        label: "Development Agents",
-        envVar: "N8N_DEVELOPMENT_WEBHOOK_URL",
-        role: "developer",
-    },
-};
-
 export const SETUP_OPTIONS = [
     "default",
     "node",
@@ -35,7 +12,7 @@ export const SETUP_OPTIONS = [
 const MAIN_MENU_CHOICES = [
     { name: "Create Project", value: "create-project" },
     { name: "View Running Agents", value: "view-running-agents" },
-    { name: "Start Agent Workflow", value: "start-agent-workflow" },
+    { name: "Start Workflow", value: "start-agent-workflow" },
     { name: "Utilities", value: "utilities" },
     { name: "Exit", value: "exit" },
 ];
@@ -46,13 +23,6 @@ const UTILITY_CHOICES = [
     { name: "Start Docker", value: "start-docker" },
     { name: "Open n8n", value: "open-n8n" },
     { name: "Download Project", value: "download-project" },
-    { name: "Back to Main Menu", value: "back" },
-];
-
-const WORKFLOW_CHOICES = [
-    { name: "Architect Agent", value: "architect" },
-    { name: "Project Manager Agent", value: "project-manager" },
-    { name: "Development Agents", value: "development" },
     { name: "Back to Main Menu", value: "back" },
 ];
 
@@ -78,16 +48,4 @@ export async function promptUtilitiesMenu(): Promise<string> {
         },
     ]);
     return utility;
-}
-
-export async function promptWorkflowMenu(): Promise<string> {
-    const { workflow } = await inquirer.prompt<{ workflow: string }>([
-        {
-            type: "list",
-            name: "workflow",
-            message: "Select a workflow:",
-            choices: WORKFLOW_CHOICES,
-        },
-    ]);
-    return workflow;
 }
