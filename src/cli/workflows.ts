@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import { promises as fsPromises, existsSync, statSync } from "fs";
 import path from "path";
+import os from "os";
 import { randomUUID } from "crypto";
 import { spawn } from "child_process";
 import {
@@ -90,6 +91,23 @@ function sanitizeProjectFolder(folder: string): string {
     return folder.replace(/^\/+/, "").replace(/\/+$/, "");
 }
 
+function expandUserPath(sourcePath: string): string {
+    if (!sourcePath) {
+        return sourcePath;
+    }
+    if (sourcePath === "~") {
+        return os.homedir();
+    }
+    if (sourcePath.startsWith("~/")) {
+        return path.join(os.homedir(), sourcePath.slice(2));
+    }
+    return sourcePath;
+}
+
+function escapeForDoubleQuotes(value: string): string {
+    return value.replace(/["$`\\]/g, "\\$&");
+}
+
 export function buildContainerProjectPath(
     projectFolder: string,
     workspaceRoot = paths.devWorkspace,
@@ -100,7 +118,8 @@ export function buildContainerProjectPath(
 }
 
 export async function ensureImportSourceDirectory(sourcePath: string): Promise<string> {
-    const resolvedPath = path.resolve(sourcePath);
+    const expandedPath = expandUserPath(sourcePath);
+    const resolvedPath = path.resolve(expandedPath);
     const stats = await fsPromises.stat(resolvedPath).catch(() => null);
 
     if (!stats || !stats.isDirectory()) {
@@ -191,6 +210,7 @@ async function importProjectFromHost(sourcePath: string, projectFolder: string):
     const contentsPath = path.join(resolvedSource, ".");
     const containerProjectPath = buildContainerProjectPath(projectFolder);
     const tempContainerPath = `/tmp/import-${randomUUID()}`;
+    const nestedFolderName = path.basename(resolvedSource) || "";
 
     console.log("\n📂 Importing project files from host folder...\n");
 
@@ -203,20 +223,19 @@ async function importProjectFromHost(sourcePath: string, projectFolder: string):
             `${APP_CONTAINER_NAME}:${tempContainerPath}`,
         ]);
 
-        await runCommand("docker", [
-            "exec",
-            APP_CONTAINER_NAME,
-            "bash",
-            "-lc",
-            `if [ -d "${tempContainerPath}/${AGENT_FOLDER_NAME}" ]; then rm -rf "${tempContainerPath}/${AGENT_FOLDER_NAME}"; fi`,
-        ]);
+        const scriptArgs = [
+            tempContainerPath,
+            nestedFolderName,
+            AGENT_FOLDER_NAME,
+            containerProjectPath,
+        ].map(escapeForDoubleQuotes);
 
         await runCommand("docker", [
             "exec",
             APP_CONTAINER_NAME,
             "bash",
-            "-lc",
-            `mkdir -p "${containerProjectPath}" && cp -R "${tempContainerPath}/." "${containerProjectPath}/"`,
+            "/app/src/scripts/import-project-files.sh",
+            ...scriptArgs,
         ]);
     } finally {
         await runCommand("docker", [
@@ -311,7 +330,7 @@ export async function handleCreateProjectFlow(): Promise<void> {
     };
 
     console.log("\n🔧 Setting up project...\n");
-    
+
     const setupUrl = `${DEFAULT_APP_BASE_URL}/api/codebase/setup`;
     const response = await fetch(setupUrl, {
         method: "POST",

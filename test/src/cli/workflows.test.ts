@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 import os from "os";
 import path from "path";
-import { mkdtempSync, rmSync } from "fs";
+import { mkdtempSync, rmSync, mkdirSync } from "fs";
 import {
     buildContainerProjectPath,
     ensureImportSourceDirectory,
@@ -43,6 +43,22 @@ describe("ensureImportSourceDirectory", () => {
         const missing = path.join(os.tmpdir(), `devslave-missing-${Date.now()}`);
 
         await expect(ensureImportSourceDirectory(missing)).rejects.toThrow("does not exist");
+    });
+
+    it("expands a tilde-prefixed path to the user's home directory", async () => {
+        const tempHome = mkdtempSync(path.join(os.tmpdir(), "devslave-home-"));
+        const nestedDir = path.join(tempHome, "import-src");
+        mkdirSync(nestedDir);
+        const homeSpy = jest.spyOn(os, "homedir").mockReturnValue(tempHome);
+
+        try {
+            await expect(ensureImportSourceDirectory("~/import-src")).resolves.toBe(
+                path.resolve(nestedDir),
+            );
+        } finally {
+            homeSpy.mockRestore();
+            rmSync(tempHome, { recursive: true, force: true });
+        }
     });
 });
 

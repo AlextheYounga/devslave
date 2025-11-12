@@ -15,7 +15,7 @@ type WebhookPayload = TriggerWorkflowParams & {
     codebasePath: string;
     model?: string | undefined;
     debugMode: boolean;
-    agentFolderName: string;
+    agentFolder: string;
 };
 
 export class TriggerWorkflowHandler {
@@ -36,7 +36,7 @@ export class TriggerWorkflowHandler {
             ...this.params,
             codebaseName: codebase.name,
             codebasePath: codebase.path,
-            agentFolderName: AGENT_FOLDER_NAME,
+            agentFolder: AGENT_FOLDER_NAME,
         };
         const eventContext = {
             webhookUrl: WEBHOOK_URL,
