@@ -42,15 +42,10 @@ export default class ScanAllTicketsHandler {
             });
 
             if (!codebase?.id) {
-                throw new Error(
-                    `Codebase with ID ${this.params.codebaseId} not found.`,
-                );
+                throw new Error(`Codebase with ID ${this.params.codebaseId} not found.`);
             }
 
-            this.ticketsFolder = path.join(
-                codebase.path,
-                `${AGENT_FOLDER_NAME}/tickets`,
-            );
+            this.ticketsFolder = path.join(codebase.path, `${AGENT_FOLDER_NAME}/tickets`);
 
             if (!existsSync(this.ticketsFolder)) {
                 new ScanningTicketsComplete({
@@ -68,10 +63,7 @@ export default class ScanAllTicketsHandler {
             new ScanningTicketsComplete({
                 ...this.params,
                 ticketsProcessed: ticketFiles.length,
-                scannedTickets: scannedTickets.map((t) => [
-                    t.ticketId,
-                    t.status,
-                ]),
+                scannedTickets: scannedTickets.map((t) => [t.ticketId, t.status]),
             }).publish();
 
             const nextTicket = await this.getNextTicket(codebase.path);
@@ -100,11 +92,7 @@ export default class ScanAllTicketsHandler {
         };
 
         // Normalize status: replace underscores with hyphens, uppercase, and trim
-        const normalizedStatus = status
-            .toUpperCase()
-            .trim()
-            .replace(/_/g, "_")
-            .replace(/-/g, "_");
+        const normalizedStatus = status.toUpperCase().trim().replace(/_/g, "_").replace(/-/g, "_");
         return statusMap[normalizedStatus] ?? TicketStatus.OPEN;
     }
 
@@ -129,10 +117,7 @@ export default class ScanAllTicketsHandler {
             }
 
             const fullTicketPath = path.join(this.ticketsFolder, ticketFile);
-            const ticketRecord = await this.upsertTicket(
-                ticketData,
-                fullTicketPath,
-            );
+            const ticketRecord = await this.upsertTicket(ticketData, fullTicketPath);
             scannedTickets.push(ticketRecord);
         }
 
@@ -146,9 +131,7 @@ export default class ScanAllTicketsHandler {
 
         // Skip files without required frontmatter
         if (!frontmatter.id || !frontmatter.title) {
-            console.warn(
-                `Skipping ${ticketFile}: missing required fields (id, title)`,
-            );
+            console.warn(`Skipping ${ticketFile}: missing required fields (id, title)`);
             return null;
         }
 
@@ -226,11 +209,7 @@ export default class ScanAllTicketsHandler {
         if (!existingTicket) {
             return await this.createNewTicket(ticketData, ticketFilePath);
         } else {
-            return await this.updateExistingTicket(
-                existingTicket,
-                ticketData,
-                ticketFilePath,
-            );
+            return await this.updateExistingTicket(existingTicket, ticketData, ticketFilePath);
         }
     }
 

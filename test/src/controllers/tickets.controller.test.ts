@@ -23,9 +23,7 @@ describe("TicketsController", () => {
     beforeEach(() => {
         jest.clearAllMocks();
         scanHandle.mockReset();
-        ScanAllTicketsHandlerMock.mockImplementation(
-            () => ({ handle: scanHandle }) as any,
-        );
+        ScanAllTicketsHandlerMock.mockImplementation(() => ({ handle: scanHandle }) as any);
     });
 
     it("validates payload before scanning", async () => {

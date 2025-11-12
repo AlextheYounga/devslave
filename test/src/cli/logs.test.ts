@@ -1,28 +1,19 @@
-import {
-    eventMatchesAgentIdentifiers,
-    formatEventsForLogFile,
-} from "../../../src/cli/logs";
+import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "../../../src/cli/logs";
 
 describe("eventMatchesAgentIdentifiers", () => {
     it("matches when the agentId exists at the top level", () => {
         const data = { agentId: "agent-1" };
-        expect(eventMatchesAgentIdentifiers(data, "agent-1", "exec-1")).toBe(
-            true,
-        );
+        expect(eventMatchesAgentIdentifiers(data, "agent-1", "exec-1")).toBe(true);
     });
 
     it("matches when the executionId exists nested under data", () => {
         const data = { data: { executionId: "exec-2" } };
-        expect(eventMatchesAgentIdentifiers(data, "agent-x", "exec-2")).toBe(
-            true,
-        );
+        expect(eventMatchesAgentIdentifiers(data, "agent-x", "exec-2")).toBe(true);
     });
 
     it("returns false when neither identifier matches", () => {
         const data = { agentId: "agent-1", executionId: "exec-1" };
-        expect(eventMatchesAgentIdentifiers(data, "agent-2", "exec-3")).toBe(
-            false,
-        );
+        expect(eventMatchesAgentIdentifiers(data, "agent-2", "exec-3")).toBe(false);
     });
 });
 

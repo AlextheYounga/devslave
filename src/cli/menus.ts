@@ -1,13 +1,6 @@
 import inquirer from "inquirer";
 
-export const SETUP_OPTIONS = [
-    "default",
-    "node",
-    "python",
-    "rust",
-    "laravel",
-    "vue",
-];
+export const SETUP_OPTIONS = ["default", "node", "python", "rust", "laravel", "vue"];
 
 const MAIN_MENU_CHOICES = [
     { name: "Create Project", value: "create-project" },

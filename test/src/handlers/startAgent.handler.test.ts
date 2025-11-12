@@ -36,9 +36,7 @@ describe("StartAgentHandler", () => {
         model?: string | null | undefined;
     };
 
-    type HandlerOverrides = Partial<
-        Omit<HandlerInput, "model"> & { model?: string | null }
-    >;
+    type HandlerOverrides = Partial<Omit<HandlerInput, "model"> & { model?: string | null }>;
 
     const buildParams = (overrides: HandlerOverrides = {}): HandlerInput => {
         const { model, ...rest } = overrides;
@@ -52,8 +50,7 @@ describe("StartAgentHandler", () => {
         };
     };
 
-    const logDirFor = (home: string) =>
-        path.join(home, ".codex", "sessions", "2024", "01", "01");
+    const logDirFor = (home: string) => path.join(home, ".codex", "sessions", "2024", "01", "01");
 
     const createLogFile = (home: string, agentId: string) => {
         const dir = logDirFor(home);
@@ -69,9 +66,7 @@ describe("StartAgentHandler", () => {
         tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "agent-home-"));
         process.env.HOME = tempHome;
         await jest.isolateModulesAsync(async () => {
-            StartAgentHandler = (
-                await import("../../../src/handlers/startAgent.handler")
-            ).default;
+            StartAgentHandler = (await import("../../../src/handlers/startAgent.handler")).default;
         });
     });
 
@@ -99,11 +94,7 @@ describe("StartAgentHandler", () => {
         execMock.mockImplementation(
             (
                 _cmd: string,
-                callback: (
-                    error: Error | null,
-                    stdout: string,
-                    stderr: string,
-                ) => void,
+                callback: (error: Error | null, stdout: string, stderr: string) => void,
             ) => {
                 callback(null, "", "");
                 return { stdout: "" };
@@ -126,9 +117,7 @@ describe("StartAgentHandler", () => {
     });
 
     const createCodebaseFixture = async () => {
-        const codebasePath = fs.mkdtempSync(
-            path.join(os.tmpdir(), "start-agent-codebase-"),
-        );
+        const codebasePath = fs.mkdtempSync(path.join(os.tmpdir(), "start-agent-codebase-"));
         fs.mkdirSync(path.join(codebasePath, AGENT_FOLDER_NAME, "onboarding"), {
             recursive: true,
         });
@@ -145,9 +134,7 @@ describe("StartAgentHandler", () => {
     const runHandlerWithCodebase = async (
         overrides: HandlerOverrides = {},
         callback: (
-            result: Awaited<
-                ReturnType<typeof StartAgentHandler.prototype.handle>
-            >,
+            result: Awaited<ReturnType<typeof StartAgentHandler.prototype.handle>>,
             params: HandlerInput,
         ) => Promise<void> | void,
     ) => {
@@ -170,17 +157,15 @@ describe("StartAgentHandler", () => {
 
     it("creates agent record, launches process, and captures new log file", async () => {
         // ensure handler sees a single new log file after spawn
-        spawnMock.mockImplementationOnce(
-            (_command: string, args: string[], _options: any) => {
-                const agentId = args[2];
-                if (agentId) {
-                    createLogFile(tempHome, agentId);
-                }
-                return {
-                    unref: () => undefined,
-                };
-            },
-        );
+        spawnMock.mockImplementationOnce((_command: string, args: string[], _options: any) => {
+            const agentId = args[2];
+            if (agentId) {
+                createLogFile(tempHome, agentId);
+            }
+            return {
+                unref: () => undefined,
+            };
+        });
 
         await runHandlerWithCodebase({}, async (result, params) => {
             expect(result.agentId).toBeDefined();
@@ -188,11 +173,7 @@ describe("StartAgentHandler", () => {
 
             expect(spawnMock).toHaveBeenCalledWith(
                 "bash",
-                [
-                    expect.stringContaining("launch-agent.sh"),
-                    params.codebaseId,
-                    result.agentId,
-                ],
+                [expect.stringContaining("launch-agent.sh"), params.codebaseId, result.agentId],
                 expect.objectContaining({ detached: true, stdio: "ignore" }),
             );
 
@@ -207,27 +188,22 @@ describe("StartAgentHandler", () => {
     });
 
     it("coerces null model input to the default value", async () => {
-        spawnMock.mockImplementationOnce(
-            (_command: string, args: string[], _options: any) => {
-                const agentId = args[2];
-                if (agentId) {
-                    createLogFile(tempHome, agentId);
-                }
-                return {
-                    unref: () => undefined,
-                };
-            },
-        );
+        spawnMock.mockImplementationOnce((_command: string, args: string[], _options: any) => {
+            const agentId = args[2];
+            if (agentId) {
+                createLogFile(tempHome, agentId);
+            }
+            return {
+                unref: () => undefined,
+            };
+        });
 
-        await runHandlerWithCodebase(
-            { model: null },
-            async (result, params) => {
-                const agent = await prisma.agent.findUniqueOrThrow({
-                    where: { id: result.agentId },
-                });
-                expect(agent.model).toBe("default");
-                expect(agent.codebaseId).toBe(params.codebaseId);
-            },
-        );
+        await runHandlerWithCodebase({ model: null }, async (result, params) => {
+            const agent = await prisma.agent.findUniqueOrThrow({
+                where: { id: result.agentId },
+            });
+            expect(agent.model).toBe("default");
+            expect(agent.codebaseId).toBe(params.codebaseId);
+        });
     });
 });

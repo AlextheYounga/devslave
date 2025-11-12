@@ -28,9 +28,7 @@ function extractField(
         }
     }
 
-    const children = Array.isArray(value)
-        ? value
-        : Object.values(value as Record<string, unknown>);
+    const children = Array.isArray(value) ? value : Object.values(value as Record<string, unknown>);
 
     for (const child of children) {
         if (child && typeof child === "object") {
@@ -53,9 +51,7 @@ export function eventMatchesAgentIdentifiers(
     const eventExecutionId = extractField(eventData, "executionId");
 
     const matchesAgent = agentId ? eventAgentId === agentId : false;
-    const matchesExecution = executionId
-        ? eventExecutionId === executionId
-        : false;
+    const matchesExecution = executionId ? eventExecutionId === executionId : false;
 
     return matchesAgent || matchesExecution;
 }

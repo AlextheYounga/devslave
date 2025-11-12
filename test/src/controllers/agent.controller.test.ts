@@ -24,23 +24,17 @@ const makeResponse = (): MockResponse => {
     return res;
 };
 
-const StartAgentHandlerMock = StartAgentHandler as jest.MockedClass<
-    typeof StartAgentHandler
->;
-const WatchAgentHandlerMock = WatchAgentHandler as jest.MockedClass<
-    typeof WatchAgentHandler
->;
+const StartAgentHandlerMock = StartAgentHandler as jest.MockedClass<typeof StartAgentHandler>;
+const WatchAgentHandlerMock = WatchAgentHandler as jest.MockedClass<typeof WatchAgentHandler>;
 const GetAgentStatusHandlerMock = GetAgentStatusHandler as jest.MockedClass<
     typeof GetAgentStatusHandler
 >;
-const StartAgentAndWaitHandlerMock =
-    StartAgentAndWaitHandler as jest.MockedClass<
-        typeof StartAgentAndWaitHandler
-    >;
-const StartAgentAndNotifyHandlerMock =
-    StartAgentAndNotifyHandler as jest.MockedClass<
-        typeof StartAgentAndNotifyHandler
-    >;
+const StartAgentAndWaitHandlerMock = StartAgentAndWaitHandler as jest.MockedClass<
+    typeof StartAgentAndWaitHandler
+>;
+const StartAgentAndNotifyHandlerMock = StartAgentAndNotifyHandler as jest.MockedClass<
+    typeof StartAgentAndNotifyHandler
+>;
 
 describe("AgentController", () => {
     const startAgentHandle = jest.fn();
@@ -151,10 +145,7 @@ describe("AgentController", () => {
         const controller = new AgentController(req, res as any);
         await controller.ping();
 
-        expect(GetAgentStatusHandlerMock).toHaveBeenCalledWith(
-            "agent-7",
-            false,
-        );
+        expect(GetAgentStatusHandlerMock).toHaveBeenCalledWith("agent-7", false);
         expect(res.status).toHaveBeenCalledWith(200);
     });
 

@@ -113,23 +113,18 @@ export default class StartAgentHandler {
 
     private async verifyTmuxSession(sessionName: string): Promise<boolean> {
         const timeout = Date.now() + 5000; // 5 seconds
-        const sleep = (ms: number) =>
-            new Promise((resolve) => setTimeout(resolve, ms));
+        const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
         while (Date.now() < timeout) {
             const exists = await this.tmuxSessionExists(sessionName);
             if (exists) {
-                console.log(
-                    `[StartAgentHandler] Tmux session ${sessionName} verified`,
-                );
+                console.log(`[StartAgentHandler] Tmux session ${sessionName} verified`);
                 return true;
             }
             await sleep(500);
         }
 
-        console.error(
-            `[StartAgentHandler] Tmux session ${sessionName} verification timeout`,
-        );
+        console.error(`[StartAgentHandler] Tmux session ${sessionName} verification timeout`);
         return false;
     }
 
@@ -154,11 +149,7 @@ export default class StartAgentHandler {
         });
 
         const promptFile = rolePrompts[this.params.role];
-        const projectAgentFolder = join(
-            codebase.path,
-            AGENT_FOLDER_NAME,
-            "onboarding",
-        );
+        const projectAgentFolder = join(codebase.path, AGENT_FOLDER_NAME, "onboarding");
 
         if (!existsSync(promptFile)) {
             throw new Error(`Prompt file not found: ${promptFile}`);
@@ -171,22 +162,17 @@ export default class StartAgentHandler {
     private startLogFileDiscovery(agentId: string) {
         // Fire and forget - runs in background
         this.pollForLogFile(agentId).catch((err) => {
-            console.error(
-                `[StartAgentHandler] Log file discovery error: ${err.message}`,
-            );
+            console.error(`[StartAgentHandler] Log file discovery error: ${err.message}`);
         });
     }
 
     private async pollForLogFile(agentId: string) {
         const timeout = Date.now() + 10000; // 10 seconds from now
-        const sleep = (ms: number) =>
-            new Promise((resolve) => setTimeout(resolve, ms));
+        const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
         while (true) {
             const logFilesAfter = this.getAllLogFiles();
-            const newLogFile = logFilesAfter.filter(
-                (f: string) => !this.logFiles!.includes(f),
-            );
+            const newLogFile = logFilesAfter.filter((f: string) => !this.logFiles!.includes(f));
 
             if (newLogFile.length === 1) {
                 const logFile = newLogFile[0]!;
@@ -226,12 +212,9 @@ export default class StartAgentHandler {
 
     private extractSessionId(filePath: string) {
         // Strict UUID v4-style: 8-4-4-4-12 hex
-        const UUID_STRICT =
-            /[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}/g;
+        const UUID_STRICT = /[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}/g;
         const matches = filePath.match(UUID_STRICT);
-        return matches && matches.length
-            ? matches[matches.length - 1]
-            : undefined;
+        return matches && matches.length ? matches[matches.length - 1] : undefined;
     }
 
     private getAllLogFiles() {
@@ -244,8 +227,7 @@ export default class StartAgentHandler {
                 for (const entry of entries) {
                     const full = join(dir, entry.name);
                     if (entry.isDirectory()) walk(full);
-                    else if (entry.isFile() && full.endsWith(".jsonl"))
-                        files.push(full);
+                    else if (entry.isFile() && full.endsWith(".jsonl")) files.push(full);
                 }
             } catch {
                 // ignore missing directories or permission issues

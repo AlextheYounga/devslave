@@ -12,11 +12,7 @@ import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "./logs";
 
 dotenv.config();
 
-async function runCommand(
-    command: string,
-    args: string[] = [],
-    options = {},
-): Promise<void> {
+async function runCommand(command: string, args: string[] = [], options = {}): Promise<void> {
     return new Promise((resolve, reject) => {
         const proc = spawn(command, args, {
             stdio: "inherit",
@@ -79,23 +75,12 @@ async function handleDownloadProject(): Promise<void> {
         ]);
 
         console.log(`\n📥 Copying to ${hostDestination}...`);
-        await runCommand("docker", [
-            "cp",
-            `devslave-app-1:${containerZipPath}`,
-            hostDestination,
-        ]);
+        await runCommand("docker", ["cp", `devslave-app-1:${containerZipPath}`, hostDestination]);
 
         console.log(`\n🧹 Cleaning up temporary files...`);
-        await runCommand("docker", [
-            "exec",
-            "devslave-app-1",
-            "rm",
-            containerZipPath,
-        ]);
+        await runCommand("docker", ["exec", "devslave-app-1", "rm", containerZipPath]);
 
-        console.log(
-            `\n✅ Project downloaded successfully to: ${hostDestination}\n`,
-        );
+        console.log(`\n✅ Project downloaded successfully to: ${hostDestination}\n`);
     } catch (error) {
         console.error("\n❌ Download failed:", (error as Error).message);
         throw error;
@@ -107,9 +92,7 @@ type AgentMetadata = {
     codebaseName?: string;
 };
 
-type AgentWithCodebase = Awaited<
-    ReturnType<typeof prisma.agent.findMany>
->[number];
+type AgentWithCodebase = Awaited<ReturnType<typeof prisma.agent.findMany>>[number];
 
 function extractAgentMetadata(agent: { data: unknown }): AgentMetadata {
     if (!agent?.data || typeof agent.data !== "object") {
@@ -148,9 +131,7 @@ function extractAgentMetadata(agent: { data: unknown }): AgentMetadata {
 
 type AgentActionChoice = "tmux" | "logs" | "back";
 
-async function promptAgentAction(
-    agentLabel: string,
-): Promise<AgentActionChoice> {
+async function promptAgentAction(agentLabel: string): Promise<AgentActionChoice> {
     const { action } = await inquirer.prompt<{ action: AgentActionChoice }>([
         {
             type: "list",
@@ -182,10 +163,7 @@ async function attachToAgentTmux(agent: AgentWithCodebase): Promise<void> {
             sessionName,
         ]);
     } catch (error) {
-        console.error(
-            "\n❌ Failed to attach to tmux session:",
-            (error as Error).message,
-        );
+        console.error("\n❌ Failed to attach to tmux session:", (error as Error).message);
     }
 }
 
@@ -206,10 +184,7 @@ async function viewAgentLogs(agent: AgentWithCodebase): Promise<void> {
         return;
     }
 
-    const logFilePath = join(
-        tmpdir(),
-        `devslave-agent-${agent.id}-${Date.now()}.log`,
-    );
+    const logFilePath = join(tmpdir(), `devslave-agent-${agent.id}-${Date.now()}.log`);
     const logContent = formatEventsForLogFile(relevantEvents);
 
     await fs.writeFile(logFilePath, logContent, "utf-8");
@@ -217,21 +192,14 @@ async function viewAgentLogs(agent: AgentWithCodebase): Promise<void> {
     try {
         await runCommand("less", [logFilePath]);
     } catch (error) {
-        console.error(
-            "\n❌ Failed to open log viewer:",
-            (error as Error).message,
-        );
+        console.error("\n❌ Failed to open log viewer:", (error as Error).message);
     } finally {
         await fs.unlink(logFilePath).catch(() => {});
     }
 }
 
 async function handleViewRunningAgents(): Promise<void> {
-    const runningStatuses = [
-        AgentStatus.PREPARING,
-        AgentStatus.LAUNCHED,
-        AgentStatus.RUNNING,
-    ];
+    const runningStatuses = [AgentStatus.PREPARING, AgentStatus.LAUNCHED, AgentStatus.RUNNING];
 
     const agents = await prisma.agent.findMany({
         where: {
@@ -258,17 +226,10 @@ async function handleViewRunningAgents(): Promise<void> {
     }
 
     const codebaseIds = Array.from(
-        new Set(
-            agents
-                .map((agent) => agent.codebaseId)
-                .filter((id): id is string => Boolean(id)),
-        ),
+        new Set(agents.map((agent) => agent.codebaseId).filter((id): id is string => Boolean(id))),
     );
 
-    const activeTicketMap = new Map<
-        string,
-        Awaited<ReturnType<typeof prisma.ticket.findFirst>>
-    >();
+    const activeTicketMap = new Map<string, Awaited<ReturnType<typeof prisma.ticket.findFirst>>>();
 
     if (codebaseIds.length) {
         const tickets = await Promise.all(
@@ -304,9 +265,7 @@ async function handleViewRunningAgents(): Promise<void> {
             (resolvedCodebaseId ? `Codebase ${resolvedCodebaseId}` : null) ??
             "unknown codebase";
 
-        const ticket = resolvedCodebaseId
-            ? activeTicketMap.get(resolvedCodebaseId)
-            : undefined;
+        const ticket = resolvedCodebaseId ? activeTicketMap.get(resolvedCodebaseId) : undefined;
         const ticketLabel = ticket ? ` • Ticket ${ticket.ticketId}` : "";
 
         const label = `[${agent.status}] ${agent.role ?? "unknown role"} • ${resolvedCodebaseName}${ticketLabel} (${agent.id})`;

@@ -3,12 +3,7 @@ import { PrismaClient, AgentStatus } from "@prisma/client";
 import { readFileSync } from "fs";
 import { createHash } from "crypto";
 import { execSync } from "child_process";
-import {
-    AgentMonitoringStarted,
-    AgentRunning,
-    AgentCompleted,
-    AgentFailed,
-} from "../events";
+import { AgentMonitoringStarted, AgentRunning, AgentCompleted, AgentFailed } from "../events";
 
 const POLL_INTERVAL_MS = 5000; // 5 seconds
 

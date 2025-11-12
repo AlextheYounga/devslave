@@ -8,9 +8,7 @@ import ScanTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
 import { AGENT_FOLDER_NAME } from "../../../src/constants";
 
 jest.mock("child_process", () => {
-    const actual = jest.requireActual(
-        "child_process",
-    ) as typeof import("child_process");
+    const actual = jest.requireActual("child_process") as typeof import("child_process");
     return {
         ...actual,
         execSync: jest.fn(),
@@ -48,8 +46,7 @@ describe("ScanTicketsHandler", () => {
     let tempDir: string;
     let codebaseId: string;
     let executionId: string;
-    const uniqueId = () =>
-        `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const uniqueId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const ticketsDir = () => path.join(tempDir, AGENT_FOLDER_NAME, "tickets");
 
@@ -154,10 +151,7 @@ describe("ScanTicketsHandler", () => {
     });
 
     it("updates existing ticket status changes and emits status changed event", async () => {
-        const existingTicketPath = path.join(
-            ticketsDir(),
-            "123-existing-ticket.md",
-        );
+        const existingTicketPath = path.join(ticketsDir(), "123-existing-ticket.md");
 
         await prisma.ticket.create({
             data: {

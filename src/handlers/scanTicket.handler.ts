@@ -23,16 +23,11 @@ export default class ScanTicketHandler {
         if (this.debugMode) return this.debugResponse(ticket);
 
         if (!existsSync(ticket.ticketFile)) {
-            throw new Error(
-                `Tickets file does not exist at path: ${ticket.ticketFile}`,
-            );
+            throw new Error(`Tickets file does not exist at path: ${ticket.ticketFile}`);
         }
 
         const ticketData = this.parseTicketFile(ticket.ticketFile);
-        const updatedTicket = await this.updateExistingTicket(
-            ticket,
-            ticketData,
-        );
+        const updatedTicket = await this.updateExistingTicket(ticket, ticketData);
         return updatedTicket;
     }
 
@@ -47,11 +42,7 @@ export default class ScanTicketHandler {
         };
 
         // Normalize status: replace underscores with hyphens, uppercase, and trim
-        const normalizedStatus = status
-            .toUpperCase()
-            .trim()
-            .replace(/_/g, "_")
-            .replace(/-/g, "_");
+        const normalizedStatus = status.toUpperCase().trim().replace(/_/g, "_").replace(/-/g, "_");
         return statusMap[normalizedStatus] ?? TicketStatus.OPEN;
     }
 
@@ -61,9 +52,7 @@ export default class ScanTicketHandler {
 
         // Skip files without required frontmatter
         if (!frontmatter.id || !frontmatter.title) {
-            console.warn(
-                `Skipping ${ticketFile}: missing required fields (id, title)`,
-            );
+            console.warn(`Skipping ${ticketFile}: missing required fields (id, title)`);
             return null;
         }
 
@@ -75,10 +64,7 @@ export default class ScanTicketHandler {
         return { ticketId, title, status, description };
     }
 
-    private async updateExistingTicket(
-        existingTicket: Ticket,
-        ticketData: any,
-    ) {
+    private async updateExistingTicket(existingTicket: Ticket, ticketData: any) {
         const { title, status, description } = ticketData;
         const ticketRecord = await this.db.ticket.update({
             where: { id: existingTicket.id },

@@ -11,10 +11,7 @@ import {
 
 type FetchResponseBody = Record<string, unknown> | string;
 
-const jsonResponse = (
-    body: Record<string, unknown>,
-    status = 200,
-): Response => {
+const jsonResponse = (body: Record<string, unknown>, status = 200): Response => {
     return new Response(JSON.stringify(body), {
         status,
         headers: { "Content-Type": "application/json" },
@@ -28,13 +25,9 @@ const textResponse = (body: FetchResponseBody, status = 200): Response => {
 
 describe("apiClient helpers", () => {
     it("checks devslave health via /health endpoint", async () => {
-        const fetchSpy = jest
-            .fn()
-            .mockResolvedValue(jsonResponse({ status: "ok" }));
+        const fetchSpy = jest.fn().mockResolvedValue(jsonResponse({ status: "ok" }));
 
-        await expect(
-            checkDevslaveHealth(fetchSpy, "http://app:3000"),
-        ).resolves.toBeUndefined();
+        await expect(checkDevslaveHealth(fetchSpy, "http://app:3000")).resolves.toBeUndefined();
 
         expect(fetchSpy).toHaveBeenCalledWith(
             "http://app:3000/health",
@@ -45,22 +38,17 @@ describe("apiClient helpers", () => {
     it("throws when health endpoint fails", async () => {
         const fetchSpy = jest
             .fn()
-            .mockResolvedValue(
-                textResponse("boom", 500) as unknown as Response,
-            );
+            .mockResolvedValue(textResponse("boom", 500) as unknown as Response);
 
-        await expect(
-            checkDevslaveHealth(fetchSpy, "http://app:3000"),
-        ).rejects.toThrow("Request to http://app:3000/health failed");
+        await expect(checkDevslaveHealth(fetchSpy, "http://app:3000")).rejects.toThrow(
+            "Request to http://app:3000/health failed",
+        );
     });
 
     it("fetches ollama models from /api/tags endpoint", async () => {
         const fetchSpy = jest.fn().mockResolvedValue(
             jsonResponse({
-                models: [
-                    { name: "codellama" },
-                    { name: "mistral", model: "mistral:latest" },
-                ],
+                models: [{ name: "codellama" }, { name: "mistral", model: "mistral:latest" }],
             }),
         );
 
@@ -111,10 +99,7 @@ describe("apiClient helpers", () => {
             }),
         );
 
-        const codebases = await fetchActiveCodebases(
-            fetchSpy,
-            "http://app:3000",
-        );
+        const codebases = await fetchActiveCodebases(fetchSpy, "http://app:3000");
 
         expect(codebases).toHaveLength(2);
         expect(codebases[0]?.id).toBe("cb-1");
@@ -149,9 +134,7 @@ describe("apiClient helpers", () => {
     });
 
     it("posts setup payload to /api/codebase/setup", async () => {
-        const fetchSpy = jest
-            .fn()
-            .mockResolvedValue(jsonResponse({ success: true }));
+        const fetchSpy = jest.fn().mockResolvedValue(jsonResponse({ success: true }));
 
         const payload: SetupCodebasePayload = {
             executionId: "exec-1",
@@ -179,11 +162,7 @@ describe("apiClient helpers", () => {
             }) as unknown as Response,
         );
 
-        const result = await triggerWebhook(
-            "http://n8n/webhook",
-            { role: "architect" },
-            fetchSpy,
-        );
+        const result = await triggerWebhook("http://n8n/webhook", { role: "architect" }, fetchSpy);
 
         expect(fetchSpy).toHaveBeenCalledWith(
             "http://n8n/webhook",

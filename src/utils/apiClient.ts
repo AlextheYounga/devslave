@@ -22,9 +22,7 @@ const DEFAULT_OLLAMA_BASE_URL =
     process.env.OLLAMA_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:11434";
 
 const nativeFetch =
-    typeof fetch !== "undefined"
-        ? (fetch.bind(globalThis) as unknown as Fetcher)
-        : undefined;
+    typeof fetch !== "undefined" ? (fetch.bind(globalThis) as unknown as Fetcher) : undefined;
 
 const defaultFetch: Fetcher = async (url, init) => {
     if (!nativeFetch) {
@@ -49,11 +47,7 @@ async function readBody(response: HttpResponse): Promise<string> {
     }
 }
 
-async function requestJson<T>(
-    fetcher: Fetcher,
-    url: string,
-    init: FetchRequestInit,
-): Promise<T> {
+async function requestJson<T>(fetcher: Fetcher, url: string, init: FetchRequestInit): Promise<T> {
     const response = await fetcher(url, init);
     if (!response.ok) {
         const body = await readBody(response);
@@ -91,9 +85,7 @@ async function requestJsonWithFallback<T>(
         lastError = error;
     }
 
-    throw (
-        lastError ?? new Error(`No successful response for ${paths.join(", ")}`)
-    );
+    throw lastError ?? new Error(`No successful response for ${paths.join(", ")}`);
 }
 
 export type OllamaModel = {
@@ -148,11 +140,10 @@ export async function fetchOllamaModels(
     ollamaBaseUrl = DEFAULT_OLLAMA_BASE_URL,
 ): Promise<OllamaModel[]> {
     const base = normalizeBaseUrl(ollamaBaseUrl);
-    const data = await requestJsonWithFallback<{ models?: OllamaModel[] }>(
-        fetcher,
-        base,
-        ["/api/tags", "/tags"],
-    );
+    const data = await requestJsonWithFallback<{ models?: OllamaModel[] }>(fetcher, base, [
+        "/api/tags",
+        "/tags",
+    ]);
     return data.models ?? [];
 }
 

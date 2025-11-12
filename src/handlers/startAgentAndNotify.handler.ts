@@ -2,11 +2,7 @@ import dotenv from "dotenv";
 import { Role } from "../constants";
 import StartAgentHandler from "./startAgent.handler";
 import WatchAgentHandler from "./watchAgent.handler";
-import {
-    AgentCallbackRequestSent,
-    AgentCompleted,
-    AgentFailed,
-} from "../events";
+import { AgentCallbackRequestSent, AgentCompleted, AgentFailed } from "../events";
 dotenv.config();
 
 type StartAgentWithCallbackParams = {
@@ -54,10 +50,7 @@ export default class StartAgentAndNotifyHandler {
 
     private async sendCallback(data: any): Promise<void> {
         try {
-            console.log(
-                `Sending callback to ${this.callbackUrl} with data:`,
-                data,
-            );
+            console.log(`Sending callback to ${this.callbackUrl} with data:`, data);
             const response = await fetch(this.callbackUrl, {
                 method: "POST",
                 headers: {
@@ -73,9 +66,7 @@ export default class StartAgentAndNotifyHandler {
             }).publish();
 
             if (!response.ok) {
-                console.error(
-                    `Callback request failed: ${response.status} ${response.statusText}`,
-                );
+                console.error(`Callback request failed: ${response.status} ${response.statusText}`);
             }
         } catch (error) {
             console.error("Error sending callback:", error);

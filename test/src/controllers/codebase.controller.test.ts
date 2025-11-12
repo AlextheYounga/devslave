@@ -17,9 +17,7 @@ const makeResponse = (): MockResponse => ({
     json: jest.fn().mockReturnThis(),
 });
 
-const GetCodebaseHandlerMock = GetCodebaseHandler as jest.MockedClass<
-    typeof GetCodebaseHandler
->;
+const GetCodebaseHandlerMock = GetCodebaseHandler as jest.MockedClass<typeof GetCodebaseHandler>;
 const GetAllCodebasesHandlerMock = GetAllCodebasesHandler as jest.MockedClass<
     typeof GetAllCodebasesHandler
 >;
@@ -38,15 +36,9 @@ describe("CodebaseController", () => {
         getAllHandle.mockReset();
         setupHandle.mockReset();
 
-        GetCodebaseHandlerMock.mockImplementation(
-            () => ({ handle: getHandle }) as any,
-        );
-        GetAllCodebasesHandlerMock.mockImplementation(
-            () => ({ handle: getAllHandle }) as any,
-        );
-        SetupCodebaseHandlerMock.mockImplementation(
-            () => ({ handle: setupHandle }) as any,
-        );
+        GetCodebaseHandlerMock.mockImplementation(() => ({ handle: getHandle }) as any);
+        GetAllCodebasesHandlerMock.mockImplementation(() => ({ handle: getAllHandle }) as any);
+        SetupCodebaseHandlerMock.mockImplementation(() => ({ handle: setupHandle }) as any);
     });
 
     it("returns codebase when handler succeeds", async () => {

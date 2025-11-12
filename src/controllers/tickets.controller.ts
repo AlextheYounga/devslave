@@ -20,10 +20,7 @@ export default class TicketsController {
             const debugMode = this.req?.query?.debugMode
                 ? this.req.query.debugMode === "true"
                 : false;
-            const scanTicketsHandler = new ScanTicketHandler(
-                ticketId,
-                debugMode,
-            );
+            const scanTicketsHandler = new ScanTicketHandler(ticketId, debugMode);
             const ticket = await scanTicketsHandler.handle();
 
             return this.res.status(200).json({
@@ -43,10 +40,7 @@ export default class TicketsController {
     async scan() {
         try {
             const requiredFields = ["executionId", "codebaseId"];
-            const validation = validateRequiredFields(
-                this.data,
-                requiredFields,
-            );
+            const validation = validateRequiredFields(this.data, requiredFields);
             if (!validation.isValid) {
                 return this.res.status(400).json({
                     success: false,

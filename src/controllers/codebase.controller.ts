@@ -59,10 +59,7 @@ export default class CodebaseController {
         try {
             const codebaseId = this.req.params.id!;
             const requiredFields = ["phase", "executionId"];
-            const validation = validateRequiredFields(
-                this.data,
-                requiredFields,
-            );
+            const validation = validateRequiredFields(this.data, requiredFields);
             if (!validation.isValid) {
                 return this.res.status(400).json({
                     success: false,
@@ -94,16 +91,8 @@ export default class CodebaseController {
 
     async setup() {
         try {
-            const requiredFields = [
-                "executionId",
-                "name",
-                "folderName",
-                "prompt",
-            ];
-            const validation = validateRequiredFields(
-                this.data,
-                requiredFields,
-            );
+            const requiredFields = ["executionId", "name", "folderName", "prompt"];
+            const validation = validateRequiredFields(this.data, requiredFields);
             if (!validation.isValid) {
                 return this.res.status(400).json({
                     success: false,

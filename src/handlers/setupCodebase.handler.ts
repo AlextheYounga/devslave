@@ -34,16 +34,10 @@ export default class SetupCodebaseHandler {
     async handle() {
         try {
             new CodebaseSetupStarted(this.params).publish();
-            const projectPath = path.join(
-                paths.devWorkspace,
-                this.params.folderName,
-            );
+            const projectPath = path.join(paths.devWorkspace, this.params.folderName);
 
             // Save codebase to DB first so setup script can find it
-            const codebase = await this.saveCodebase(
-                projectPath,
-                this.params.prompt,
-            );
+            const codebase = await this.saveCodebase(projectPath, this.params.prompt);
             const eventData = {
                 ...this.params,
                 codebaseId: codebase.id,

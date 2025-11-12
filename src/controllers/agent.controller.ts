@@ -23,9 +23,7 @@ export default class AgentController {
             const debugMode = this.req?.query?.debugMode
                 ? this.req.query.debugMode === "true"
                 : false;
-            const executionId = this.req?.query?.executionId as
-                | string
-                | undefined;
+            const executionId = this.req?.query?.executionId as string | undefined;
 
             const agentHandler = new GetAgentStatusHandler({
                 agentId,
@@ -50,16 +48,8 @@ export default class AgentController {
 
     async start() {
         try {
-            const requiredFields = [
-                "prompt",
-                "codebaseId",
-                "executionId",
-                "role",
-            ];
-            const validation = validateRequiredFields(
-                this.data,
-                requiredFields,
-            );
+            const requiredFields = ["prompt", "codebaseId", "executionId", "role"];
+            const validation = validateRequiredFields(this.data, requiredFields);
             if (!validation.isValid) {
                 return this.res.status(400).json({
                     success: false,
@@ -107,16 +97,8 @@ export default class AgentController {
 
     async startAndWait() {
         try {
-            const requiredFields = [
-                "prompt",
-                "codebaseId",
-                "executionId",
-                "role",
-            ];
-            const validation = validateRequiredFields(
-                this.data,
-                requiredFields,
-            );
+            const requiredFields = ["prompt", "codebaseId", "executionId", "role"];
+            const validation = validateRequiredFields(this.data, requiredFields);
             if (!validation.isValid) {
                 return this.res.status(400).json({
                     success: false,
@@ -144,17 +126,8 @@ export default class AgentController {
 
     async startAndNotify() {
         try {
-            const requiredFields = [
-                "prompt",
-                "codebaseId",
-                "callbackUrl",
-                "executionId",
-                "role",
-            ];
-            const validation = validateRequiredFields(
-                this.data,
-                requiredFields,
-            );
+            const requiredFields = ["prompt", "codebaseId", "callbackUrl", "executionId", "role"];
+            const validation = validateRequiredFields(this.data, requiredFields);
             if (!validation.isValid) {
                 return this.res.status(400).json({
                     success: false,

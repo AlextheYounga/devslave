@@ -16,8 +16,7 @@ jest.mock("child_process", () => {
 describe("SetupCodebaseHandler", () => {
     const execSyncMock = execSync as unknown as jest.Mock;
     const originalScriptPath = process.env.SCRIPT_PATH;
-    const uniqueId = () =>
-        `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const uniqueId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     beforeAll(() => {
         process.env.SCRIPT_PATH = path.join("test", "fixtures", "scripts");
@@ -43,9 +42,7 @@ describe("SetupCodebaseHandler", () => {
         setup?: string;
     };
 
-    const buildParams = (
-        overrides: Partial<SetupParams> = {},
-    ): SetupParams => ({
+    const buildParams = (overrides: Partial<SetupParams> = {}): SetupParams => ({
         executionId: `exec-setup-${uniqueId()}`,
         name: "demo",
         folderName: `codebase-${Date.now()}`,
@@ -53,8 +50,7 @@ describe("SetupCodebaseHandler", () => {
         ...overrides,
     });
 
-    const makeHandler = (params: SetupParams) =>
-        new SetupCodebaseHandler(params);
+    const makeHandler = (params: SetupParams) => new SetupCodebaseHandler(params);
 
     it("runs setup script for new codebase and marks it as setup", async () => {
         execSyncMock.mockReturnValue("setup complete");
