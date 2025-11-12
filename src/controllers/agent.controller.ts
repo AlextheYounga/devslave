@@ -24,12 +24,10 @@ export default class AgentController {
                 ? this.req.query.debugMode === "true"
                 : false;
             const executionId = this.req?.query?.executionId as string | undefined;
+            const params: any = { agentId, debugMode };
+            if (executionId) params.executionId = executionId;
 
-            const agentHandler = new GetAgentStatusHandler({
-                agentId,
-                debugMode,
-                executionId,
-            });
+            const agentHandler = new GetAgentStatusHandler(params);
             const result = await agentHandler.handle();
 
             return this.res.status(200).json({

@@ -101,6 +101,7 @@ services:
         working_dir: /app/agent
         environment:
             - NODE_ENV=development
+            - MACHINE_CONTEXT=docker
             - AGENT_REPO=${AGENT_REPO}
             - DEV_WORKSPACE=${DEV_WORKSPACE}
             - DB_ABSOLUTE_URL=${DB_ABSOLUTE_URL}

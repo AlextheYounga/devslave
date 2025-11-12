@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
 import { Role } from "../constants";
 import { AgentStatus } from "@prisma/client";
 import StartAgentHandler from "./startAgent.handler";
 import WatchAgentHandler from "../handlers/watchAgent.handler";
-dotenv.config();
 
 type StartAgentParams = {
     executionId: string;

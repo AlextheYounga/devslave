@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
 import { Role } from "../constants";
 import StartAgentHandler from "./startAgent.handler";
 import WatchAgentHandler from "./watchAgent.handler";
 import { AgentCallbackRequestSent, AgentCompleted, AgentFailed } from "../events";
-dotenv.config();
 
 type StartAgentWithCallbackParams = {
     executionId: string;

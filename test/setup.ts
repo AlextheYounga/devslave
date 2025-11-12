@@ -3,7 +3,7 @@ import { refreshDatabase } from "./utils";
 import dotenv from "dotenv";
 
 // Load test environment variables
-dotenv.config({ path: ".env.test" });
+dotenv.config({ path: ".env.test", override: true, quiet: true });
 
 //Sometimes useful for testing purposes.
 const noRefreshDB = process.argv[4] === "--no-refresh-db" || false;

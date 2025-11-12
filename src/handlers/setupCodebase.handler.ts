@@ -4,15 +4,12 @@ import fs from "fs";
 import path from "path";
 import { prisma } from "../prisma";
 import { PrismaClient } from "@prisma/client";
-import dotenv from "dotenv";
 import {
     CodebaseSetupStarted,
     CodebaseSetupCompleted,
     CodebaseSetupFailed,
     CodebaseAlreadySetup,
 } from "../events";
-
-dotenv.config();
 
 type CodebaseSetupParams = {
     executionId: string;

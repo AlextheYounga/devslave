@@ -116,6 +116,25 @@ export class AgentLogFileDiscoveryFailed extends BaseEvent {
     }
 }
 
+// Workflow-related events
+export class WorkflowTriggerStarted extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class WorkflowTriggerSucceeded extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class WorkflowTriggerFailed extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
 // Ticket-related events
 export class ScanningTicketsStarted extends BaseEvent {
     constructor(data?: Record<string, any>, parentId?: string) {

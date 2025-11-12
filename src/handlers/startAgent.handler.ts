@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import { Role, paths, AGENT_FOLDER_NAME } from "../constants";
 import { prisma } from "../prisma";
 import { PrismaClient, AgentStatus } from "@prisma/client";
 import { exec, spawn } from "child_process";
@@ -11,8 +11,6 @@ import {
     AgentLogFileDiscovered,
     AgentLogFileDiscoveryFailed,
 } from "../events";
-import { Role, paths, AGENT_FOLDER_NAME } from "../constants";
-dotenv.config();
 
 type StartAgentParams = {
     executionId: string;

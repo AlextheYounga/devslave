@@ -96,12 +96,15 @@ RUN npm install -g @openai/codex
 # Copy source code (this will be overridden by volume mount in development)
 COPY . .
 
+# Create a marker file to identify this is a Docker container
+RUN echo "docker" > /.docker-env-marker
+
 # Generate Prisma client at runtime (avoid build-time generate to prevent staleness with bind mounts)
 
 # Expose ports
 EXPOSE 3000 2222
 
-# Entrypoint script runs migrations, generates Prisma client, and starts server
+# Copy and prepare entrypoint scripts
 COPY docker/app/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
