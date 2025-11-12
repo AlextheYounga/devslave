@@ -2,11 +2,13 @@ import dotenv from "dotenv";
 import inquirer from "inquirer";
 import { spawn } from "child_process";
 import { join } from "path";
-import { homedir } from "os";
+import { homedir, tmpdir } from "os";
+import { promises as fs } from "fs";
 import { AgentStatus, TicketStatus } from "@prisma/client";
 import { prisma } from "../prisma";
 import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
+import { eventMatchesTarget, formatEventsForLogFile } from "./logs";
 
 dotenv.config();
 
@@ -105,6 +107,10 @@ type AgentMetadata = {
     codebaseName?: string;
 };
 
+type AgentWithCodebase = Awaited<
+    ReturnType<typeof prisma.agent.findMany>
+>[number];
+
 function extractAgentMetadata(agent: { data: unknown }): AgentMetadata {
     if (!agent?.data || typeof agent.data !== "object") {
         return {};
@@ -138,6 +144,104 @@ function extractAgentMetadata(agent: { data: unknown }): AgentMetadata {
         metadata.codebaseName = codebaseName;
     }
     return metadata;
+}
+
+type AgentActionChoice = "tmux" | "logs" | "back";
+
+async function promptAgentAction(
+    agentLabel: string,
+): Promise<AgentActionChoice> {
+    const { action } = await inquirer.prompt<{ action: AgentActionChoice }>([
+        {
+            type: "list",
+            name: "action",
+            message: `${agentLabel}\nWhat would you like to do?`,
+            choices: [
+                { name: "View tmux session", value: "tmux" },
+                { name: "View logs", value: "logs" },
+                { name: "Back to running agents", value: "back" },
+            ],
+        },
+    ]);
+    return action;
+}
+
+async function attachToAgentTmux(agent: AgentWithCodebase): Promise<void> {
+    const sessionName = agent.tmuxSession?.trim() || `agent_${agent.id}`;
+
+    console.log(`\n🔌 Attaching to tmux session ${sessionName}...\n`);
+
+    try {
+        await runCommand("docker", [
+            "exec",
+            "-it",
+            "devslave-app-1",
+            "tmux",
+            "attach",
+            "-t",
+            sessionName,
+        ]);
+    } catch (error) {
+        console.error(
+            "\n❌ Failed to attach to tmux session:",
+            (error as Error).message,
+        );
+    }
+}
+
+async function viewAgentLogs(
+    agent: AgentWithCodebase,
+    metadata: AgentMetadata,
+): Promise<void> {
+    const codebaseId = agent.codebaseId ?? metadata.codebaseId;
+    const executionId = agent.executionId;
+
+    if (!codebaseId) {
+        console.log(
+            "\n⚠️  Unable to determine codebase for this agent; cannot fetch logs.\n",
+        );
+        return;
+    }
+
+    if (!executionId) {
+        console.log(
+            "\n⚠️  Agent is missing an execution ID; cannot fetch logs.\n",
+        );
+        return;
+    }
+
+    console.log("\n📜 Gathering event logs...\n");
+    const events = await prisma.events.findMany({
+        orderBy: { timestamp: "asc" },
+    });
+
+    const relevantEvents = events.filter((event) =>
+        eventMatchesTarget(event.data, codebaseId, executionId),
+    );
+
+    if (!relevantEvents.length) {
+        console.log("\n⚠️  No events found for this agent.\n");
+        return;
+    }
+
+    const logFilePath = join(
+        tmpdir(),
+        `devslave-agent-${agent.id}-${Date.now()}.log`,
+    );
+    const logContent = formatEventsForLogFile(relevantEvents);
+
+    await fs.writeFile(logFilePath, logContent, "utf-8");
+
+    try {
+        await runCommand("less", [logFilePath]);
+    } catch (error) {
+        console.error(
+            "\n❌ Failed to open log viewer:",
+            (error as Error).message,
+        );
+    } finally {
+        await fs.unlink(logFilePath).catch(() => {});
+    }
 }
 
 async function handleViewRunningAgents(): Promise<void> {
@@ -206,8 +310,13 @@ async function handleViewRunningAgents(): Promise<void> {
         });
     }
 
+    const agentLabelMap = new Map<string, string>();
+    const agentMetadataMap = new Map<string, AgentMetadata>();
+
     const agentChoices = agents.map((agent) => {
         const metadata = extractAgentMetadata(agent);
+        agentMetadataMap.set(agent.id, metadata);
+
         const resolvedCodebaseId = agent.codebaseId ?? metadata.codebaseId;
         const resolvedCodebaseName =
             agent.codebase?.name ??
@@ -220,8 +329,11 @@ async function handleViewRunningAgents(): Promise<void> {
             : undefined;
         const ticketLabel = ticket ? ` • Ticket ${ticket.ticketId}` : "";
 
+        const label = `[${agent.status}] ${agent.role ?? "unknown role"} • ${resolvedCodebaseName}${ticketLabel} (${agent.id})`;
+        agentLabelMap.set(agent.id, label);
+
         return {
-            name: `[${agent.status}] ${agent.role ?? "unknown role"} • ${resolvedCodebaseName}${ticketLabel} (${agent.id})`,
+            name: label,
             value: agent.id,
         };
     });
@@ -253,26 +365,25 @@ async function handleViewRunningAgents(): Promise<void> {
         return;
     }
 
-    const sessionName =
-        selectedAgent.tmuxSession?.trim() || `agent_${selectedAgent.id}`;
+    const metadata = agentMetadataMap.get(selectedAgent.id) ?? {};
+    const agentLabel =
+        agentLabelMap.get(selectedAgent.id) ??
+        `[${selectedAgent.status}] ${selectedAgent.role ?? "Agent"} (${selectedAgent.id})`;
 
-    console.log(`\n🔌 Attaching to tmux session ${sessionName}...\n`);
+    while (true) {
+        const action = await promptAgentAction(agentLabel);
+        if (action === "back") {
+            return;
+        }
 
-    try {
-        await runCommand("docker", [
-            "exec",
-            "-it",
-            "devslave-app-1",
-            "tmux",
-            "attach",
-            "-t",
-            sessionName,
-        ]);
-    } catch (error) {
-        console.error(
-            "\n❌ Failed to attach to tmux session:",
-            (error as Error).message,
-        );
+        if (action === "tmux") {
+            await attachToAgentTmux(selectedAgent);
+            return;
+        }
+
+        if (action === "logs") {
+            await viewAgentLogs(selectedAgent, metadata);
+        }
     }
 }
 

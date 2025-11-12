@@ -45,7 +45,7 @@ enum ProjectPhase {
     DESIGN
     PLANNING
     DEVELOPMENT
-    COMPLETE
+    COMPLETED
 }
 
 model Codebase {

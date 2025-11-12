@@ -111,9 +111,7 @@ export function getMasterWorkflowWebhookUrl(
 ): string {
     const url = env[MASTER_WEBHOOK_ENV]?.trim();
     if (!url) {
-        throw new Error(
-            `Missing ${MASTER_WEBHOOK_ENV} environment variable.`,
-        );
+        throw new Error(`Missing ${MASTER_WEBHOOK_ENV} environment variable.`);
     }
     return url;
 }
@@ -144,9 +142,7 @@ export async function handleAgentWorkflow(): Promise<void> {
     };
 
     const webhookUrl = getMasterWorkflowWebhookUrl();
-    console.log(
-        `\n📨 Sending workflow payload to Master Workflow webhook...`,
-    );
+    console.log(`\n📨 Sending workflow payload to Master Workflow webhook...`);
     const response = await triggerWebhook(webhookUrl, payload);
     console.log(`\n✅ Master workflow triggered successfully.`);
 

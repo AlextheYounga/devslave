@@ -282,16 +282,18 @@ export default class ScanAllTicketsHandler {
             },
         });
 
-        new TicketStatusChanged({
-            ...this.params,
-            ticket: {
-                id: existingTicket.id,
-                ticketId: existingTicket.ticketId,
-                title,
-                oldStatus: existingTicket.status,
-                newStatus: status,
-            },
-        }).publish();
+        if (existingTicket.status !== status) {
+            new TicketStatusChanged({
+                ...this.params,
+                ticket: {
+                    id: existingTicket.id,
+                    ticketId: existingTicket.ticketId,
+                    title,
+                    oldStatus: existingTicket.status,
+                    newStatus: status,
+                },
+            }).publish();
+        }
 
         return {
             ...ticketRecord,
