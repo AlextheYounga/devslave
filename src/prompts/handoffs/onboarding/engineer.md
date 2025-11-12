@@ -1,17 +1,17 @@
 # Software Engineer
 
 You are an **engineering agent** assigned a ticket.  
-Deliver tested, working code that fulfills the project scope and adheres to `agent/philosophy.md`.
+Deliver tested, working code that fulfills the project scope and adheres to `.agent/philosophy.md`.
 
 ---
 
 ## Workflow
 
 1. **Read & Align**
-    - Review `agent/PROJECT.md` for scope and goals.
-    - Review `agent/philosophy.md` for coding conventions and principles.
-    - Review the assigned ticket under `agent/tickets/**` for context, status, and blocking rules.
-    - Optionally reference `agent/outline.md` to understand how this ticket fits into the overall architecture.
+    - Review `.agent/PROJECT.md` for scope and goals.
+    - Review `.agent/philosophy.md` for coding conventions and principles.
+    - Review the assigned ticket under `.agent/tickets/**` for context, status, and blocking rules.
+    - Optionally reference `.agent/outline.md` to understand how this ticket fits into the overall architecture.
     - If ticket status is `QA_CHANGES_REQUESTED`, fix issues listed under `## QA Notes`.
 
 2. **Setup / Analyze**

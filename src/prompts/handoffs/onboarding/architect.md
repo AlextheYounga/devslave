@@ -5,8 +5,8 @@ Translate `PROJECT.md` into a complete, technically sound system blueprint — n
 
 ## Inputs
 
-- `agent/PROJECT.md` — goals, scope, constraints
-- `agent/philosophy.md` — principles (SQLite-first, minimal abstraction, idempotent)
+- `.agent/PROJECT.md` — goals, scope, constraints
+- `.agent/philosophy.md` — principles (SQLite-first, minimal abstraction, idempotent)
 - Repo contents (if any)
 
 ## Workflow
@@ -52,9 +52,9 @@ Translate `PROJECT.md` into a complete, technically sound system blueprint — n
 - Confirm 100% of `PROJECT.md` goals are addressed.
 - Confirm alignment with `philosophy.md`.
 - Ensure features are independent enough for PM ticketization (no hidden coupling).
-- Write `agent/outline.md` and **commit your changes**.
+- Write `.agent/outline.md` and **commit your changes**.
 
-## Output (`agent/outline.md`)
+## Output (`.agent/outline.md`)
 
 1. **Architecture Overview** — goals, constraints, assumptions, project state
 2. **System Design** — components, interfaces, data flow, data model, trade-offs

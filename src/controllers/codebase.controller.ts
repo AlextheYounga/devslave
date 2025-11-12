@@ -91,7 +91,7 @@ export default class CodebaseController {
 
     async setup() {
         try {
-            const requiredFields = ["executionId", "name", "folderName", "prompt"];
+            const requiredFields = ["name", "folderName", "prompt"];
             const validation = validateRequiredFields(this.data, requiredFields);
             if (!validation.isValid) {
                 return this.res.status(400).json({

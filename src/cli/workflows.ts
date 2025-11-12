@@ -9,8 +9,13 @@ import {
     WorkflowPreflightHandler,
 } from "../handlers/workflowPreflight.handler";
 import { TriggerWorkflowHandler } from "../handlers/triggerWorkflow.handler";
-import SetupCodebaseHandler from "../handlers/setupCodebase.handler";
-import { AGENT_FOLDER_NAME, N8N_URL, APP_CONTAINER_NAME, paths } from "../constants";
+import {
+    AGENT_FOLDER_NAME,
+    N8N_URL,
+    APP_CONTAINER_NAME,
+    paths,
+    DEFAULT_APP_BASE_URL,
+} from "../constants";
 import { SETUP_OPTIONS } from "./menus";
 
 function requireInput(fieldLabel: string) {
@@ -306,12 +311,26 @@ export async function handleCreateProjectFlow(): Promise<void> {
     };
 
     console.log("\n🔧 Setting up project...\n");
-    const setupHandler = new SetupCodebaseHandler(payload);
-    const response = await setupHandler.handle();
+    
+    const setupUrl = `${DEFAULT_APP_BASE_URL}/api/codebase/setup`;
+    const response = await fetch(setupUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Setup failed with status ${response.status}: ${errorText}`);
+    }
+
+    const result = await response.json();
     const message = `Project "${payload.name}" setup successfully.`;
     console.log(`\n✅ ${message}\n`);
-    if (response?.stdout) {
-        console.log(response.stdout);
+    if (result?.stdout) {
+        console.log(result.stdout);
     }
 
     if (importSourcePath) {
