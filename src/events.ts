@@ -92,6 +92,12 @@ export class AgentFailed extends BaseEvent {
     }
 }
 
+export class AgentManuallyKilled extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
 export class AgentMonitoringStarted extends BaseEvent {
     constructor(data?: Record<string, any>, parentId?: string) {
         super({ data }, parentId);

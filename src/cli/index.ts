@@ -8,6 +8,7 @@ import { prisma } from "../prisma";
 import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
 import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "./logs";
+import { DEFAULT_APP_BASE_URL } from "../constants";
 
 async function runCommand(command: string, args: string[] = [], options = {}): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -126,7 +127,7 @@ function extractAgentMetadata(agent: { data: unknown }): AgentMetadata {
     return metadata;
 }
 
-type AgentActionChoice = "tmux" | "logs" | "back";
+type AgentActionChoice = "tmux" | "logs" | "kill" | "back";
 
 async function promptAgentAction(agentLabel: string): Promise<AgentActionChoice> {
     const { action } = await inquirer.prompt<{ action: AgentActionChoice }>([
@@ -137,6 +138,7 @@ async function promptAgentAction(agentLabel: string): Promise<AgentActionChoice>
             choices: [
                 { name: "View tmux session", value: "tmux" },
                 { name: "View logs", value: "logs" },
+                { name: "Kill agent", value: "kill" },
                 { name: "Back to running agents", value: "back" },
             ],
         },
@@ -192,6 +194,35 @@ async function viewAgentLogs(agent: AgentWithCodebase): Promise<void> {
         console.error("\n❌ Failed to open log viewer:", (error as Error).message);
     } finally {
         await fs.unlink(logFilePath).catch(() => {});
+    }
+}
+
+
+export async function killAgent(agent: AgentWithCodebase): Promise<void> {
+    console.log(`\n☠️  Killing agent ${agent.id}...\n`);
+
+    const killUrl = `${DEFAULT_APP_BASE_URL}/api/agent/${agent.id}/kill`;
+
+    try {
+        const response = await fetch(killUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                reason: "cli_manual_kill",
+            }),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `Kill request failed with status ${response.status}`);
+        }
+
+        console.log("\n✅ Agent marked as failed and tmux session terminated.\n");
+        return;
+    } catch (error) {
+        console.error("\n❌ Failed to terminate agent:", (error as Error).message);
     }
 }
 
@@ -318,6 +349,11 @@ async function handleViewRunningAgents(): Promise<void> {
 
         if (action === "logs") {
             await viewAgentLogs(selectedAgent);
+        }
+
+        if (action === "kill") {
+            await killAgent(selectedAgent);
+            return;
         }
     }
 }

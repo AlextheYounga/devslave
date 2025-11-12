@@ -4,12 +4,14 @@ import WatchAgentHandler from "../../../src/handlers/watchAgent.handler";
 import GetAgentStatusHandler from "../../../src/handlers/getAgentStatus.handler";
 import StartAgentAndWaitHandler from "../../../src/handlers/startAgentAndWait.handler";
 import StartAgentAndNotifyHandler from "../../../src/handlers/startAgentAndNotify.handler";
+import KillAgentHandler from "../../../src/handlers/killAgent.handler";
 
 jest.mock("../../../src/handlers/startAgent.handler");
 jest.mock("../../../src/handlers/watchAgent.handler");
 jest.mock("../../../src/handlers/getAgentStatus.handler");
 jest.mock("../../../src/handlers/startAgentAndWait.handler");
 jest.mock("../../../src/handlers/startAgentAndNotify.handler");
+jest.mock("../../../src/handlers/killAgent.handler");
 
 type MockResponse = {
     status: jest.Mock;
@@ -35,6 +37,7 @@ const StartAgentAndWaitHandlerMock = StartAgentAndWaitHandler as jest.MockedClas
 const StartAgentAndNotifyHandlerMock = StartAgentAndNotifyHandler as jest.MockedClass<
     typeof StartAgentAndNotifyHandler
 >;
+const KillAgentHandlerMock = KillAgentHandler as jest.MockedClass<typeof KillAgentHandler>;
 
 describe("AgentController", () => {
     const startAgentHandle = jest.fn();
@@ -42,6 +45,7 @@ describe("AgentController", () => {
     const getStatusHandle = jest.fn();
     const startAndWaitHandle = jest.fn();
     const startAndNotifyHandle = jest.fn();
+    const killAgentHandle = jest.fn();
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -79,6 +83,12 @@ describe("AgentController", () => {
             () =>
                 ({
                     handle: startAndNotifyHandle,
+                }) as any,
+        );
+        KillAgentHandlerMock.mockImplementation(
+            () =>
+                ({
+                    handle: killAgentHandle,
                 }) as any,
         );
     });
@@ -195,6 +205,29 @@ describe("AgentController", () => {
 
         expect(StartAgentAndNotifyHandlerMock).toHaveBeenCalledWith(req.body);
         expect(res.status).toHaveBeenCalledWith(202);
+    });
+
+    it("kills an agent via handler", async () => {
+        killAgentHandle.mockResolvedValue({
+            agentId: "agent-42",
+            status: "FAILED",
+        });
+
+        const req: any = {
+            body: { reason: "manual" },
+            params: { id: "agent-42" },
+        };
+        const res = makeResponse();
+
+        const controller = new AgentController(req, res as any);
+        await controller.kill();
+
+        expect(KillAgentHandlerMock).toHaveBeenCalledWith({
+            agentId: "agent-42",
+            reason: "manual",
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json.mock.calls[0][0].success).toBe(true);
     });
 
     it("returns 500 when handler throws", async () => {

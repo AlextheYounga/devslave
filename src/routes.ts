@@ -49,6 +49,10 @@ router.post("/api/agent/execute-async", async (req: Request, res: Response) => {
     return new AgentController(req, res).startAndNotify();
 });
 
+router.post("/api/agent/:id/kill", async (req: Request, res: Response) => {
+    return new AgentController(req, res).kill();
+});
+
 // Ticket endpoints
 router.get("/api/tickets/:id", async (req: Request, res: Response) => {
     return new TicketsController(req, res).scanTicket();

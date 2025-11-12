@@ -5,6 +5,7 @@ import WatchAgentHandler from "../handlers/watchAgent.handler";
 import StartAgentAndWaitHandler from "../handlers/startAgentAndWait.handler";
 import StartAgentAndNotifyHandler from "../handlers/startAgentAndNotify.handler";
 import GetAgentStatusHandler from "../handlers/getAgentStatus.handler";
+import KillAgentHandler from "../handlers/killAgent.handler";
 
 export default class AgentController {
     private req: Request;
@@ -144,6 +145,30 @@ export default class AgentController {
         } catch (error: any) {
             console.error("Error in AgentController->startAndNotify:", error);
             return this.res.status(500).json({
+                success: false,
+                error: error?.message ?? String(error),
+            });
+        }
+    }
+
+    async kill() {
+        try {
+            const agentId = this.req.params.id!;
+            const handler = new KillAgentHandler({
+                agentId,
+                reason: this.data?.reason,
+            });
+            const result = await handler.handle();
+
+            return this.res.status(200).json({
+                success: true,
+                message: "Agent terminated",
+                data: result,
+            });
+        } catch (error: any) {
+            console.error("Error in AgentController->kill:", error);
+            const status = error?.message?.includes("not found") ? 404 : 500;
+            return this.res.status(status).json({
                 success: false,
                 error: error?.message ?? String(error),
             });
