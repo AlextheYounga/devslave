@@ -4,17 +4,13 @@ import path from "path";
 import { randomUUID } from "crypto";
 import { spawn } from "child_process";
 import {
-    checkDevslaveHealth,
-    checkOllamaHealth,
-    fetchActiveCodebases,
-    fetchOllamaModels,
-    setupCodebase,
-    triggerWebhook,
-    createExecutionId,
-    type CodebaseSummary,
-    type OllamaModel,
-} from "../utils/apiClient";
-import { AGENT_FOLDER_NAME, N8N_URL, paths } from "../constants";
+    OllamaModel,
+    CodebaseSummary,
+    WorkflowPreflightHandler,
+} from "../handlers/workflowPreflight.handler";
+import { TriggerWorkflowHandler } from "../handlers/triggerWorkflow.handler";
+import SetupCodebaseHandler from "../handlers/setupCodebase.handler";
+import { AGENT_FOLDER_NAME, N8N_URL, APP_CONTAINER_NAME, paths } from "../constants";
 import { SETUP_OPTIONS } from "./menus";
 
 function requireInput(fieldLabel: string) {
@@ -85,30 +81,6 @@ async function promptAgentForm(codebases: CodebaseSummary[], models: OllamaModel
     return inquirer.prompt<AgentFormAnswers>(questions);
 }
 
-async function runPreflightWithLogs(): Promise<OllamaModel[]> {
-    console.log("🔍 Checking DevSlave API health...");
-    await checkDevslaveHealth();
-    console.log("✅ DevSlave API is reachable.");
-
-    console.log("🔍 Checking Ollama health...");
-    await checkOllamaHealth();
-    console.log("✅ Ollama is reachable.");
-
-    console.log("🔍 Fetching Ollama models...");
-    const models = await fetchOllamaModels();
-    console.log(
-        models.length
-            ? `✅ Retrieved ${models.length} Ollama model(s).`
-            : "⚠️ No Ollama models reported.",
-    );
-    console.log("");
-
-    return models;
-}
-
-const MASTER_WEBHOOK_ENV = "N8N_MASTER_WEBHOOK_URL";
-const APP_CONTAINER_NAME = process.env.APP_CONTAINER_NAME || "devslave-app-1";
-
 function sanitizeProjectFolder(folder: string): string {
     return folder.replace(/^\/+/, "").replace(/\/+$/, "");
 }
@@ -133,19 +105,11 @@ export async function ensureImportSourceDirectory(sourcePath: string): Promise<s
     return resolvedPath;
 }
 
-export function getMasterWorkflowWebhookUrl(env: NodeJS.ProcessEnv = process.env): string {
-    const url = env[MASTER_WEBHOOK_ENV]?.trim();
-    if (!url) {
-        throw new Error(`Missing ${MASTER_WEBHOOK_ENV} environment variable.`);
-    }
-    return url;
-}
-
 export async function handleAgentWorkflow(): Promise<void> {
     console.log(`\n🚦 Running pre-flight checks for Master Workflow...\n`);
-    const models = await runPreflightWithLogs();
+    const preflightHandler = new WorkflowPreflightHandler();
+    const { codebases, models } = await preflightHandler.handle();
 
-    const codebases = await fetchActiveCodebases();
     if (!codebases.length) {
         console.log(
             "\n⚠️  No active codebases found. Please create a project before starting agents.\n",
@@ -161,14 +125,13 @@ export async function handleAgentWorkflow(): Promise<void> {
 
     const payload = {
         codebaseId: codebase.id,
-        codebaseName: codebase.name,
         model: answers.model || undefined,
         debugMode: answers.debugMode,
     };
 
-    const webhookUrl = getMasterWorkflowWebhookUrl();
     console.log(`\n📨 Sending workflow payload to Master Workflow webhook...`);
-    const response = await triggerWebhook(webhookUrl, payload);
+    const triggerWorkflowHandler = new TriggerWorkflowHandler(payload);
+    const response = await triggerWorkflowHandler.handle();
     console.log(`\n✅ Master workflow triggered successfully.`);
 
     const executionData =
@@ -336,7 +299,6 @@ export async function handleCreateProjectFlow(): Promise<void> {
             : null;
 
     const payload = {
-        executionId: createExecutionId("create-project"),
         name: answers.name,
         folderName: answers.projectFolder,
         prompt: answers.masterPrompt,
@@ -344,12 +306,12 @@ export async function handleCreateProjectFlow(): Promise<void> {
     };
 
     console.log("\n🔧 Setting up project...\n");
-    const response = await setupCodebase(payload);
-    const message =
-        response?.message ?? `Project "${payload.name}" setup request submitted successfully.`;
+    const setupHandler = new SetupCodebaseHandler(payload);
+    const response = await setupHandler.handle();
+    const message = `Project "${payload.name}" setup successfully.`;
     console.log(`\n✅ ${message}\n`);
-    if (response?.data?.stdout) {
-        console.log(response.data.stdout);
+    if (response?.stdout) {
+        console.log(response.stdout);
     }
 
     if (importSourcePath) {

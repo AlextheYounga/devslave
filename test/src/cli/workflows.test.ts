@@ -2,39 +2,20 @@ import inquirer from "inquirer";
 import os from "os";
 import path from "path";
 import { mkdtempSync, rmSync } from "fs";
-import * as apiClient from "../../../src/utils/apiClient";
+import * as triggerWorkflowModule from "../../../src/handlers/triggerWorkflow.handler";
 import {
     buildContainerProjectPath,
     ensureImportSourceDirectory,
-    getMasterWorkflowWebhookUrl,
     handleAgentWorkflow,
 } from "../../../src/cli/workflows";
+import TriggerWorkflowHandler from "../../../src/handlers/triggerWorkflow.handler";
 
-const MASTER_ENV_KEY = "N8N_MASTER_WEBHOOK_URL";
+jest.mock("../../../src/handlers/triggerWorkflow.handler");
+const TriggerWorkflowHandlerMock = TriggerWorkflowHandler as jest.MockedClass<
+    typeof TriggerWorkflowHandler
+>;
 
-describe("getMasterWorkflowWebhookUrl", () => {
-    const originalValue = process.env[MASTER_ENV_KEY];
-
-    afterEach(() => {
-        if (originalValue === undefined) {
-            delete process.env[MASTER_ENV_KEY];
-        } else {
-            process.env[MASTER_ENV_KEY] = originalValue;
-        }
-    });
-
-    it("throws when the master webhook env var is missing", () => {
-        delete process.env[MASTER_ENV_KEY];
-        expect(() => getMasterWorkflowWebhookUrl()).toThrow(
-            "Missing N8N_MASTER_WEBHOOK_URL environment variable.",
-        );
-    });
-
-    it("returns the trimmed master webhook url", () => {
-        process.env[MASTER_ENV_KEY] = " http://localhost/webhook ";
-        expect(getMasterWorkflowWebhookUrl()).toBe("http://localhost/webhook");
-    });
-});
+const triggerHandlerHandleMock = jest.fn();
 
 describe("buildContainerProjectPath", () => {
     it("normalizes workspace and folder slashes", () => {
@@ -60,30 +41,29 @@ describe("ensureImportSourceDirectory", () => {
 });
 
 describe("handleAgentWorkflow", () => {
-    const originalValue = process.env[MASTER_ENV_KEY];
-
     beforeEach(() => {
-        process.env[MASTER_ENV_KEY] = "http://localhost/master-webhook";
+        TriggerWorkflowHandlerMock.mockImplementation(
+            () =>
+                ({
+                    handle: triggerHandlerHandleMock,
+                }) as unknown as TriggerWorkflowHandler,
+        );
+        triggerHandlerHandleMock.mockResolvedValue({});
     });
 
     afterEach(() => {
         jest.restoreAllMocks();
-
-        if (originalValue === undefined) {
-            delete process.env[MASTER_ENV_KEY];
-        } else {
-            process.env[MASTER_ENV_KEY] = originalValue;
-        }
+        TriggerWorkflowHandlerMock.mockReset();
+        triggerHandlerHandleMock.mockReset();
     });
 
     it("sends the selected codebase data to the master webhook", async () => {
         const codebase = { id: "cb-1", name: "Repo", path: "/tmp/repo" };
 
-        jest.spyOn(apiClient, "checkDevslaveHealth").mockResolvedValue();
-        jest.spyOn(apiClient, "checkOllamaHealth").mockResolvedValue();
-        jest.spyOn(apiClient, "fetchOllamaModels").mockResolvedValue([]);
-        jest.spyOn(apiClient, "fetchActiveCodebases").mockResolvedValue([codebase]);
-        const triggerSpy = jest.spyOn(apiClient, "triggerWebhook").mockResolvedValue(undefined);
+        jest.spyOn(triggerWorkflowModule, "checkDevslaveHealth").mockResolvedValue();
+        jest.spyOn(triggerWorkflowModule, "checkOllamaHealth").mockResolvedValue();
+        jest.spyOn(triggerWorkflowModule, "fetchOllamaModels").mockResolvedValue([]);
+        jest.spyOn(triggerWorkflowModule, "fetchActiveCodebases").mockResolvedValue([codebase]);
 
         jest.spyOn(inquirer, "prompt").mockResolvedValue({
             codebaseId: codebase.id,
@@ -93,12 +73,14 @@ describe("handleAgentWorkflow", () => {
 
         await handleAgentWorkflow();
 
-        expect(triggerSpy).toHaveBeenCalledTimes(1);
-        expect(triggerSpy).toHaveBeenCalledWith("http://localhost/master-webhook", {
+        expect(TriggerWorkflowHandlerMock).toHaveBeenCalledTimes(1);
+        expect(TriggerWorkflowHandlerMock).toHaveBeenCalledWith({
             codebaseId: codebase.id,
             codebaseName: codebase.name,
+            codebasePath: codebase.path,
             model: undefined,
             debugMode: true,
         });
+        expect(triggerHandlerHandleMock).toHaveBeenCalledTimes(1);
     });
 });

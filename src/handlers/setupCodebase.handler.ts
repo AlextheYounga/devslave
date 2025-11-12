@@ -12,7 +12,6 @@ import {
 } from "../events";
 
 type CodebaseSetupParams = {
-    executionId: string;
     name: string;
     folderName: string;
     prompt: string;

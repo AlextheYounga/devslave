@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import inquirer from "inquirer";
 import { spawn } from "child_process";
 import { join } from "path";
@@ -9,8 +8,6 @@ import { prisma } from "../prisma";
 import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
 import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "./logs";
-
-dotenv.config();
 
 async function runCommand(command: string, args: string[] = [], options = {}): Promise<void> {
     return new Promise((resolve, reject) => {

@@ -139,13 +139,16 @@ describe("AgentController", () => {
             agentId: "agent-7",
             status: "RUNNING",
         });
-        const req: any = { body: {}, params: { id: "agent-7" } };
+        const req: any = { body: {}, params: { id: "agent-7", debugMode: false } };
         const res = makeResponse();
 
         const controller = new AgentController(req, res as any);
         await controller.ping();
 
-        expect(GetAgentStatusHandlerMock).toHaveBeenCalledWith("agent-7", false);
+        expect(GetAgentStatusHandlerMock).toHaveBeenCalledWith({
+            agentId: "agent-7",
+            debugMode: false,
+        });
         expect(res.status).toHaveBeenCalledWith(200);
     });
 
