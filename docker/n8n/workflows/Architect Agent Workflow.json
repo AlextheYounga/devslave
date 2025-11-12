@@ -95,6 +95,10 @@
                         {
                             "name": "debugMode",
                             "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
+                        },
+                        {
+                            "name": "executionId",
+                            "value": "={{ $execution.id }}"
                         }
                     ]
                 },
@@ -227,7 +231,7 @@
         {
             "parameters": {
                 "method": "PUT",
-                "url": "=http://app:3000/api/codebase/{{$('GlobalVars').last().json.body.codebaseId}}/phase",
+                "url": "=http://app:3000/api/codebase/{{$('GlobalVars').all()[0].json.codebaseId}}/phase",
                 "sendBody": true,
                 "bodyParameters": {
                     "parameters": [
@@ -416,7 +420,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "bb58bec2-8cd8-4ae7-89b6-f21adb3456dd",
+    "versionId": "cf15a436-6feb-47ed-b709-800646021fa8",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

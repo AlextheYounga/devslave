@@ -190,6 +190,10 @@
                         {
                             "name": "debugMode",
                             "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
+                        },
+                        {
+                            "name": "executionId",
+                            "value": "={{ $execution.id }}"
                         }
                     ]
                 },
@@ -219,6 +223,10 @@
                         {
                             "name": "debugMode",
                             "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
+                        },
+                        {
+                            "name": "executionId",
+                            "value": "={{ $execution.id }}"
                         }
                     ]
                 },
@@ -987,7 +995,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "8b9a7981-a808-4dae-a72a-b910d484e16f",
+    "versionId": "565aef77-bcee-4038-a531-1a164a8da9e9",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
