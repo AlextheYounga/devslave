@@ -2,20 +2,26 @@ import inquirer from "inquirer";
 import os from "os";
 import path from "path";
 import { mkdtempSync, rmSync } from "fs";
-import * as triggerWorkflowModule from "../../../src/handlers/triggerWorkflow.handler";
 import {
     buildContainerProjectPath,
     ensureImportSourceDirectory,
     handleAgentWorkflow,
 } from "../../../src/cli/workflows";
-import TriggerWorkflowHandler from "../../../src/handlers/triggerWorkflow.handler";
+import { TriggerWorkflowHandler } from "../../../src/handlers/triggerWorkflow.handler";
+import { WorkflowPreflightHandler } from "../../../src/handlers/workflowPreflight.handler";
 
 jest.mock("../../../src/handlers/triggerWorkflow.handler");
+jest.mock("../../../src/handlers/workflowPreflight.handler");
+
 const TriggerWorkflowHandlerMock = TriggerWorkflowHandler as jest.MockedClass<
     typeof TriggerWorkflowHandler
 >;
+const WorkflowPreflightHandlerMock = WorkflowPreflightHandler as jest.MockedClass<
+    typeof WorkflowPreflightHandler
+>;
 
 const triggerHandlerHandleMock = jest.fn();
+const preflightHandleMock = jest.fn();
 
 describe("buildContainerProjectPath", () => {
     it("normalizes workspace and folder slashes", () => {
@@ -49,21 +55,31 @@ describe("handleAgentWorkflow", () => {
                 }) as unknown as TriggerWorkflowHandler,
         );
         triggerHandlerHandleMock.mockResolvedValue({});
+
+        WorkflowPreflightHandlerMock.mockImplementation(
+            () =>
+                ({
+                    handle: preflightHandleMock,
+                }) as unknown as WorkflowPreflightHandler,
+        );
+        preflightHandleMock.mockResolvedValue({ codebases: [], models: [] });
     });
 
     afterEach(() => {
         jest.restoreAllMocks();
         TriggerWorkflowHandlerMock.mockReset();
         triggerHandlerHandleMock.mockReset();
+        WorkflowPreflightHandlerMock.mockReset();
+        preflightHandleMock.mockReset();
     });
 
     it("sends the selected codebase data to the master webhook", async () => {
         const codebase = { id: "cb-1", name: "Repo", path: "/tmp/repo" };
 
-        jest.spyOn(triggerWorkflowModule, "checkDevslaveHealth").mockResolvedValue();
-        jest.spyOn(triggerWorkflowModule, "checkOllamaHealth").mockResolvedValue();
-        jest.spyOn(triggerWorkflowModule, "fetchOllamaModels").mockResolvedValue([]);
-        jest.spyOn(triggerWorkflowModule, "fetchActiveCodebases").mockResolvedValue([codebase]);
+        preflightHandleMock.mockResolvedValue({
+            codebases: [codebase],
+            models: [],
+        });
 
         jest.spyOn(inquirer, "prompt").mockResolvedValue({
             codebaseId: codebase.id,
@@ -73,11 +89,11 @@ describe("handleAgentWorkflow", () => {
 
         await handleAgentWorkflow();
 
+        expect(WorkflowPreflightHandlerMock).toHaveBeenCalledTimes(1);
+        expect(preflightHandleMock).toHaveBeenCalledTimes(1);
         expect(TriggerWorkflowHandlerMock).toHaveBeenCalledTimes(1);
         expect(TriggerWorkflowHandlerMock).toHaveBeenCalledWith({
             codebaseId: codebase.id,
-            codebaseName: codebase.name,
-            codebasePath: codebase.path,
             model: undefined,
             debugMode: true,
         });

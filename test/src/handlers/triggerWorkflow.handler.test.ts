@@ -1,12 +1,5 @@
-import TriggerWorkflowHandler, {
-    checkDevslaveHealth,
-    checkOllamaHealth,
-    fetchActiveCodebases,
-    fetchOllamaModels,
-    runAgentPreflight,
-    setupCodebase,
-    type SetupCodebasePayload,
-} from "../../../src/handlers/triggerWorkflow.handler";
+import prisma from "../../client";
+import { TriggerWorkflowHandler } from "../../../src/handlers/triggerWorkflow.handler";
 import { AGENT_FOLDER_NAME, WEBHOOK_URL } from "../../../src/constants";
 
 const startedPublishMock = jest.fn().mockResolvedValue(undefined);
@@ -54,13 +47,16 @@ const textResponse = (body: string | Record<string, unknown>, status = 200): Res
 describe("TriggerWorkflowHandler", () => {
     const baseParams = {
         codebaseId: "cb-1",
-        codebaseName: "Demo",
-        codebasePath: "/tmp/demo",
         model: "codellama",
         debugMode: true,
     };
+    const codebaseRecord = {
+        id: baseParams.codebaseId,
+        name: "Demo",
+        path: "/tmp/demo",
+    };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         startedPublishMock.mockClear();
         succeededPublishMock.mockClear();
         failedPublishMock.mockClear();
@@ -68,6 +64,9 @@ describe("TriggerWorkflowHandler", () => {
         succeededPayloads.length = 0;
         failedPayloads.length = 0;
         global.fetch = jest.fn() as unknown as typeof fetch;
+        await prisma.codebase.create({
+            data: codebaseRecord,
+        });
     });
 
     afterEach(() => {
@@ -98,7 +97,11 @@ describe("TriggerWorkflowHandler", () => {
         expect(startedPayloads[0]).toMatchObject({
             webhookUrl: WEBHOOK_URL,
             agentFolderName: AGENT_FOLDER_NAME,
-            ...baseParams,
+            codebaseId: baseParams.codebaseId,
+            codebaseName: codebaseRecord.name,
+            codebasePath: codebaseRecord.path,
+            model: baseParams.model,
+            debugMode: baseParams.debugMode,
         });
         expect(succeededPayloads[0]).toMatchObject({
             response: JSON.parse(responseBody),
@@ -124,166 +127,6 @@ describe("TriggerWorkflowHandler", () => {
         expect(succeededPublishMock).not.toHaveBeenCalled();
     });
 });
-
-describe("HTTP helpers", () => {
-    beforeEach(() => {
-        global.fetch = jest.fn() as unknown as typeof fetch;
-    });
-
-    afterEach(() => {
-        jest.restoreAllMocks();
-        global.fetch = originalFetch;
-    });
-
-    it("checks devslave health via /health endpoint", async () => {
-        (global.fetch as jest.Mock).mockResolvedValue(jsonResponse({ status: "ok" }));
-
-        await expect(checkDevslaveHealth("http://app:3000")).resolves.toBeUndefined();
-
-        expect(global.fetch).toHaveBeenCalledWith(
-            "http://app:3000/health",
-            expect.objectContaining({ method: "GET" }),
-        );
-    });
-
-    it("throws when health endpoint fails", async () => {
-        (global.fetch as jest.Mock).mockResolvedValue(
-            textResponse("boom", 500) as unknown as Response,
-        );
-
-        await expect(checkDevslaveHealth("http://app:3000")).rejects.toThrow(
-            "Request to http://app:3000/health failed",
-        );
-    });
-
-    it("fetches ollama models from /api/tags endpoint", async () => {
-        (global.fetch as jest.Mock).mockResolvedValue(
-            jsonResponse({
-                models: [{ name: "codellama" }, { name: "mistral", model: "mistral:latest" }],
-            }),
-        );
-
-        const models = await fetchOllamaModels("http://ollama:11434");
-
-        expect(global.fetch).toHaveBeenCalledWith(
-            "http://ollama:11434/api/tags",
-            expect.objectContaining({ method: "GET" }),
-        );
-        expect(models).toHaveLength(2);
-        expect(models[1]?.model).toBe("mistral:latest");
-    });
-
-    it("falls back to legacy /tags path when /api/tags returns 404", async () => {
-        (global.fetch as jest.Mock)
-            .mockResolvedValueOnce(textResponse("not found", 404) as unknown as Response)
-            .mockResolvedValueOnce(
-                jsonResponse({
-                    models: [{ name: "legacy" }],
-                }),
-            );
-
-        const models = await fetchOllamaModels("http://ollama:11434");
-
-        expect(global.fetch as jest.Mock).toHaveBeenNthCalledWith(
-            1,
-            "http://ollama:11434/api/tags",
-            expect.objectContaining({ method: "GET" }),
-        );
-        expect(global.fetch as jest.Mock).toHaveBeenNthCalledWith(
-            2,
-            "http://ollama:11434/tags",
-            expect.objectContaining({ method: "GET" }),
-        );
-        expect(models[0]?.name).toBe("legacy");
-    });
-
-    it("fetches active codebases", async () => {
-        (global.fetch as jest.Mock).mockResolvedValue(
-            jsonResponse({
-                data: {
-                    codebases: [
-                        { id: "cb-1", name: "Demo", path: "/demo" },
-                        { id: "cb-2", name: "Other", path: "/other" },
-                    ],
-                },
-            }),
-        );
-
-        const codebases = await fetchActiveCodebases("http://app:3000");
-
-        expect(codebases).toHaveLength(2);
-        expect(codebases[0]?.id).toBe("cb-1");
-    });
-
-    it("runs agent preflight sequence in order", async () => {
-        const calls: string[] = [];
-        (global.fetch as jest.Mock).mockImplementation(async (url: string) => {
-            calls.push(url);
-            if (url.endsWith("/health")) {
-                return jsonResponse({ status: "ok" });
-            }
-            if (url.endsWith("/tags")) {
-                return jsonResponse({
-                    models: [{ name: "codellama" }],
-                });
-            }
-            return textResponse("OK");
-        });
-
-        const result = await runAgentPreflight({
-            appBaseUrl: "http://app:3000",
-            ollamaBaseUrl: "http://ollama:11434",
-        });
-
-        expect(calls).toEqual([
-            "http://app:3000/health",
-            "http://ollama:11434",
-            "http://ollama:11434/api/tags",
-        ]);
-        expect(result.models[0]?.name).toBe("codellama");
-    });
-
-    it("posts setup payload to /api/codebase/setup", async () => {
-        (global.fetch as jest.Mock).mockResolvedValue(jsonResponse({ success: true }));
-
-        const payload: SetupCodebasePayload = {
-            executionId: "exec-1",
-            name: "Demo",
-            folderName: "demo",
-            prompt: "Master prompt",
-            setup: "node",
-        };
-
-        await setupCodebase(payload, "http://app:3000");
-
-        expect(global.fetch).toHaveBeenCalledWith(
-            "http://app:3000/api/codebase/setup",
-            expect.objectContaining({
-                method: "POST",
-                body: JSON.stringify(payload),
-            }),
-        );
-    });
-
-    it("throws when setup payload fails", async () => {
-        (global.fetch as jest.Mock).mockResolvedValue(
-            textResponse("boom", 500) as unknown as Response,
-        );
-
-        const payload: SetupCodebasePayload = {
-            executionId: "exec-1",
-            name: "Demo",
-            folderName: "demo",
-            prompt: "Master prompt",
-            setup: "node",
-        };
-
-        await expect(setupCodebase(payload, "http://app:3000")).rejects.toThrow(
-            "Request to http://app:3000/api/codebase/setup failed",
-        );
-    });
-});
-
 afterAll(() => {
     global.fetch = originalFetch;
 });
