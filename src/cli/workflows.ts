@@ -1,4 +1,8 @@
 import inquirer from "inquirer";
+import { promises as fsPromises, existsSync, statSync } from "fs";
+import path from "path";
+import { randomUUID } from "crypto";
+import { spawn } from "child_process";
 import {
     checkDevslaveHealth,
     checkOllamaHealth,
@@ -10,6 +14,7 @@ import {
     type CodebaseSummary,
     type OllamaModel,
 } from "../utils/apiClient";
+import { AGENT_FOLDER_NAME, N8N_URL, paths } from "../constants";
 import { SETUP_OPTIONS } from "./menus";
 
 function requireInput(fieldLabel: string) {
@@ -33,10 +38,7 @@ type AgentFormAnswers = {
     debugMode: boolean;
 };
 
-async function promptAgentForm(
-    codebases: CodebaseSummary[],
-    models: OllamaModel[],
-) {
+async function promptAgentForm(codebases: CodebaseSummary[], models: OllamaModel[]) {
     const codebaseChoices = codebases.map((cb) => ({
         name: `${cb.name} (${cb.path})`,
         value: cb.id,
@@ -105,10 +107,33 @@ async function runPreflightWithLogs(): Promise<OllamaModel[]> {
 }
 
 const MASTER_WEBHOOK_ENV = "N8N_MASTER_WEBHOOK_URL";
+const APP_CONTAINER_NAME = process.env.APP_CONTAINER_NAME || "devslave-app-1";
 
-export function getMasterWorkflowWebhookUrl(
-    env: NodeJS.ProcessEnv = process.env,
+function sanitizeProjectFolder(folder: string): string {
+    return folder.replace(/^\/+/, "").replace(/\/+$/, "");
+}
+
+export function buildContainerProjectPath(
+    projectFolder: string,
+    workspaceRoot = paths.devWorkspace,
 ): string {
+    const workspace = workspaceRoot.replace(/\/+$/, "");
+    const sanitizedFolder = sanitizeProjectFolder(projectFolder);
+    return `${workspace}/${sanitizedFolder}`;
+}
+
+export async function ensureImportSourceDirectory(sourcePath: string): Promise<string> {
+    const resolvedPath = path.resolve(sourcePath);
+    const stats = await fsPromises.stat(resolvedPath).catch(() => null);
+
+    if (!stats || !stats.isDirectory()) {
+        throw new Error(`Import folder "${sourcePath}" does not exist or is not a directory.`);
+    }
+
+    return resolvedPath;
+}
+
+export function getMasterWorkflowWebhookUrl(env: NodeJS.ProcessEnv = process.env): string {
     const url = env[MASTER_WEBHOOK_ENV]?.trim();
     if (!url) {
         throw new Error(`Missing ${MASTER_WEBHOOK_ENV} environment variable.`);
@@ -167,14 +192,75 @@ export async function handleAgentWorkflow(): Promise<void> {
                   : "xdg-open";
 
         try {
-            await execAsync(
-                `${openCommand} http://${executionData.executionUrl}`,
-            );
+            await execAsync(`${openCommand} ${N8N_URL}/home/executions`);
             console.log("\n");
         } catch (error) {
             console.warn("⚠️  Could not open browser automatically.");
         }
     }
+}
+
+async function runCommand(command: string, args: string[]): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const proc = spawn(command, args, {
+            stdio: "inherit",
+        });
+
+        proc.on("close", (code) => {
+            if (code && code !== 0) {
+                reject(new Error(`${command} ${args.join(" ")} exited with code ${code}`));
+            } else {
+                resolve();
+            }
+        });
+
+        proc.on("error", (error) => reject(error));
+    });
+}
+
+async function importProjectFromHost(sourcePath: string, projectFolder: string): Promise<void> {
+    const resolvedSource = await ensureImportSourceDirectory(sourcePath);
+    const contentsPath = path.join(resolvedSource, ".");
+    const containerProjectPath = buildContainerProjectPath(projectFolder);
+    const tempContainerPath = `/tmp/import-${randomUUID()}`;
+
+    console.log("\n📂 Importing project files from host folder...\n");
+
+    await runCommand("docker", ["exec", APP_CONTAINER_NAME, "mkdir", "-p", tempContainerPath]);
+
+    try {
+        await runCommand("docker", [
+            "cp",
+            contentsPath,
+            `${APP_CONTAINER_NAME}:${tempContainerPath}`,
+        ]);
+
+        await runCommand("docker", [
+            "exec",
+            APP_CONTAINER_NAME,
+            "bash",
+            "-lc",
+            `if [ -d "${tempContainerPath}/${AGENT_FOLDER_NAME}" ]; then rm -rf "${tempContainerPath}/${AGENT_FOLDER_NAME}"; fi`,
+        ]);
+
+        await runCommand("docker", [
+            "exec",
+            APP_CONTAINER_NAME,
+            "bash",
+            "-lc",
+            `mkdir -p "${containerProjectPath}" && cp -R "${tempContainerPath}/." "${containerProjectPath}/"`,
+        ]);
+    } finally {
+        await runCommand("docker", [
+            "exec",
+            APP_CONTAINER_NAME,
+            "rm",
+            "-rf",
+            tempContainerPath,
+        ]).catch(() => {});
+    }
+
+    console.log("\n✅ Project files imported successfully.\n");
 }
 
 export async function handleCreateProjectFlow(): Promise<void> {
@@ -184,6 +270,8 @@ export async function handleCreateProjectFlow(): Promise<void> {
         projectFolder: string;
         setup: string;
         masterPrompt: string;
+        importFromFolder: boolean;
+        importFolderPath?: string;
     }>([
         {
             type: "input",
@@ -209,12 +297,43 @@ export async function handleCreateProjectFlow(): Promise<void> {
         {
             type: "editor",
             name: "masterPrompt",
-            message:
-                "Master prompt (an editor will open; save and exit to continue):",
+            message: "Master prompt (an editor will open; save and exit to continue):",
             validate: requireInput("Master prompt"),
             filter: (input: string) => input.trim(),
         },
+        {
+            type: "confirm",
+            name: "importFromFolder",
+            message: "Import files from an existing host folder?",
+            default: false,
+        },
+        {
+            type: "input",
+            name: "importFolderPath",
+            message: "Path to host folder:",
+            when: (response) => response.importFromFolder,
+            filter: (input: string) => input.trim(),
+            validate: (input: string) => {
+                if (!input.trim()) {
+                    return "Import folder path is required.";
+                }
+                const resolved = path.resolve(input.trim());
+                if (!existsSync(resolved)) {
+                    return `Folder not found: ${resolved}`;
+                }
+                const stats = statSync(resolved);
+                if (!stats.isDirectory()) {
+                    return "Import path must be a directory.";
+                }
+                return true;
+            },
+        },
     ]);
+
+    const importSourcePath =
+        answers.importFromFolder && answers.importFolderPath
+            ? await ensureImportSourceDirectory(answers.importFolderPath)
+            : null;
 
     const payload = {
         executionId: createExecutionId("create-project"),
@@ -227,10 +346,13 @@ export async function handleCreateProjectFlow(): Promise<void> {
     console.log("\n🔧 Setting up project...\n");
     const response = await setupCodebase(payload);
     const message =
-        response?.message ??
-        `Project "${payload.name}" setup request submitted successfully.`;
+        response?.message ?? `Project "${payload.name}" setup request submitted successfully.`;
     console.log(`\n✅ ${message}\n`);
     if (response?.data?.stdout) {
         console.log(response.data.stdout);
+    }
+
+    if (importSourcePath) {
+        await importProjectFromHost(importSourcePath, answers.projectFolder);
     }
 }
