@@ -133,6 +133,7 @@ export async function handleAgentWorkflow(): Promise<void> {
     console.log(`\n🚦 Running pre-flight checks for Master Workflow...\n`);
     const preflightHandler = new WorkflowPreflightHandler();
     const { codebases, models } = await preflightHandler.handle();
+    console.log("");
 
     if (!codebases.length) {
         console.log(

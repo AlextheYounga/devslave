@@ -32,7 +32,7 @@ get_tmux_session_by_agent_id() {
     local agent_id=$1
     local tmux_session_name
 
-    sql="SELECT tmuxSession FROM agents WHERE id = '$agent_id' LIMIT 1;"
+    sql="SELECT \"tmuxSession\" FROM agents WHERE id = '$agent_id' LIMIT 1;"
     tmux_session_name=$(db_query "$sql")
 
     if [[ -z "$tmux_session_name" ]]; then
