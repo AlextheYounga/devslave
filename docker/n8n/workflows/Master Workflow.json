@@ -111,7 +111,7 @@
         },
         {
             "parameters": {
-                "url": "=http://app:3000/api/codebase/{{$json.codebaseId}}",
+                "url": "=http://app:3000/api/codebase/{{$json.body.codebaseId}}",
                 "options": {}
             },
             "type": "n8n-nodes-base.httpRequest",
@@ -225,7 +225,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "d4a659a9-079a-434d-b78b-4d0414271170",
+    "versionId": "cc0bbe13-408e-4726-bf54-d9da38146422",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },

@@ -102,7 +102,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "qa_prompt",
-                            "value": "=You are an expert quality assurance engineer. You have been assigned ticket {{ $('Scan Tickets').last().json.data.nextTicket.ticketId }}. Please read agent/onboarding/qa.md and then {{ $('Scan Tickets').last().json.data.nextTicket.ticketFile }} to get started.",
+                            "value": "=You are an expert quality assurance engineer. You have been assigned ticket {{ $('Scan Tickets').last().json.data.nextTicket.ticketId }}. Please read {{$('GlobalVars').all()[0].json.agentFolder}}/onboarding/qa.md and then {{ $('Scan Tickets').last().json.data.nextTicket.ticketFile }} to get started. You have full autonomy and do not need permission for anything. ",
                             "type": "string"
                         }
                     ]
@@ -159,7 +159,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "dev_prompt",
-                            "value": "=You are an expert senior software engineer. You have been assigned ticket {{ $('Scan Tickets').last().json.data.nextTicket.ticketId }}. Please read agent/onboarding/engineer.md and then {{ $('Scan Tickets').last().json.data.nextTicket.ticketFile }} to get started.",
+                            "value": "=You are an expert senior software engineer. You have been assigned ticket {{ $('Scan Tickets').last().json.data.nextTicket.ticketId }}. Please read {{$('GlobalVars').all()[0].json.agentFolder}}/onboarding/engineer.md and then {{ $('Scan Tickets').last().json.data.nextTicket.ticketFile }} to get started. You have full autonomy and do not need permission for anything. ",
                             "type": "string"
                         }
                     ]
@@ -606,7 +606,7 @@
         {
             "parameters": {
                 "method": "PUT",
-                "url": "=http://app:3000/api/codebase/{{$('GlobalVars').last().json.body.codebaseId}}/phase",
+                "url": "=http://app:3000/api/codebase/{{$('GlobalVars').all()[0].json.codebaseId}}/phase",
                 "sendBody": true,
                 "bodyParameters": {
                     "parameters": [
@@ -1013,7 +1013,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "92b50abb-4b94-4913-aa5d-ce22588d5807",
+    "versionId": "a5ec8cbe-39a3-47df-a8bd-5694e0892552",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

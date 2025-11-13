@@ -25,7 +25,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "pm_prompt",
-                            "value": "=You are an expert software project manager. Please read {{$json.agentFolder}}/onboarding/pm.md to get started",
+                            "value": "=You are an expert software project manager. Please read {{$json.agentFolder}}/onboarding/pm.md to get started. You have full autonomy and do not need permission for anything. ",
                             "type": "string"
                         }
                     ]
@@ -442,7 +442,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "3d3fcd9f-9b44-411a-baa2-916d7a3b1b94",
+    "versionId": "6f16b90a-343b-446b-bc2f-e6e4ea5231de",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

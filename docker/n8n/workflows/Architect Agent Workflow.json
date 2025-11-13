@@ -8,7 +8,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "architect_prompt",
-                            "value": "=You are an engineering architect. Please read {{$json.agentFolder}}/onboarding/architect.md to get started",
+                            "value": "=You are an engineering architect. Please read {{$json.agentFolder}}/onboarding/architect.md to get started. You have full autonomy and do not need permission for anything. ",
                             "type": "string"
                         }
                     ]
@@ -438,7 +438,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "094e2f7b-4d1d-4f8f-bde5-5df2c1f75cec",
+    "versionId": "981bfac6-09bc-495d-b1d7-4debef8b1429",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
