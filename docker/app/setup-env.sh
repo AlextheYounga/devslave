@@ -5,7 +5,7 @@ set -euo pipefail
 ENV_VARS=(
     "AGENT_REPO"
     "DEV_WORKSPACE"
-    "DB_ABSOLUTE_URL"
+    "DATABASE_URL"
     "AGENT_FOLDER_NAME"
     "GIT_DEFAULT_BRANCH"
     "GIT_USERNAME"

@@ -17,9 +17,9 @@ This repository implements an AI agentic workflow system that combines:
 - **Express (TypeScript) API** → `src/server.ts` with routes and middleware.
 - **Direct controllers + handlers** → endpoints call `src/controllers/**` which orchestrate domain logic in `src/handlers/**`.
 - **Events** → `src/events.ts` records structured events asynchronously.
-- **Database (Prisma)** → `prisma/schema.prisma` with migrations and a default SQLite DB.
+- **Database (Prisma)** → `prisma/schema.prisma` with migrations targeting Postgres (dev + test DBs).
 - **Docker (optional)** → `docker-compose.yml` for Postgres/Redis/n8n orchestration.
-- **Tests** → Jest only, under `test/**`. Tests use a dedicated SQLite test database under `prisma/test.db`
+- **Tests** → Jest only, under `test/**`. Tests use a dedicated Postgres database (`devslave_test`).
 - **Agent runtime (tmux-based)** → Codex agents are launched via `tmux` using `src/scripts/launch-agent.sh`. We create a named tmux session per run, capture the foreground PID and session log path, and track state in the DB. A watchdog handler reads the session log (JSONL) to determine progress/completion.
 
 ## Engineering Philosophy

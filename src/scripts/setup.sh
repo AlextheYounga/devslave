@@ -9,19 +9,22 @@ if [[ -z "${codebase_id}" ]]; then
     exit 1
 fi
 
+# Paths
+scripts_dir="${AGENT_REPO}/src/scripts"
+stubs_folder="${scripts_dir}/stubs"
+
+# shellcheck disable=SC1091
+source "${scripts_dir}/lib/db.sh"
+
 get_codebase_path() {
     local codebase_id=$1
-    sqlite3 "$DB_ABSOLUTE_URL" "SELECT path FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
+    db_query "SELECT path FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
 }
 
 get_codebase_data() {
     local codebase_id=$1
-    sqlite3 "$DB_ABSOLUTE_URL" "SELECT data FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
+    db_query "SELECT data FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
 }
-
-# Paths
-scripts_dir="${AGENT_REPO}/src/scripts"
-stubs_folder="${scripts_dir}/stubs"
 
 # Source dependencies
 # shellcheck disable=SC1091

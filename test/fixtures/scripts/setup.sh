@@ -9,14 +9,16 @@ if [[ -z "${codebase_id}" ]]; then
     exit 1
 fi
 
+scripts_dir="${AGENT_REPO}/src/scripts"
+# shellcheck disable=SC1091
+source "${scripts_dir}/lib/db.sh"
+
 get_codebase_by_id() {
     local codebase_id=$1
     local codebase_record
 
-    # Use test database path from DB_ABSOLUTE_URL env var
-    local test_db_path="$DB_ABSOLUTE_URL"
     sql="SELECT * FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
-    codebase_record=$(sqlite3 "$test_db_path" "$sql")
+    codebase_record=$(db_query "$sql")
 
     if [[ -z "$codebase_record" ]]; then
         echo "Error: Codebase with ID $codebase_id not found." >&2

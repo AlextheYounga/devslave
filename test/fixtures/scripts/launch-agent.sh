@@ -10,12 +10,16 @@ if [[ -z "$codebase_id" || -z "$agent_id" ]]; then
     exit 1
 fi
 
+scripts_dir="${AGENT_REPO}/src/scripts"
+# shellcheck disable=SC1091
+source "${scripts_dir}/lib/db.sh"
+
 get_codebase_path_by_id() {
     local codebase_id=$1
     local codebase_path
 
     sql="SELECT path FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
-    codebase_path=$(sqlite3 $DB_ABSOLUTE_URL "$sql")
+    codebase_path=$(db_query "$sql")
 
     if [[ -z "$codebase_path" ]]; then
         echo "Error: Codebase with ID $codebase_id not found." >&2
@@ -30,7 +34,7 @@ get_tmux_session_by_agent_id() {
     local tmux_session_name
 
     sql="SELECT tmuxSession FROM agents WHERE id = '$agent_id' LIMIT 1;"
-    tmux_session_name=$(sqlite3 $DB_ABSOLUTE_URL "$sql")
+    tmux_session_name=$(db_query "$sql")
 
     if [[ -z "$tmux_session_name" ]]; then
         echo "Error: Agent with ID $agent_id not found." >&2

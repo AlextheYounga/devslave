@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 
+env_file="$AGENT_REPO/.env"
+if [[ -f "$AGENT_REPO/.env.docker" ]]; then
+    env_file="$AGENT_REPO/.env.docker"
+fi
+
+# shellcheck disable=SC1090
+source "$env_file"
+
+scripts_dir="${AGENT_REPO}/src/scripts"
 # shellcheck disable=SC1091
-source "$AGENT_REPO/.env"
+source "${scripts_dir}/lib/db.sh"
 
 codebase_id=$1
 commit_message=$2
@@ -11,7 +20,7 @@ get_codebase_path_by_id() {
     local codebase_path
 
     sql="SELECT path FROM codebases WHERE id = '$codebase_id' LIMIT 1;"
-    codebase_path=$(sqlite3 "$DB_ABSOLUTE_URL" "$sql")
+    codebase_path=$(db_query "$sql")
 
     if [[ -z "$codebase_path" ]]; then
         echo "Error: Codebase with ID $codebase_id not found." >&2

@@ -3,21 +3,19 @@ import { PrismaClient } from "@prisma/client";
 
 dotenv.config({ path: ".env.test", override: true, quiet: true });
 
-const databaseName = () => {
-    const DB_URL = process.env.DATABASE_URL;
-    const DB_NAME = DB_URL?.split("/").pop();
-    return DB_NAME;
-};
+const dbUrl = process.env.DATABASE_URL;
 
-if (databaseName() !== "test.db") {
-    throw new Error("Database must be named test.db");
+if (!dbUrl) {
+    throw new Error("DATABASE_URL must be defined for tests");
+}
+
+const parsed = new URL(dbUrl);
+const dbName = parsed.pathname.replace("/", "");
+
+if (dbName !== "devslave_test") {
+    throw new Error("Test database must be named devslave_test");
 }
 
 const prisma = new PrismaClient();
-
-prisma.$executeRawUnsafe(`PRAGMA journal_mode=WAL`);
-prisma.$executeRawUnsafe(`PRAGMA synchronous=FULL`); // FULL for max durability
-prisma.$executeRawUnsafe(`PRAGMA busy_timeout=5000`); // ms; lets brief lock conflicts wait instead of error
-prisma.$executeRawUnsafe(`PRAGMA wal_autocheckpoint=1000`); // pages; tune to your write rate
 
 export default prisma;

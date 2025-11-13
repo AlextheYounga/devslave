@@ -197,7 +197,6 @@ async function viewAgentLogs(agent: AgentWithCodebase): Promise<void> {
     }
 }
 
-
 export async function killAgent(agent: AgentWithCodebase): Promise<void> {
     console.log(`\n☠️  Killing agent ${agent.id}...\n`);
 

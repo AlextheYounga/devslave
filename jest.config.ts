@@ -73,7 +73,7 @@ const config: Config = {
     // A set of global variables that need to be available in all test environments
     // globals: {},
 
-    // Run tests sequentially to avoid contention on the shared SQLite database
+    // Run tests sequentially to avoid contention on the shared Postgres test database
     maxWorkers: 1,
 
     // An array of directory names to be searched recursively up from the requiring module's location

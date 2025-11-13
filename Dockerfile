@@ -2,7 +2,7 @@ FROM debian:bookworm-slim
 
 # Install dependencies
 RUN apt-get update && apt-get install -y curl ca-certificates gnupg \
-    git zip unzip nano tree rsync sqlite3 tmux htop openssh-server lsof jq \
+    git zip unzip nano tree rsync sqlite3 postgresql-client tmux htop openssh-server lsof jq \
     && apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

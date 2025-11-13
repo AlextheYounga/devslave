@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import routes from "./routes";
 import { prisma } from "./prisma";
+import { loadEnv } from "./constants";
+
+loadEnv();
 
 const app = express();
 const port = process.env.PORT || 3000;
