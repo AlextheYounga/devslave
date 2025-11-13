@@ -40,7 +40,6 @@ fi
 setup_type=$(echo "$codebase_data" | jq -r '.setupType // "test"')
 master_prompt=$(echo "$codebase_data" | jq -r '.masterPrompt // ""')
 project_path=$(echo "$codebase" | cut -d'|' -f3)
-AGENT_FOLDER_NAME="agent"
 
 echo "Setting up ${setup_type} project at: ${project_path}"
 

@@ -96,7 +96,7 @@ describe("TriggerWorkflowHandler", () => {
         expect(failedPublishMock).not.toHaveBeenCalled();
         expect(startedPayloads[0]).toMatchObject({
             webhookUrl: WEBHOOK_URL,
-            agentFolderName: AGENT_FOLDER_NAME,
+            agentFolder: AGENT_FOLDER_NAME,
             codebaseId: baseParams.codebaseId,
             codebaseName: codebaseRecord.name,
             codebasePath: codebaseRecord.path,
