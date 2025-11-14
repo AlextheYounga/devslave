@@ -15,7 +15,7 @@ const UTILITY_CHOICES = [
     { name: "Open Agent Container on VSCode", value: "open-vscode" },
     { name: "Start Docker", value: "start-docker" },
     { name: "Open n8n", value: "open-n8n" },
-    { name: "Download Project", value: "download-project" },
+    { name: "Clone Project", value: "clone-project" },
     { name: "Back to Main Menu", value: "back" },
 ];
 

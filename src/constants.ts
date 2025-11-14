@@ -43,7 +43,8 @@ const scriptsPath = process.env.SCRIPT_PATH || path.join(repoRoot, "src", "scrip
 export const paths = {
     home: os.homedir(),
     repoRoot: repoRoot,
-    devWorkspace: process?.env?.NODE_ENV == "test" ? os.tmpdir() : "/app/dev/",
+    devWorkspace: process.env.NODE_ENV == "test" ? os.tmpdir() : "/app/dev/",
+    projectOutputDir: process.env.PROJECT_OUTPUT_DIR || os.homedir(),
     scripts: scriptsPath,
     prompts: path.join(repoRoot, "src", "prompts"),
     handoffs: path.join(repoRoot, "src", "prompts", "handoffs"),

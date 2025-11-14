@@ -1,6 +1,6 @@
 import inquirer from "inquirer";
-import { spawn } from "child_process";
-import { join } from "path";
+import { execSync, spawn } from "child_process";
+import { basename, join } from "path";
 import { homedir, tmpdir } from "os";
 import { promises as fs } from "fs";
 import { AgentStatus, TicketStatus } from "@prisma/client";
@@ -8,7 +8,7 @@ import { prisma } from "../prisma";
 import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
 import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "./logs";
-import { DEFAULT_APP_BASE_URL } from "../constants";
+import { DEFAULT_APP_BASE_URL, paths } from "../constants";
 
 async function runCommand(command: string, args: string[] = [], options = {}): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -32,7 +32,7 @@ async function runCommand(command: string, args: string[] = [], options = {}): P
     });
 }
 
-async function handleDownloadProject(): Promise<void> {
+async function handleCloneProject(): Promise<void> {
     try {
         const codebases = await prisma.codebase.findMany();
 
@@ -50,35 +50,19 @@ async function handleDownloadProject(): Promise<void> {
             {
                 type: "list",
                 name: "selectedCodebase",
-                message: "Select a codebase to download:",
+                message: "Select a codebase to clone:",
                 choices: codebaseChoices,
             },
         ]);
 
-        const projectName = selectedCodebase.name.replace(/\s+/g, "-");
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const zipFileName = `${projectName}-${timestamp}.zip`;
-        const containerZipPath = `/tmp/${zipFileName}`;
-        const hostDestination = join(homedir(), zipFileName);
+        const projectFolder = basename(selectedCodebase.path);
+        const targetPath = join(paths.projectOutputDir, projectFolder);
 
-        console.log(`\n📦 Creating archive of ${selectedCodebase.name}...`);
-        await runCommand("docker", [
-            "exec",
-            "devslave-app-1",
-            "zip",
-            "-r",
-            containerZipPath,
-            selectedCodebase.path,
-            "-q",
-        ]);
-
-        console.log(`\n📥 Copying to ${hostDestination}...`);
-        await runCommand("docker", ["cp", `devslave-app-1:${containerZipPath}`, hostDestination]);
-
-        console.log(`\n🧹 Cleaning up temporary files...`);
-        await runCommand("docker", ["exec", "devslave-app-1", "rm", containerZipPath]);
-
-        console.log(`\n✅ Project downloaded successfully to: ${hostDestination}\n`);
+        console.log(`\n📥 Cloning to ${targetPath}...`);
+        await execSync(`./docker/clone.sh ${selectedCodebase.path} ${targetPath}`, {
+            stdio: "inherit",
+        });
+        console.log(`\n✅ Project downloaded successfully to: ${targetPath}\n`);
     } catch (error) {
         console.error("\n❌ Download failed:", (error as Error).message);
         throw error;
@@ -381,9 +365,9 @@ async function handleUtilityChoice(choice: string): Promise<void> {
             await runCommand(join(rootDir, "docker/vscode-remote.sh"));
             break;
 
-        case "download-project":
-            console.log("\n📦 Download Project...\n");
-            await handleDownloadProject();
+        case "clone-project":
+            console.log("\n📦 Clone Project...\n");
+            await handleCloneProject();
             break;
 
         default:
