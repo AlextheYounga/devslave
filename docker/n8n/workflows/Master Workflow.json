@@ -323,12 +323,52 @@
         },
         {
             "parameters": {
-                "jsCode": "const webhookPayload = $('Master Webhook').first().json.body;\nconst nextTicket = $input.last().json.data.nextTicket;\n\nconst payload = {\n  nextTicket: nextTicket,\n  ...webhookPayload\n}\n\nreturn [{ \n    json: payload \n}];"
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
+                            "name": "codebaseId",
+                            "value": "={{ $('Master Webhook').first().body.codebaseId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1856733a-6db7-409a-a79b-234792fabacc",
+                            "name": "debugMode",
+                            "value": "={{ $('Master Webhook').first().body.debugMode }}",
+                            "type": "boolean"
+                        },
+                        {
+                            "id": "fd1d59c2-3700-432f-8ab7-cf4979f4a906",
+                            "name": "codebasePath",
+                            "value": "={{ $('Master Webhook').first().body.codebasePath }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "1978415e-66e2-44f2-a926-bdf6fba8ad11",
+                            "name": "codebaseName",
+                            "value": "={{ $('Master Webhook').first().body.codebaseName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "0efc45af-5d16-4ff0-b8cf-2ec45e567007",
+                            "name": "agentFolder",
+                            "value": "={{ $('Master Webhook').first().body.agentFolder }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "0537a4dd-22fd-4127-82aa-b48143a36c62",
+                            "name": "nextTicket",
+                            "value": "={{ $json.data.nextTicket }}",
+                            "type": "object"
+                        }
+                    ]
+                },
+                "options": {}
             },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
             "position": [576, 288],
-            "id": "ebfacb46-0848-4ba3-9ee6-198e514b3cf3",
+            "id": "2ff94998-374d-4811-ad9b-51846bf55365",
             "name": "DevPayload"
         }
     ],
@@ -449,7 +489,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "0719753d-fd30-4d61-8055-e4708817ef50",
+    "versionId": "bcb428d2-b539-4ab7-bfaa-0cd8e7f47168",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
