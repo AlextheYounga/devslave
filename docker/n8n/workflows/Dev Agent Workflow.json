@@ -201,7 +201,7 @@
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/checkout_branch.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
@@ -492,7 +492,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "55feac28-7507-426d-a73a-e5033c69ffb0",
+    "versionId": "6d2ab7b1-5e69-4209-9e39-d476564ec67f",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

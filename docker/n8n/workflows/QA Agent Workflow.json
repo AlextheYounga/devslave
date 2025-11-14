@@ -376,11 +376,10 @@
                         {
                             "id": "018a8e70-abb0-4b59-91f7-2aa71ab531a7",
                             "leftValue": "={{ $json.code }} ",
-                            "rightValue": "0",
+                            "rightValue": 0,
                             "operator": {
-                                "type": "string",
-                                "operation": "equals",
-                                "name": "filter.operator.equals"
+                                "type": "number",
+                                "operation": "equals"
                             }
                         }
                     ],
@@ -407,7 +406,7 @@
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{$json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/checkout_branch.sh \"{{$json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
@@ -434,11 +433,10 @@
                         {
                             "id": "3e2bf146-4fd2-49da-bd8e-63d06c88daf5",
                             "leftValue": "={{ $json.code }}",
-                            "rightValue": "0",
+                            "rightValue": 0,
                             "operator": {
-                                "type": "string",
-                                "operation": "equals",
-                                "name": "filter.operator.equals"
+                                "type": "number",
+                                "operation": "equals"
                             }
                         }
                     ],
@@ -665,7 +663,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "63bf398f-e173-4255-a504-b171110a2b36",
+    "versionId": "24f45392-9fbe-4449-a4a0-63d57530c451",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
