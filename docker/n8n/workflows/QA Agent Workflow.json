@@ -7,7 +7,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-896, 448],
+            "position": [-448, 448],
             "id": "c5184289-82c7-4966-847f-dd253cbdd1dc",
             "name": "Commit QA Work",
             "credentials": {
@@ -24,7 +24,7 @@
                         {
                             "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
                             "name": "qa_prompt",
-                            "value": "=You are an expert quality assurance engineer. You have been assigned ticket {{ $json.nextTicket.ticketId }}. Please read {{$json.agentFolder}}/onboarding/qa.md and then {{ $json.nextTicket.ticketFile }} to get started. You have full autonomy and do not need permission for anything. ",
+                            "value": "=You are an expert quality assurance engineer. You have been assigned ticket {{ $('GlobalVars').first().json.nextTicket.ticketId }}. Please read {{$('GlobalVars').first().json.agentFolder}}/onboarding/qa.md and then {{ $('GlobalVars').first().json.nextTicket.ticketFile }} to get started. You have full autonomy and do not need permission for anything. ",
                             "type": "string"
                         }
                     ]
@@ -33,7 +33,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-2016, 544],
+            "position": [-1568, 544],
             "id": "40d3b321-2ad4-4d1f-aba2-c43caace0313",
             "name": "QA Prompt"
         },
@@ -70,7 +70,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1792, 544],
+            "position": [-1344, 544],
             "id": "18329cc1-31f3-4a2f-aec5-99833ea08b76",
             "name": "Launch QA Agent"
         },
@@ -78,7 +78,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-1568, 544],
+            "position": [-1120, 544],
             "id": "eb45f9d7-e667-438b-a403-fa63a4ed1205",
             "name": "QA Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -103,7 +103,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1344, 480],
+            "position": [-896, 480],
             "id": "60683b9e-88f7-4fb2-a5b5-aea416a18c04",
             "name": "Ping QA Agent"
         },
@@ -185,7 +185,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-1120, 528],
+            "position": [-672, 528],
             "id": "dcc3ebd1-b5c1-43e9-9981-d3289384d75d",
             "name": "QA Agent Status"
         },
@@ -195,7 +195,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [-896, 640],
+            "position": [-448, 640],
             "id": "9f2da95c-279c-4c98-93a4-728e06b56ec6",
             "name": "QA Agent Failed"
         },
@@ -205,7 +205,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-224, 352],
+            "position": [224, 352],
             "id": "aa9565e3-9004-4283-9552-df675b5192c8",
             "name": "Complete Feature",
             "credentials": {
@@ -222,7 +222,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-672, 448],
+            "position": [-224, 448],
             "id": "32a25a9a-273c-4e00-a454-2d6a2cf6e122",
             "name": "Check Ticket Status"
         },
@@ -253,7 +253,7 @@
             },
             "type": "n8n-nodes-base.if",
             "typeVersion": 2.2,
-            "position": [-448, 448],
+            "position": [0, 448],
             "id": "62f335a6-eb8d-4bc4-a016-a955f36b265b",
             "name": "Passed QA?"
         },
@@ -265,7 +265,7 @@
             },
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.4,
-            "position": [-2240, 352],
+            "position": [-2240, 448],
             "id": "341fa481-ea11-40be-b0de-c1c65f398c8e",
             "name": "Respond to Webhook"
         },
@@ -315,7 +315,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-2240, 544],
+            "position": [-2240, 640],
             "id": "eda72399-fe80-4e29-913e-9e6ee28b397d",
             "name": "GlobalVars"
         },
@@ -330,7 +330,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [-224, 544],
+            "position": [224, 544],
             "id": "d6d7980b-abb5-4d23-8061-218d326a9fa4",
             "name": "Trigger Dev Agent"
         },
@@ -343,7 +343,7 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-2464, 448],
+            "position": [-2464, 544],
             "id": "1406d26a-fe15-456a-9ff4-50d81d6b0a62",
             "name": "QA Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
@@ -351,7 +351,7 @@
         {
             "parameters": {
                 "method": "POST",
-                "url": "http://n8n:5678/webhook/development",
+                "url": "http://n8n:5678/webhook/master",
                 "sendBody": true,
                 "specifyBody": "json",
                 "jsonBody": "={{ $('GlobalVars').all()[0].json }}",
@@ -359,9 +359,109 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [0, 352],
+            "position": [672, 256],
             "id": "d68ae5d3-5ebc-48c8-afee-5ec0b3cbf667",
             "name": "Return to Master Handler"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "018a8e70-abb0-4b59-91f7-2aa71ab531a7",
+                            "leftValue": "={{ $json.code }} ",
+                            "rightValue": "0",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "looseTypeValidation": true,
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [448, 352],
+            "id": "0804c2c1-6f3c-4079-9b78-e3a5353f6b42",
+            "name": "Completed Branch Successfully"
+        },
+        {
+            "parameters": {
+                "errorMessage": "={{ $('Complete Feature').last().json.stdout }}"
+            },
+            "type": "n8n-nodes-base.stopAndError",
+            "typeVersion": 1,
+            "position": [672, 448],
+            "id": "8d1b16f6-7bce-4c47-a40d-9e82d00df0bf",
+            "name": "Failed to Complete Branch"
+        },
+        {
+            "parameters": {
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{$json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
+            },
+            "type": "n8n-nodes-base.ssh",
+            "typeVersion": 1,
+            "position": [-2016, 640],
+            "id": "d83e60df-8e1b-4501-ad43-07bce13f2595",
+            "name": "Switch to Git Branch",
+            "credentials": {
+                "sshPassword": {
+                    "id": "rZo9VRK76TIBbM2v",
+                    "name": "SSH Password account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "3e2bf146-4fd2-49da-bd8e-63d06c88daf5",
+                            "leftValue": "={{ $json.code }}",
+                            "rightValue": "0",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "looseTypeValidation": true,
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [-1792, 640],
+            "id": "e27440b6-8473-48aa-afb7-101fbafbd53b",
+            "name": "Switched to Branch"
+        },
+        {
+            "parameters": {
+                "errorMessage": "Failed to Switch to Correct Branch"
+            },
+            "type": "n8n-nodes-base.stopAndError",
+            "typeVersion": 1,
+            "position": [-1568, 736],
+            "id": "599dc75d-37b7-41f3-ba12-36eaf6e519f3",
+            "name": "Incorrect Branch"
         }
     ],
     "pinData": {},
@@ -450,7 +550,7 @@
             "main": [
                 [
                     {
-                        "node": "Return to Master Handler",
+                        "node": "Completed Branch Successfully",
                         "type": "main",
                         "index": 0
                     }
@@ -490,7 +590,7 @@
             "main": [
                 [
                     {
-                        "node": "QA Prompt",
+                        "node": "Switch to Git Branch",
                         "type": "main",
                         "index": 0
                     }
@@ -512,13 +612,60 @@
                     }
                 ]
             ]
+        },
+        "Completed Branch Successfully": {
+            "main": [
+                [
+                    {
+                        "node": "Return to Master Handler",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Failed to Complete Branch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch to Git Branch": {
+            "main": [
+                [
+                    {
+                        "node": "Switched to Branch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switched to Branch": {
+            "main": [
+                [
+                    {
+                        "node": "QA Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Incorrect Branch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "active": true,
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "ae3f2a03-225c-4b7d-8a7e-1d52e02731d3",
+    "versionId": "63bf398f-e173-4255-a504-b171110a2b36",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },

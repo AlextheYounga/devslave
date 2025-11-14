@@ -7,7 +7,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-2144, 1232],
+            "position": [-1920, 1120],
             "id": "df8be668-534a-4cf9-805e-3f341f63fe1d",
             "name": "Commit Dev Work",
             "credentials": {
@@ -50,7 +50,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-3040, 1328],
+            "position": [-2816, 1216],
             "id": "a3341c3c-e95c-44e0-878b-cc6cfc283c8d",
             "name": "Launch Dev Agent"
         },
@@ -70,7 +70,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-3264, 1328],
+            "position": [-3040, 1216],
             "id": "fdc7ec20-07ad-479e-91b9-adaf0bd2d13b",
             "name": "Dev Prompt"
         },
@@ -78,7 +78,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-2816, 1328],
+            "position": [-2592, 1216],
             "id": "d535f174-f7c0-4b28-beb1-f38dadfb5b84",
             "name": "Dev Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -103,7 +103,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2592, 1264],
+            "position": [-2368, 1152],
             "id": "e0e57565-5417-4214-80a8-ef56a4320af0",
             "name": "Ping Dev Agent"
         },
@@ -113,7 +113,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [-2144, 1424],
+            "position": [-1920, 1312],
             "id": "48bf697d-50d4-4762-a199-b31f231c3221",
             "name": "Dev Agent Failed"
         },
@@ -195,7 +195,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-2368, 1312],
+            "position": [-2144, 1200],
             "id": "23e00e4d-40c5-4b7f-b1f9-90cdb9933eaa",
             "name": "Dev Agent Status"
         },
@@ -205,7 +205,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-3488, 1328],
+            "position": [-3488, 1312],
             "id": "6134870d-45c1-4d9c-9e89-57e58e71e4b7",
             "name": "Switch to Git Branch",
             "credentials": {
@@ -223,7 +223,7 @@
             },
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.4,
-            "position": [-3712, 1136],
+            "position": [-3712, 1120],
             "id": "4fa0873d-e5b4-41ae-a009-094b4c504bba",
             "name": "Respond to Webhook"
         },
@@ -236,7 +236,7 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-3936, 1232],
+            "position": [-3936, 1216],
             "id": "a387b35c-fac9-4547-b361-87eb99548e75",
             "name": "Dev Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
@@ -287,7 +287,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-3712, 1328],
+            "position": [-3712, 1312],
             "id": "aa3540c5-b008-4ccd-bc80-f7aab33aa791",
             "name": "GlobalVars"
         },
@@ -302,9 +302,51 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [-1904, 1232],
+            "position": [-1696, 1120],
             "id": "c391711c-a1ca-49f7-a76f-88a0afc3df7d",
             "name": "Trigger QA Agent"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "3e2bf146-4fd2-49da-bd8e-63d06c88daf5",
+                            "leftValue": "={{ $json.code }}",
+                            "rightValue": "0",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "looseTypeValidation": true,
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [-3264, 1312],
+            "id": "5e9a1ef3-bb6a-4310-ab03-debfa4c30402",
+            "name": "Switched to Branch"
+        },
+        {
+            "parameters": {
+                "errorMessage": "Failed to Switch to Correct Branch"
+            },
+            "type": "n8n-nodes-base.stopAndError",
+            "typeVersion": 1,
+            "position": [-3040, 1408],
+            "id": "e1a2ee8a-03a3-401e-8ccb-222f5efca222",
+            "name": "Incorrect Branch"
         }
     ],
     "pinData": {},
@@ -393,7 +435,7 @@
             "main": [
                 [
                     {
-                        "node": "Dev Prompt",
+                        "node": "Switched to Branch",
                         "type": "main",
                         "index": 0
                     }
@@ -426,13 +468,31 @@
                     }
                 ]
             ]
+        },
+        "Switched to Branch": {
+            "main": [
+                [
+                    {
+                        "node": "Dev Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Incorrect Branch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
     "active": true,
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "557962ad-149c-4161-a58f-37d02675d62f",
+    "versionId": "55feac28-7507-426d-a73a-e5033c69ffb0",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

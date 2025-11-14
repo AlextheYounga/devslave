@@ -46,7 +46,10 @@ codebase_path=$(get_codebase_path_by_id "$codebase_id")
 cd "$codebase_path"
 
 # Get the current branch and determine main trunk
-current_branch=$(git symbolic-ref --short HEAD)
+if ! current_branch=$(git symbolic-ref --short HEAD 2> /dev/null); then
+    echo "Error: Repository is in detached HEAD state. Please checkout a branch first." >&2
+    exit 1
+fi
 
 echo "Current branch: $current_branch"
 echo "Main trunk: $GIT_DEFAULT_BRANCH"
