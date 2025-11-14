@@ -52,6 +52,12 @@ if [[ "$current_branch" == "$branch_name" ]]; then
     exit 0
 fi
 
+# If that branch already exists, just switch to it
+if git show-ref --verify --quiet "refs/heads/$branch_name"; then
+    git checkout "$branch_name"
+    exit 0
+fi
+
 # If there are any changes (staged or unstaged), commit them before creating new branch
 if ! git diff --quiet || ! git diff --cached --quiet; then
     message="chore: auto-commit on branch $branch_name before creating new branch"

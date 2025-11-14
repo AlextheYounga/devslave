@@ -31,7 +31,6 @@ Unlike traditional AI coding assistants that require human intervention at every
 - 🎫 **Ticket-driven development** - Structured work items with status tracking
 - 🔐 **Security-first** - Gitleaks integration and pre-commit hooks
 
-
 ### Component Overview
 
 | Component          | Purpose                                                            |
@@ -109,7 +108,9 @@ This starts:
 3. Activate all workflows
 
 ### 5. Run Database Migrations
+
 **This may not be necessary as the Docker container also runs this on start, but good to run just in case.**
+
 ```bash
 npx prisma migrate dev
 ```
@@ -131,7 +132,7 @@ npm run dev
 The `devs` CLI is your main interface:
 
 ```bash
-devs        # Interactive menu
+devs # Interactive menu
 ```
 
 ![DevSlave CLI](docs/images/cli.jpeg)
@@ -140,16 +141,16 @@ devs        # Interactive menu
 
 1. **Create Project** - Initialize a new codebase with agent-ready structure
 2. **View Running Agents** - Attach to active agent sessions or view their logs
-   - Attach to tmux session (watch agent work in real-time)
-   - View log events (JSONL formatted agent output)
-   - Kill stuck agents
+    - Attach to tmux session (watch agent work in real-time)
+    - View log events (JSONL formatted agent output)
+    - Kill stuck agents
 3. **Start Workflow** - Trigger the master workflow for a project
 4. **Utilities** - Access tools and helpers
-   - Open shell in app container
-   - Open agent container in VS Code (remote development)
-   - Start Docker services
-   - Open n8n UI
-   - Clone project to local machine
+    - Open shell in app container
+    - Open agent container in VS Code (remote development)
+    - Start Docker services
+    - Open n8n UI
+    - Clone project to local machine
 
 ### Typical Workflow
 
@@ -183,6 +184,7 @@ devs
 The CLI provides multiple ways to interact with the Docker container:
 
 **1. Shell Access (via CLI)**
+
 ```bash
 devs
 # Select: Utilities → Open Shell in App Container
@@ -190,6 +192,7 @@ devs
 ```
 
 **2. VS Code Remote Development (via CLI)**
+
 ```bash
 devs
 # Select: Utilities → Open Agent Container on VSCode
@@ -197,6 +200,7 @@ devs
 ```
 
 **3. Direct Docker Command**
+
 ```bash
 # Manual shell access
 docker-compose exec app bash
@@ -206,6 +210,7 @@ docker-compose exec app bash
 ```
 
 **4. VS Code Remote Setup**
+
 ```bash
 # Use the helper script
 ./docker/vscode-remote.sh

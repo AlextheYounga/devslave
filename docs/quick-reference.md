@@ -28,15 +28,15 @@ devs
 npm run dev
 
 # Main menu options
-devs    # → Create Project
-devs    # → View Running Agents (attach to tmux, view logs, kill)
-devs    # → Start Workflow
-devs    # → Utilities
-        #    - Open Shell in App Container
-        #    - Open Agent Container in VSCode
-        #    - Start Docker
-        #    - Open n8n
-        #    - Clone Project
+devs # → Create Project
+devs # → View Running Agents (attach to tmux, view logs, kill)
+devs # → Start Workflow
+devs # → Utilities
+#    - Open Shell in App Container
+#    - Open Agent Container in VSCode
+#    - Start Docker
+#    - Open n8n
+#    - Clone Project
 ```
 
 ## API Endpoints
