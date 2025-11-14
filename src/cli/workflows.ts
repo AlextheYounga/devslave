@@ -180,7 +180,7 @@ export async function handleAgentWorkflow(): Promise<void> {
                   : "xdg-open";
 
         try {
-            await execAsync(`${openCommand} http://${executionData.executionUrl}`);
+            execAsync(`${openCommand} http://${executionData.executionUrl}`);
             console.log("\n");
         } catch (error) {
             console.warn("⚠️  Could not open browser automatically.");

@@ -1,21 +1,41 @@
 {
-    "name": "Dev Agent Workflow",
+    "name": "QA Agent Workflow",
     "nodes": [
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"Finished work for ticket {{ $('GlobalVars').last().json.nextTicket.id }}\""
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"QA review finished for {{ $('GlobalVars').all()[0].json.nextTicket.id }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-2144, 1232],
-            "id": "df8be668-534a-4cf9-805e-3f341f63fe1d",
-            "name": "Commit Dev Work",
+            "position": [-896, 448],
+            "id": "c5184289-82c7-4966-847f-dd253cbdd1dc",
+            "name": "Commit QA Work",
             "credentials": {
                 "sshPassword": {
                     "id": "rZo9VRK76TIBbM2v",
                     "name": "SSH Password account"
                 }
             }
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
+                            "name": "qa_prompt",
+                            "value": "=You are an expert quality assurance engineer. You have been assigned ticket {{ $json.nextTicket.ticketId }}. Please read {{$json.agentFolder}}/onboarding/qa.md and then {{ $json.nextTicket.ticketFile }} to get started. You have full autonomy and do not need permission for anything. ",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-2016, 544],
+            "id": "40d3b321-2ad4-4d1f-aba2-c43caace0313",
+            "name": "QA Prompt"
         },
         {
             "parameters": {
@@ -34,15 +54,15 @@
                         },
                         {
                             "name": "prompt",
-                            "value": "={{ $('Dev Prompt').last().json.dev_prompt }}"
+                            "value": "={{ $json.qa_prompt }}"
                         },
                         {
                             "name": "role",
-                            "value": "developer"
+                            "value": "qa"
                         },
                         {
                             "name": "debugMode",
-                            "value": "={{$('GlobalVars').all()[0].json.debugMode}}"
+                            "value": "={{ $('GlobalVars').all()[0].json.debugMode }}"
                         }
                     ]
                 },
@@ -50,37 +70,17 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-3040, 1328],
-            "id": "a3341c3c-e95c-44e0-878b-cc6cfc283c8d",
-            "name": "Launch Dev Agent"
-        },
-        {
-            "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "9d1cef08-e7c5-4301-985a-f33f1bbf42ca",
-                            "name": "dev_prompt",
-                            "value": "=You are an expert senior software engineer. You have been assigned ticket {{ $('GlobalVars').last().json.nextTicket.ticketId }}. Please read {{$('GlobalVars').last().json.agentFolder}}/onboarding/engineer.md and then {{ $('GlobalVars').last().json.nextTicket.ticketFile }} to get started. You have full autonomy and do not need permission for anything. ",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [-3264, 1328],
-            "id": "fdc7ec20-07ad-479e-91b9-adaf0bd2d13b",
-            "name": "Dev Prompt"
+            "position": [-1792, 544],
+            "id": "18329cc1-31f3-4a2f-aec5-99833ea08b76",
+            "name": "Launch QA Agent"
         },
         {
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-2816, 1328],
-            "id": "d535f174-f7c0-4b28-beb1-f38dadfb5b84",
-            "name": "Dev Poll Delay",
+            "position": [-1568, 544],
+            "id": "eb45f9d7-e667-438b-a403-fa63a4ed1205",
+            "name": "QA Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
         },
         {
@@ -103,19 +103,9 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2592, 1264],
-            "id": "e0e57565-5417-4214-80a8-ef56a4320af0",
-            "name": "Ping Dev Agent"
-        },
-        {
-            "parameters": {
-                "errorMessage": "Dev Agent Failed"
-            },
-            "type": "n8n-nodes-base.stopAndError",
-            "typeVersion": 1,
-            "position": [-2144, 1424],
-            "id": "48bf697d-50d4-4762-a199-b31f231c3221",
-            "name": "Dev Agent Failed"
+            "position": [-1344, 480],
+            "id": "60683b9e-88f7-4fb2-a5b5-aea416a18c04",
+            "name": "Ping QA Agent"
         },
         {
             "parameters": {
@@ -195,19 +185,29 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-2368, 1312],
-            "id": "23e00e4d-40c5-4b7f-b1f9-90cdb9933eaa",
-            "name": "Dev Agent Status"
+            "position": [-1120, 528],
+            "id": "dcc3ebd1-b5c1-43e9-9981-d3289384d75d",
+            "name": "QA Agent Status"
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_branch.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
+                "errorMessage": "QA Agent Failed"
+            },
+            "type": "n8n-nodes-base.stopAndError",
+            "typeVersion": 1,
+            "position": [-896, 640],
+            "id": "9f2da95c-279c-4c98-93a4-728e06b56ec6",
+            "name": "QA Agent Failed"
+        },
+        {
+            "parameters": {
+                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/complete_feature.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-3488, 1328],
-            "id": "6134870d-45c1-4d9c-9e89-57e58e71e4b7",
-            "name": "Switch to Git Branch",
+            "position": [-224, 352],
+            "id": "aa9565e3-9004-4283-9552-df675b5192c8",
+            "name": "Complete Feature",
             "credentials": {
                 "sshPassword": {
                     "id": "rZo9VRK76TIBbM2v",
@@ -217,29 +217,57 @@
         },
         {
             "parameters": {
+                "url": "=http://app:3000/api/tickets/{{ $('GlobalVars').all()[0].json.nextTicket.id }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [-672, 448],
+            "id": "32a25a9a-273c-4e00-a454-2d6a2cf6e122",
+            "name": "Check Ticket Status"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "6c4ccc88-9c8b-4336-8858-403210fd3ab2",
+                            "leftValue": "={{ $json.data.ticket.status }}",
+                            "rightValue": "CLOSED",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [-448, 448],
+            "id": "62f335a6-eb8d-4bc4-a016-a955f36b265b",
+            "name": "Passed QA?"
+        },
+        {
+            "parameters": {
                 "respondWith": "json",
                 "responseBody": "={\n  \"message\": \"Workflow was started\",\n  \"executionId\": {{ $execution.id }},\n  \"executionUrl\": \"127.0.0.1:5678/workflow/{{ $workflow.id }}/executions/{{ $execution.id }}\"\n}",
                 "options": {}
             },
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.4,
-            "position": [-3712, 1136],
-            "id": "4fa0873d-e5b4-41ae-a009-094b4c504bba",
+            "position": [-2240, 352],
+            "id": "341fa481-ea11-40be-b0de-c1c65f398c8e",
             "name": "Respond to Webhook"
-        },
-        {
-            "parameters": {
-                "httpMethod": "POST",
-                "path": "development",
-                "responseMode": "responseNode",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 2.1,
-            "position": [-3936, 1232],
-            "id": "a387b35c-fac9-4547-b361-87eb99548e75",
-            "name": "Dev Webhook",
-            "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
         },
         {
             "parameters": {
@@ -276,7 +304,7 @@
                             "type": "string"
                         },
                         {
-                            "id": "563b4cd4-e987-4c0d-8f67-534d4b0f3164",
+                            "id": "0537a4dd-22fd-4127-82aa-b48143a36c62",
                             "name": "nextTicket",
                             "value": "={{ $json.body.nextTicket }}",
                             "type": "object"
@@ -287,14 +315,14 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-3712, 1328],
-            "id": "aa3540c5-b008-4ccd-bc80-f7aab33aa791",
+            "position": [-2240, 544],
+            "id": "eda72399-fe80-4e29-913e-9e6ee28b397d",
             "name": "GlobalVars"
         },
         {
             "parameters": {
                 "method": "POST",
-                "url": "http://n8n:5678/webhook/qa",
+                "url": "http://n8n:5678/webhook/development",
                 "sendBody": true,
                 "specifyBody": "json",
                 "jsonBody": "={{ $('GlobalVars').all()[0].json }}",
@@ -302,105 +330,174 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [-1904, 1232],
-            "id": "c391711c-a1ca-49f7-a76f-88a0afc3df7d",
-            "name": "Trigger QA Agent"
+            "position": [-224, 544],
+            "id": "d6d7980b-abb5-4d23-8061-218d326a9fa4",
+            "name": "Trigger Dev Agent"
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "qa",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [-2464, 448],
+            "id": "1406d26a-fe15-456a-9ff4-50d81d6b0a62",
+            "name": "QA Webhook",
+            "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://n8n:5678/webhook/development",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ $('GlobalVars').all()[0].json }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [0, 352],
+            "id": "d68ae5d3-5ebc-48c8-afee-5ec0b3cbf667",
+            "name": "Return to Master Handler"
         }
     ],
     "pinData": {},
     "connections": {
-        "Commit Dev Work": {
+        "Commit QA Work": {
             "main": [
                 [
                     {
-                        "node": "Trigger QA Agent",
+                        "node": "Check Ticket Status",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Launch Dev Agent": {
+        "QA Prompt": {
             "main": [
                 [
                     {
-                        "node": "Dev Poll Delay",
+                        "node": "Launch QA Agent",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Dev Prompt": {
+        "Launch QA Agent": {
             "main": [
                 [
                     {
-                        "node": "Launch Dev Agent",
+                        "node": "QA Poll Delay",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Dev Poll Delay": {
+        "QA Poll Delay": {
             "main": [
                 [
                     {
-                        "node": "Ping Dev Agent",
+                        "node": "Ping QA Agent",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Ping Dev Agent": {
+        "Ping QA Agent": {
             "main": [
                 [
                     {
-                        "node": "Dev Agent Status",
+                        "node": "QA Agent Status",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Dev Agent Status": {
+        "QA Agent Status": {
             "main": [
                 [
                     {
-                        "node": "Commit Dev Work",
+                        "node": "Commit QA Work",
                         "type": "main",
                         "index": 0
                     }
                 ],
                 [
                     {
-                        "node": "Dev Agent Failed",
+                        "node": "QA Agent Failed",
                         "type": "main",
                         "index": 0
                     }
                 ],
                 [
                     {
-                        "node": "Dev Poll Delay",
+                        "node": "QA Poll Delay",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Switch to Git Branch": {
+        "Complete Feature": {
             "main": [
                 [
                     {
-                        "node": "Dev Prompt",
+                        "node": "Return to Master Handler",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Dev Webhook": {
+        "Check Ticket Status": {
+            "main": [
+                [
+                    {
+                        "node": "Passed QA?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Passed QA?": {
+            "main": [
+                [
+                    {
+                        "node": "Complete Feature",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Trigger Dev Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GlobalVars": {
+            "main": [
+                [
+                    {
+                        "node": "QA Prompt",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "QA Webhook": {
             "main": [
                 [
                     {
@@ -415,28 +512,16 @@
                     }
                 ]
             ]
-        },
-        "GlobalVars": {
-            "main": [
-                [
-                    {
-                        "node": "Switch to Git Branch",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
         }
     },
     "active": true,
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "557962ad-149c-4161-a58f-37d02675d62f",
+    "versionId": "ae3f2a03-225c-4b7d-8a7e-1d52e02731d3",
     "meta": {
-        "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
-    "id": "SJZoRz7jpPdrhCfz",
+    "id": "Kik6sadX2c3ffPIj",
     "tags": []
 }

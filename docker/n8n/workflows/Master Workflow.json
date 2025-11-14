@@ -104,7 +104,7 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-320, 0],
+            "position": [-320, -96],
             "id": "3f1198be-2290-4286-9483-6056deb2719d",
             "name": "Master Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
@@ -153,17 +153,183 @@
         {
             "parameters": {
                 "method": "POST",
-                "url": "http://n8n:5678/webhook/development",
+                "url": "http://app:3000/api/tickets/scan",
                 "sendBody": true,
-                "specifyBody": "json",
-                "jsonBody": "={{ $('Master Webhook').first().json.body }}",
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "executionId",
+                            "value": "={{ $execution.id }}"
+                        },
+                        {
+                            "name": "codebaseId",
+                            "value": "={{$('Master Webhook').first().json.body.codebaseId}}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [352, 288],
+            "id": "bf939f92-e211-4a55-ace9-bef7f104e688",
+            "name": "Scan Tickets"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "3b724128-1f34-4069-9804-83b084ee703e",
+                                        "leftValue": "={{ [\"OPEN\", \"QA_CHANGES_REQUESTED\"] }}",
+                                        "rightValue": "={{ $json.nextTicket.status }}",
+                                        "operator": {
+                                            "type": "array",
+                                            "operation": "contains",
+                                            "rightType": "any"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "id": "797ba88c-a94a-4c26-82d2-bad7528d2280",
+                                        "leftValue": "={{ $json.nextTicket.status }}",
+                                        "rightValue": "QA_REVIEW",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals",
+                                            "name": "filter.operator.equals"
+                                        }
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.nextTicket.id }}",
+                                        "rightValue": "",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "notExists",
+                                            "singleValue": true
+                                        },
+                                        "id": "6ad3e92c-152d-4a32-be0d-4df6ee4e156d"
+                                    }
+                                ],
+                                "combinator": "and"
+                            }
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.3,
+            "position": [800, 272],
+            "id": "432a06d8-94ae-4f20-93f6-94dd41f6de2c",
+            "name": "Next Ticket Router"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [1248, 384],
+            "id": "d655ce20-719a-4de6-88da-825dc3631a98",
+            "name": "Project Completed"
+        },
+        {
+            "parameters": {
+                "method": "PUT",
+                "url": "=http://app:3000/api/codebase/{{ $('DevPayload').first().json.codebaseId }}/phase",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "executionId",
+                            "value": "={{ $execution.id }}"
+                        },
+                        {
+                            "name": "phase",
+                            "value": "COMPLETED"
+                        }
+                    ]
+                },
                 "options": {}
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [352, 288],
+            "position": [1024, 384],
+            "id": "8085c1e8-68c6-463f-8207-c71b52501c85",
+            "name": "Transition to Completed Phase"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://n8n:5678/webhook/qa",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ $('DevPayload').first().json }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [1024, 192],
+            "id": "74ede0e0-e17d-4105-8fc0-5fb0f0752b60",
+            "name": "Trigger QA Agent"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://n8n:5678/webhook/development",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ $('DevPayload').first().json }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [1024, 0],
             "id": "4e692f89-8eb7-4c17-9418-a749a86bd26a",
-            "name": "Trigger Development Agents"
+            "name": "Trigger Dev Agent"
+        },
+        {
+            "parameters": {
+                "jsCode": "const webhookPayload = $('Master Webhook').first().json.body;\nconst tickets = $('Scan Tickets').first().json.data.tickets;\nconst nextTicket = $('Scan Tickets').first().json.data.nextTicket;\n\nconst payload = {\n  tickets: tickets,\n  nextTicket: nextTicket,\n  ...webhookPayload\n}\n\nreturn [{ \n    json: payload \n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [576, 288],
+            "id": "ebfacb46-0848-4ba3-9ee6-198e514b3cf3",
+            "name": "DevPayload"
         }
     ],
     "pinData": {},
@@ -213,7 +379,65 @@
                 ],
                 [
                     {
-                        "node": "Trigger Development Agents",
+                        "node": "Scan Tickets",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Scan Tickets": {
+            "main": [
+                [
+                    {
+                        "node": "DevPayload",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Next Ticket Router": {
+            "main": [
+                [
+                    {
+                        "node": "Trigger Dev Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Trigger QA Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Transition to Completed Phase",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Transition to Completed Phase": {
+            "main": [
+                [
+                    {
+                        "node": "Project Completed",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "DevPayload": {
+            "main": [
+                [
+                    {
+                        "node": "Next Ticket Router",
                         "type": "main",
                         "index": 0
                     }
@@ -225,7 +449,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "cc0bbe13-408e-4726-bf54-d9da38146422",
+    "versionId": "8b482b54-8165-450f-8884-d763b6a74cd1",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
