@@ -107,6 +107,8 @@ This starts:
     - QA Agent Workflow.json
 3. Activate all workflows
 
+![Agent Workflows](docs/images/workflows.jpeg)
+
 ### 5. Run Database Migrations
 
 **This may not be necessary as the Docker container also runs this on start, but good to run just in case.**
@@ -135,9 +137,13 @@ The `devs` CLI is your main interface:
 devs # Interactive menu
 ```
 
-![DevSlave CLI](docs/images/cli.jpeg)
+Start building
+
+![Workflows 2](docs/images/workflows-2.jpeg)
+
 
 #### Interactive Menu Options
+![DevSlave CLI](docs/images/cli.jpeg)
 
 1. **Create Project** - Initialize a new codebase with agent-ready structure
 2. **View Running Agents** - Attach to active agent sessions or view their logs
@@ -225,8 +231,6 @@ docker-compose exec app bash
 ## 🔄 Agent Workflow
 
 The system follows a phase-based development approach:
-
-![Agent Workflows](docs/images/workflows.jpeg)
 
 ### 1. **DESIGN** Phase
 
