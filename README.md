@@ -141,8 +141,8 @@ Start building
 
 ![Workflows 2](docs/images/workflows-2.jpeg)
 
-
 #### Interactive Menu Options
+
 ![DevSlave CLI](docs/images/cli.jpeg)
 
 1. **Create Project** - Initialize a new codebase with agent-ready structure

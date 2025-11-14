@@ -105,7 +105,7 @@ tmux send-keys -t "$tmux_session" \
 session_pid=$(tmux list-panes -t "$tmux_session" -F '#{pane_pid}')
 
 # Update database
-db_exec "UPDATE agents SET 
+db_exec "UPDATE agents SET
   status = 'LAUNCHED',
   \"sessionId\" = '$session_pid',
   \"logFile\" = '$log_file'

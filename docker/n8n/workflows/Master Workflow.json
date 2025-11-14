@@ -235,11 +235,11 @@
                                 },
                                 "conditions": [
                                     {
-                                        "leftValue": "={{ $json.nextTicket.id }}",
+                                        "leftValue": "={{ $json.nextTicket == null }}",
                                         "rightValue": "",
                                         "operator": {
-                                            "type": "string",
-                                            "operation": "notExists",
+                                            "type": "boolean",
+                                            "operation": "true",
                                             "singleValue": true
                                         },
                                         "id": "6ad3e92c-152d-4a32-be0d-4df6ee4e156d"
@@ -323,7 +323,7 @@
         },
         {
             "parameters": {
-                "jsCode": "const webhookPayload = $('Master Webhook').first().json.body;\nconst tickets = $('Scan Tickets').first().json.data.tickets;\nconst nextTicket = $('Scan Tickets').first().json.data.nextTicket;\n\nconst payload = {\n  tickets: tickets,\n  nextTicket: nextTicket,\n  ...webhookPayload\n}\n\nreturn [{ \n    json: payload \n}];"
+                "jsCode": "const webhookPayload = $('Master Webhook').first().json.body;\nconst nextTicket = $input.last().json.data.nextTicket;\n\nconst payload = {\n  nextTicket: nextTicket,\n  ...webhookPayload\n}\n\nreturn [{ \n    json: payload \n}];"
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
@@ -449,7 +449,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "8b482b54-8165-450f-8884-d763b6a74cd1",
+    "versionId": "0719753d-fd30-4d61-8055-e4708817ef50",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
