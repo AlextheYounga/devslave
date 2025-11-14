@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Wrapper script to run the CLI using npm
+
+# Get the actual script location (not the symlink)
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+PROJECT_ROOT="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
+
+# Run using npm, which handles the local node_modules/.bin PATH correctly
+cd "$PROJECT_ROOT" && npm run dev --silent

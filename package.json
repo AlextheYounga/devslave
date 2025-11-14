@@ -3,6 +3,9 @@
     "version": "1.0.0",
     "description": "A minion for coding",
     "main": "dist/index.js",
+    "bin": {
+        "devs": "./bin/devs"
+    },
     "directories": {
         "doc": "docs"
     },
