@@ -4,7 +4,7 @@
 
 DevSlave is a sophisticated orchestration platform that enables AI agents (powered by OpenAI Codex) to autonomously build, test, and maintain software projects within isolated Docker environments. The system uses n8n workflows to coordinate multiple specialized agents (Architect, PM, Developer, QA) through a complete SDLC process.
 
-DevSlave spins up multiple Codex agents with **dangerously-bypass-approvals-and-sandbox** ON, inside an isolated Docker container. Each agent gets its own tmux session that we can manage using n8n and a custom-built Typescript API to handle project setup, logging, and tmux session spawning. 
+DevSlave spins up multiple Codex agents with **dangerously-bypass-approvals-and-sandbox** ON, inside an isolated Docker container. Each agent gets its own tmux session that we can manage using n8n and a custom-built Typescript API to handle project setup, logging, and tmux session spawning.
 
 Once you start a workflow, it is hands-free.
 
@@ -116,6 +116,7 @@ devs
 ```
 
 This will:
+
 - Connect to the agent container via SSH
 - Launch the Codex authentication flow
 - Save your credentials for agent use

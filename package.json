@@ -15,6 +15,7 @@
         "build": "tsc -p .",
         "server": "tsx src/server.ts",
         "server:dev": "tsx watch src/server.ts",
+        "db:view": "prisma studio",
         "db:migrate": "prisma migrate dev",
         "db:migrate:test": "npx dotenv -e .env.test -- npx prisma migrate dev",
         "db:reset:test": "npx dotenv -e .env.test -- npx prisma migrate reset",

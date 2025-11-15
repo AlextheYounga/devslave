@@ -7,7 +7,7 @@
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
-            "position": [-1296, 224],
+            "position": [-1296, 272],
             "id": "2b261cc2-ae5c-4604-912f-b56bf5b7f38c",
             "name": "PM Git Commit",
             "credentials": {
@@ -34,7 +34,7 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-2416, 320],
+            "position": [-2416, 368],
             "id": "1ba6388d-02f1-4ee4-8fd4-dce610dd1c3e",
             "name": "PM Prompt"
         },
@@ -77,7 +77,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-2192, 320],
+            "position": [-2192, 368],
             "id": "30db135b-d0da-48ef-a096-effac36d39a9",
             "name": "Launch PM Agent"
         },
@@ -85,7 +85,7 @@
             "parameters": {},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [-1968, 320],
+            "position": [-1968, 368],
             "id": "c61a0ece-e7f6-4ef0-b1bf-9ff014ee99f6",
             "name": "PM Poll Delay",
             "webhookId": "45bed31d-4473-4c63-804e-5ab4171a6046"
@@ -110,7 +110,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.2,
-            "position": [-1744, 256],
+            "position": [-1744, 296],
             "id": "f40361af-f774-409c-ac29-99104f8251fd",
             "name": "Ping PM Agent"
         },
@@ -120,7 +120,7 @@
             },
             "type": "n8n-nodes-base.stopAndError",
             "typeVersion": 1,
-            "position": [-1296, 416],
+            "position": [-1296, 464],
             "id": "c84cd641-d421-4a8d-9f0d-ee3c1957db81",
             "name": "PM Agent Failed"
         },
@@ -202,7 +202,7 @@
             },
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3.3,
-            "position": [-1520, 304],
+            "position": [-1520, 352],
             "id": "db99edb6-5de2-4328-bc88-e7b772287101",
             "name": "PM Agent Status"
         },
@@ -227,7 +227,7 @@
             },
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.3,
-            "position": [-1072, 224],
+            "position": [-1072, 272],
             "id": "e4af0d27-608d-4c8a-ba02-120018d428e2",
             "name": "Transition to Development Phase"
         },
@@ -239,7 +239,7 @@
             },
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1.4,
-            "position": [-2640, 128],
+            "position": [-2640, 176],
             "id": "7184f4cf-29ee-4b19-b58e-bdffe9a346f4",
             "name": "Respond to Webhook"
         },
@@ -252,25 +252,10 @@
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 2.1,
-            "position": [-2864, 224],
+            "position": [-2864, 272],
             "id": "37890509-af10-40f6-8fdf-0f205e252981",
             "name": "PM Webhook",
             "webhookId": "8d5b4acb-4bed-4b9f-a20f-71ea26230096"
-        },
-        {
-            "parameters": {
-                "method": "POST",
-                "url": "http://n8n:5678/webhook/development",
-                "sendBody": true,
-                "specifyBody": "json",
-                "jsonBody": "={{ $('GlobalVars').all()[0].json }}",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.3,
-            "position": [-848, 224],
-            "id": "4496718f-51da-47ef-8a6f-52dea0407906",
-            "name": "Trigger Development Agents"
         },
         {
             "parameters": {
@@ -312,9 +297,24 @@
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-2640, 320],
+            "position": [-2640, 368],
             "id": "c39d20dc-ba5c-4034-b7f5-7623607fb662",
             "name": "GlobalVars"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://n8n:5678/webhook/master",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ $('GlobalVars').all()[0].json }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [-848, 272],
+            "id": "464b2707-aa0c-421a-8c25-5a1ee1fb32ed",
+            "name": "Return to Master Handler"
         }
     ],
     "pinData": {},
@@ -403,7 +403,7 @@
             "main": [
                 [
                     {
-                        "node": "Trigger Development Agents",
+                        "node": "Return to Master Handler",
                         "type": "main",
                         "index": 0
                     }
@@ -442,7 +442,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "6f16b90a-343b-446b-bc2f-e6e4ea5231de",
+    "versionId": "76bac776-9899-43b5-926c-1c4ce45c0aca",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"

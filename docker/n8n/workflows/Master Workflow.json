@@ -328,31 +328,31 @@
                         {
                             "id": "d89405c9-f253-4e5a-8b52-72e462c938df",
                             "name": "codebaseId",
-                            "value": "={{ $('Master Webhook').first().body.codebaseId }}",
+                            "value": "={{ $('Master Webhook').first().json.body.codebaseId }}",
                             "type": "string"
                         },
                         {
                             "id": "1856733a-6db7-409a-a79b-234792fabacc",
                             "name": "debugMode",
-                            "value": "={{ $('Master Webhook').first().body.debugMode }}",
+                            "value": "={{ $('Master Webhook').first().json.body.debugMode }}",
                             "type": "boolean"
                         },
                         {
-                            "id": "fd1d59c2-3700-432f-8ab7-cf4979f4a906",
+                            "id": "75bab64b-b0bb-46c8-bab2-78871090e50f",
                             "name": "codebasePath",
-                            "value": "={{ $('Master Webhook').first().body.codebasePath }}",
+                            "value": "={{ $('Master Webhook').first().json.body.codebasePath }}",
                             "type": "string"
                         },
                         {
                             "id": "1978415e-66e2-44f2-a926-bdf6fba8ad11",
                             "name": "codebaseName",
-                            "value": "={{ $('Master Webhook').first().body.codebaseName }}",
+                            "value": "={{ $('Master Webhook').first().json.body.codebaseName }}",
                             "type": "string"
                         },
                         {
                             "id": "0efc45af-5d16-4ff0-b8cf-2ec45e567007",
                             "name": "agentFolder",
-                            "value": "={{ $('Master Webhook').first().body.agentFolder }}",
+                            "value": "={{ $('Master Webhook').first().json.body.agentFolder }}",
                             "type": "string"
                         },
                         {
@@ -489,7 +489,7 @@
     "settings": {
         "executionOrder": "v1"
     },
-    "versionId": "bcb428d2-b539-4ab7-bfaa-0cd8e7f47168",
+    "versionId": "c3c71f35-f67d-419a-b879-91e1c4a779b4",
     "meta": {
         "instanceId": "6e635324719453f8eda7bff9af30e3ba6f4a8f628dfcb25ef020836b188e623f"
     },
