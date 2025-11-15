@@ -6,6 +6,8 @@ DevSlave is a sophisticated orchestration platform that enables AI agents (power
 
 DevSlave spins up multiple Codex agents with **dangerously-bypass-approvals-and-sandbox** ON, inside an isolated Docker container. Each agent gets its own tmux session that we can manage using n8n and a custom-built Typescript API to handle project setup, logging, and tmux session spawning. 
 
+Once you start a workflow, it is hands-free.
+
 ![n8n Workflow Interface](docs/images/n8n.jpeg)
 (sorry for the jaundiced filter)
 
