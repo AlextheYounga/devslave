@@ -345,6 +345,11 @@ async function handleUtilityChoice(choice: string): Promise<void> {
     const rootDir = join(__dirname, "..", "..");
 
     switch (choice) {
+        case "codex-login":
+            console.log("\n🔐 Logging into Codex...\n");
+            await runCommand(join(rootDir, "docker/codex-login.sh"));
+            break;
+
         case "app-shell":
             console.log("\n🐚 Launching App Shell...\n");
             await runCommand(join(rootDir, "docker/dev-container.sh"));

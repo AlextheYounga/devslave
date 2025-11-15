@@ -58,7 +58,7 @@ See [docs/architecture.md](docs/architecture.md) for detailed architecture docum
 
 ### Optional
 
-- **Codex CLI** configured with credentials
+- **Codex CLI** configured with credentials (see [Codex Login](#codex-login) below)
 - **SSH keys** for repository access
 
 ## 🚀 Quick Start
@@ -100,7 +100,29 @@ This starts:
 - Ollama (port 11434)
 - App container (port 3000)
 
-### 4. Import n8n Workflows
+### 4. Login to Codex
+
+**This is a crucial first step before running any agents.**
+
+You must authenticate with Codex before agents can execute:
+
+```bash
+# Using the CLI (recommended)
+devs
+# Select: Utilities → Login to Codex
+
+# Or run the script directly
+./docker/codex-login.sh
+```
+
+This will:
+- Connect to the agent container via SSH
+- Launch the Codex authentication flow
+- Save your credentials for agent use
+
+You only need to do this once unless your credentials expire.
+
+### 5. Import n8n Workflows
 
 1. Open n8n: http://localhost:5678
 2. Import workflows from `docker/n8n/workflows/`:
@@ -113,7 +135,7 @@ This starts:
 
 ![Agent Workflows](docs/images/workflows.jpeg)
 
-### 5. Run Database Migrations
+### 6. Run Database Migrations
 
 **This may not be necessary as the Docker container also runs this on start, but good to run just in case.**
 
@@ -121,7 +143,7 @@ This starts:
 npx prisma migrate dev
 ```
 
-### 6. Use the CLI
+### 7. Use the CLI
 
 ```bash
 # Install CLI (should only run from this project)
@@ -156,6 +178,7 @@ Start building
     - Kill stuck agents
 3. **Start Workflow** - Trigger the master workflow for a project
 4. **Utilities** - Access tools and helpers
+    - Login to Codex (required before running agents)
     - Open shell in app container
     - Open agent container in VS Code (remote development)
     - Start Docker services
