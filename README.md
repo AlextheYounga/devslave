@@ -62,7 +62,7 @@ See [docs/architecture.md](docs/architecture.md) for detailed architecture docum
 ### 1. Clone and Setup
 
 ```bash
-git clone < repository-url > devslave
+git clone https://github.com/AlextheYounga/devslave
 cd devslave
 cp .env.example .env
 ```
