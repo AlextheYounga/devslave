@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { existsSync } from "fs";
-import routes from "./routes";
+import routes from "./api/routes";
 import { prisma } from "./prisma";
 import { loadEnv } from "./constants";
 

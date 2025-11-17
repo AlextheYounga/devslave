@@ -22,7 +22,7 @@ describe("StartAgentHandler", () => {
     const execMock = cp.exec as jest.Mock;
 
     const sessionId = "123e4567-e89b-12d3-a456-426614174000";
-    let StartAgentHandler: typeof import("../../../src/handlers/startAgent.handler").default;
+    let StartAgentHandler: typeof import("../../../src/api/handlers/startAgent.handler").default;
 
     let originalHome: string | undefined;
     let tempHome: string;
@@ -66,7 +66,7 @@ describe("StartAgentHandler", () => {
         tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "agent-home-"));
         process.env.HOME = tempHome;
         await jest.isolateModulesAsync(async () => {
-            StartAgentHandler = (await import("../../../src/handlers/startAgent.handler")).default;
+            StartAgentHandler = (await import("../../../src/api/handlers/startAgent.handler")).default;
         });
     });
 

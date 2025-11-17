@@ -1,11 +1,11 @@
-import CodebaseController from "../../../src/controllers/codebase.controller";
-import GetCodebaseHandler from "../../../src/handlers/getCodebase.handler";
-import GetAllCodebasesHandler from "../../../src/handlers/getAllCodebases.handler";
-import SetupCodebaseHandler from "../../../src/handlers/setupCodebase.handler";
+import CodebaseController from "../../../src/api/controllers/codebase.controller";
+import GetCodebaseHandler from "../../../src/api/handlers/getCodebase.handler";
+import GetAllCodebasesHandler from "../../../src/api/handlers/getAllCodebases.handler";
+import SetupCodebaseHandler from "../../../src/api/handlers/setupCodebase.handler";
 
-jest.mock("../../../src/handlers/getCodebase.handler");
-jest.mock("../../../src/handlers/getAllCodebases.handler");
-jest.mock("../../../src/handlers/setupCodebase.handler");
+jest.mock("../../../src/api/handlers/getCodebase.handler");
+jest.mock("../../../src/api/handlers/getAllCodebases.handler");
+jest.mock("../../../src/api/handlers/setupCodebase.handler");
 
 type MockResponse = {
     status: jest.Mock;

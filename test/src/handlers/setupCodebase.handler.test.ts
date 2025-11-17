@@ -3,7 +3,7 @@ import os from "os";
 import path from "path";
 import { execSync } from "child_process";
 import prisma from "../../client";
-import SetupCodebaseHandler from "../../../src/handlers/setupCodebase.handler";
+import SetupCodebaseHandler from "../../../src/api/handlers/setupCodebase.handler";
 
 jest.mock("child_process", () => {
     const actual = jest.requireActual("child_process");

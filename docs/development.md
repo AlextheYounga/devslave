@@ -143,7 +143,7 @@ We practice **Test-Driven Development**:
 
 ```bash
 # Create test file first
-touch test/src/handlers/myFeature.handler.test.ts
+touch test/src/api/handlers/myFeature.handler.test.ts
 ```
 
 **Test Structure:**
@@ -151,7 +151,7 @@ touch test/src/handlers/myFeature.handler.test.ts
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import { prisma } from '../../../src/prisma';
-import { myFeatureHandler } from '../../../src/handlers/myFeature.handler';
+import { myFeatureHandler } from '../../../src/api/handlers/myFeature.handler';
 import { setupTestDatabase, teardownTestDatabase } from '../../setup';
 
 describe('myFeatureHandler', () => {
@@ -214,7 +214,7 @@ Follow our engineering principles (see [AGENTS.md](../AGENTS.md)):
 **Example Handler:**
 
 ```typescript
-// src/handlers/myFeature.handler.ts
+// src/api/handlers/myFeature.handler.ts
 
 import { prisma } from '../prisma';
 import { recordEvent } from '../events';
@@ -262,7 +262,7 @@ function performBusinessLogic(record: MyModel): MyFeatureResult {
 **Example Controller:**
 
 ```typescript
-// src/controllers/myFeature.controller.ts
+// src/api/controllers/myFeature.controller.ts
 
 import { Request, Response } from "express";
 import { myFeatureHandler } from "../handlers/myFeature.handler";
@@ -545,7 +545,7 @@ SELECT * FROM events WHERE type LIKE 'agent.%' ORDER BY timestamp DESC LIMIT 10
 
 5. **Add tests:**
     ```bash
-    touch test/src/handlers/startMyRoleAgent.handler.test.ts
+    touch test/src/api/handlers/startMyRoleAgent.handler.test.ts
     ```
 
 ### New API Endpoint
@@ -553,19 +553,19 @@ SELECT * FROM events WHERE type LIKE 'agent.%' ORDER BY timestamp DESC LIMIT 10
 1. **Write handler test:**
 
     ```typescript
-    // test/src/handlers/myHandler.handler.test.ts
+    // test/src/api/handlers/myHandler.handler.test.ts
     ```
 
 2. **Implement handler:**
 
     ```typescript
-    // src/handlers/myHandler.handler.ts
+    // src/api/handlers/myHandler.handler.ts
     ```
 
 3. **Create controller:**
 
     ```typescript
-    // src/controllers/myController.controller.ts
+    // src/api/controllers/myController.controller.ts
     ```
 
 4. **Add route:**

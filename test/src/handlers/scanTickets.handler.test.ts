@@ -4,7 +4,7 @@ import path from "path";
 import { execSync } from "child_process";
 import { TicketStatus } from "@prisma/client";
 import prisma from "../../client";
-import ScanTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
+import ScanTicketsHandler from "../../../src/api/handlers/scanAllTickets.handler";
 import { AGENT_FOLDER_NAME } from "../../../src/constants";
 
 jest.mock("child_process", () => {

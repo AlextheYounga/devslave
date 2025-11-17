@@ -1,4 +1,4 @@
-import { WorkflowPreflightHandler } from "../../../src/handlers/workflowPreflight.handler";
+import { WorkflowPreflightHandler } from "../../../src/api/handlers/workflowPreflight.handler";
 import { DEFAULT_APP_BASE_URL, DEFAULT_OLLAMA_BASE_URL } from "../../../src/constants";
 
 const originalFetch = global.fetch;

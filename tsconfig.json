@@ -39,6 +39,6 @@
         "isolatedModules": false,
         "skipLibCheck": true
     },
-    "include": ["src/**/*", "test/**/*", "src/controllers/.controller.ts"],
+    "include": ["src/**/*", "test/**/*", "src/frontend"],
     "exclude": ["node_modules", "jest.config.ts", "prisma/**"]
 }

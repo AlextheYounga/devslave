@@ -3,7 +3,7 @@
     "nodes": [
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"Finished project sprint planning\""
+                "command": "=bash $AGENT_REPO/src/api/scriptsts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"Finished project sprint planning\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,

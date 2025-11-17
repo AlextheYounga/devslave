@@ -162,7 +162,7 @@ Agents run as **foreground processes in named tmux sessions** within the app con
 **Execution Flow:**
 
 ```bash
-# src/scripts/launch-agent.sh
+# src/api/scripts/launch-agent.sh
 
 1. Query database for codebase path
 2. Create unique tmux session name: "agent_<timestamp>_<codebaseId>"

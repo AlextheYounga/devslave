@@ -38,7 +38,7 @@ if (!WEBHOOK_URL) {
 }
 
 const repoRoot = path.resolve(__dirname, "../");
-const scriptsPath = process.env.SCRIPT_PATH || path.join(repoRoot, "src", "scripts");
+const scriptsPath = process.env.SCRIPT_PATH || path.join(repoRoot, "src", "api", "scripts");
 
 export const paths = {
     home: os.homedir(),

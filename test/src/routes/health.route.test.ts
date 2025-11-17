@@ -1,5 +1,5 @@
-import routes from "../../../src/routes";
-import HealthController from "../../../src/controllers/health.controller";
+import routes from "../../../src/api/routes";
+import HealthController from "../../../src/api/controllers/health.controller";
 
 describe("Health route", () => {
     const findHealthRoute = () =>

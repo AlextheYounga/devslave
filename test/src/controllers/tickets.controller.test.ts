@@ -1,7 +1,7 @@
-import TicketsController from "../../../src/controllers/tickets.controller";
-import ScanAllTicketsHandler from "../../../src/handlers/scanAllTickets.handler";
+import TicketsController from "../../../src/api/controllers/tickets.controller";
+import ScanAllTicketsHandler from "../../../src/api/handlers/scanAllTickets.handler";
 
-jest.mock("../../../src/handlers/scanAllTickets.handler");
+jest.mock("../../../src/api/handlers/scanAllTickets.handler");
 
 type MockResponse = {
     status: jest.Mock;

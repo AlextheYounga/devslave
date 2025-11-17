@@ -1,5 +1,5 @@
 import prisma from "../../client";
-import GetCodebaseHandler from "../../../src/handlers/getCodebase.handler";
+import GetCodebaseHandler from "../../../src/api/handlers/getCodebase.handler";
 
 describe("GetCodebaseHandler", () => {
     it("returns the codebase when it exists", async () => {

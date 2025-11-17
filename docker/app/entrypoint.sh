@@ -22,7 +22,7 @@ echo "[entrypoint] prisma generate"
 npx prisma generate
 
 echo "[entrypoint] giving codex script -x permission"
-chmod +x /app/agent/src/scripts/launch-agent.sh
+chmod +x /app/agensrc/api/scriptsts/launch-agent.sh
 
 echo "[entrypoint] starting app"
 exec npm run server

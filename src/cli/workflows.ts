@@ -8,8 +8,8 @@ import {
     OllamaModel,
     CodebaseSummary,
     WorkflowPreflightHandler,
-} from "../handlers/workflowPreflight.handler";
-import { TriggerWorkflowHandler } from "../handlers/triggerWorkflow.handler";
+} from "../api/handlers/workflowPreflight.handler";
+import { TriggerWorkflowHandler } from "../api/handlers/triggerWorkflow.handler";
 import {
     AGENT_FOLDER_NAME,
     N8N_URL,
@@ -235,7 +235,7 @@ async function importProjectFromHost(sourcePath: string, projectFolder: string):
             "exec",
             APP_CONTAINER_NAME,
             "bash",
-            "/app/src/scripts/import-project-files.sh",
+            "/app/src/api/scripts/import-project-files.sh",
             ...scriptArgs,
         ]);
     } finally {

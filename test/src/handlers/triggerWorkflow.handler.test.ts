@@ -1,5 +1,5 @@
 import prisma from "../../client";
-import { TriggerWorkflowHandler } from "../../../src/handlers/triggerWorkflow.handler";
+import { TriggerWorkflowHandler } from "../../../src/api/handlers/triggerWorkflow.handler";
 import { AGENT_FOLDER_NAME, WEBHOOK_URL } from "../../../src/constants";
 
 const startedPublishMock = jest.fn().mockResolvedValue(undefined);

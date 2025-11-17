@@ -1,20 +1,20 @@
-import AgentController from "../../../src/controllers/agent.controller";
-import StartAgentHandler from "../../../src/handlers/startAgent.handler";
-import WatchAgentHandler from "../../../src/handlers/watchAgent.handler";
-import GetAgentStatusHandler from "../../../src/handlers/getAgentStatus.handler";
-import StartAgentAndWaitHandler from "../../../src/handlers/startAgentAndWait.handler";
-import StartAgentAndNotifyHandler from "../../../src/handlers/startAgentAndNotify.handler";
-import KillAgentHandler from "../../../src/handlers/killAgent.handler";
-import ListAgentsHandler from "../../../src/handlers/listAgents.handler";
+import AgentController from "../../../src/api/controllers/agent.controller";
+import StartAgentHandler from "../../../src/api/handlers/startAgent.handler";
+import WatchAgentHandler from "../../../src/api/handlers/watchAgent.handler";
+import GetAgentStatusHandler from "../../../src/api/handlers/getAgentStatus.handler";
+import StartAgentAndWaitHandler from "../../../src/api/handlers/startAgentAndWait.handler";
+import StartAgentAndNotifyHandler from "../../../src/api/handlers/startAgentAndNotify.handler";
+import KillAgentHandler from "../../../src/api/handlers/killAgent.handler";
+import ListAgentsHandler from "../../../src/api/handlers/listAgents.handler";
 import { AgentStatus } from "@prisma/client";
 
-jest.mock("../../../src/handlers/startAgent.handler");
-jest.mock("../../../src/handlers/watchAgent.handler");
-jest.mock("../../../src/handlers/getAgentStatus.handler");
-jest.mock("../../../src/handlers/startAgentAndWait.handler");
-jest.mock("../../../src/handlers/startAgentAndNotify.handler");
-jest.mock("../../../src/handlers/killAgent.handler");
-jest.mock("../../../src/handlers/listAgents.handler");
+jest.mock("../../../src/api/handlers/startAgent.handler");
+jest.mock("../../../src/api/handlers/watchAgent.handler");
+jest.mock("../../../src/api/handlers/getAgentStatus.handler");
+jest.mock("../../../src/api/handlers/startAgentAndWait.handler");
+jest.mock("../../../src/api/handlers/startAgentAndNotify.handler");
+jest.mock("../../../src/api/handlers/killAgent.handler");
+jest.mock("../../../src/api/handlers/listAgents.handler");
 
 type MockResponse = {
     status: jest.Mock;

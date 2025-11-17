@@ -7,11 +7,11 @@ import {
     ensureImportSourceDirectory,
     handleAgentWorkflow,
 } from "../../../src/cli/workflows";
-import { TriggerWorkflowHandler } from "../../../src/handlers/triggerWorkflow.handler";
-import { WorkflowPreflightHandler } from "../../../src/handlers/workflowPreflight.handler";
+import { TriggerWorkflowHandler } from "../../../src/api/handlers/triggerWorkflow.handler";
+import { WorkflowPreflightHandler } from "../../../src/api/handlers/workflowPreflight.handler";
 
-jest.mock("../../../src/handlers/triggerWorkflow.handler");
-jest.mock("../../../src/handlers/workflowPreflight.handler");
+jest.mock("../../../src/api/handlers/triggerWorkflow.handler");
+jest.mock("../../../src/api/handlers/workflowPreflight.handler");
 
 const TriggerWorkflowHandlerMock = TriggerWorkflowHandler as jest.MockedClass<
     typeof TriggerWorkflowHandler

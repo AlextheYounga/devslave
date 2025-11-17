@@ -7,10 +7,10 @@ jest.mock("child_process", () => ({
 
 describe("KillAgentHandler", () => {
     const execSyncMock = require("child_process").execSync as jest.Mock;
-    let KillAgentHandler: typeof import("../../../src/handlers/killAgent.handler").default;
+    let KillAgentHandler: typeof import("../../../src/api/handlers/killAgent.handler").default;
 
     beforeAll(async () => {
-        KillAgentHandler = (await import("../../../src/handlers/killAgent.handler")).default;
+        KillAgentHandler = (await import("../../../src/api/handlers/killAgent.handler")).default;
     });
 
     beforeEach(() => {

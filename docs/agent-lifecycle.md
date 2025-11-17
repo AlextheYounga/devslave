@@ -74,7 +74,7 @@ An **agent** is a Codex-powered AI that executes within a tmux session inside th
 
 ```bash
 #!/usr/bin/env bash
-# src/scripts/launch-agent.sh
+# src/api/scripts/launch-agent.sh
 
 codebase_id=$1
 agent_id=$2
@@ -149,7 +149,7 @@ echo "$tmux_session"
 The `watchAgent` handler continuously monitors agent progress:
 
 ```typescript
-// src/handlers/watchAgent.handler.ts
+// src/api/handlers/watchAgent.handler.ts
 
 export const watchAgentHandler = async (agentId: string) => {
     const agent = await prisma.agent.findUnique({
@@ -222,7 +222,7 @@ If COMPLETED/FAILED: Exit loop
 **API Endpoint:**
 
 ```typescript
-// src/controllers/agent.controller.ts
+// src/api/controllers/agent.controller.ts
 
 export const getAgentStatus = async (req: Request, res: Response) => {
     const { agentId } = req.params;
@@ -230,7 +230,7 @@ export const getAgentStatus = async (req: Request, res: Response) => {
     res.json(status);
 };
 
-// src/handlers/getAgentStatus.handler.ts
+// src/api/handlers/getAgentStatus.handler.ts
 
 export const getAgentStatusHandler = async (agentId: string) => {
     const agent = await prisma.agent.findUnique({ where: { id: agentId } });

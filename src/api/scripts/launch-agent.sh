@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 # Args
 codebase_id=$1
@@ -44,20 +43,25 @@ get_tmux_session_by_agent_id() {
     echo "$tmux_session_name"
 }
 
+# Paths
+codex_script="${scripts_dir}/agent/run_codex.sh"
+
 # Database queries
 codebase_path=$(get_codebase_path_by_id "$codebase_id")
 session_name=$(get_tmux_session_by_agent_id "$agent_id")
 
-# Use a deterministic UUID-looking value so tests can assert extraction
-session_id="123e4567-e89b-12d3-a456-426614174000"
+launch_tmux_codex() {
+    tmux new-session -d -s "$session_name" -c "$codebase_path"
+    tmux send-keys -t "$session_name" "/bin/bash $codex_script $codebase_id $agent_id" C-m
+}
 
-# Create a deterministic session file in a nested date path and exit; no tmux needed in tests
-year=$(date +%Y)
-month=$(date +%m)
-day=$(date +%d)
-timestamp=$(date +%Y-%m-%dT%H-%M-%S)
-dir="$HOME/.codex/sessions/${year}/${month}/${day}"
-mkdir -p "$dir"
-touch "$dir/rollout-${timestamp}-${session_id}.jsonl"
+main() {
+    launch_tmux_codex
 
-echo "OK: ${session_name}"
+    # Get tmux pane status
+    tmux_status=$(tmux list-panes -t "$session_name" -F "#{pane_active}:#{pane_pid}" | head -n 1)
+
+    echo "OK: ${tmux_status}"
+}
+
+main
