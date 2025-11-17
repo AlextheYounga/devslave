@@ -3,7 +3,7 @@
     "nodes": [
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/api/scriptsts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"QA review finished for {{ $('GlobalVars').all()[0].json.nextTicket.id }}\""
+                "command": "=bash $API_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"QA review finished for {{ $('GlobalVars').all()[0].json.nextTicket.id }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
@@ -201,7 +201,7 @@
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/api/scriptsts/n8n/git/complete_feature.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\""
+                "command": "=bash $API_REPO/src/scripts/n8n/git/complete_feature.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,
@@ -406,7 +406,7 @@
         },
         {
             "parameters": {
-                "command": "=bash $AGENT_REPO/src/api/scriptsts/n8n/git/checkout_branch.sh \"{{$json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
+                "command": "=bash $API_REPO/src/scripts/n8n/git/checkout_branch.sh \"{{$json.codebaseId}}\" \"{{ $json.nextTicket.branchName }}\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,

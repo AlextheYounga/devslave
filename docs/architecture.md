@@ -312,10 +312,10 @@ The `app` container is the **agent execution environment**. It's designed to be 
 ```yaml
 volumes:
     # Project source (editable from host)
-    - .:/app/agent
+    - .:/app/api
 
     # Dependencies (fast container I/O)
-    - app_node_modules:/app/agent/node_modules
+    - app_node_modules:/app/api/node_modules
 
     # Agent workspace (persistent between restarts)
     - dev_data:/app/dev

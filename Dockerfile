@@ -66,19 +66,19 @@ RUN npm install -g prisma
 
 ############################################################
 # Layout:
-#   /app/agent  -> this project's source (bind-mounted)
+#   /app/api  -> this project's source (bind-mounted)
 #   /app/dev    -> writable workspace (named volume)
 ############################################################
 
 # Prepare directory structure before copying
-RUN mkdir -p /app/agent /app/dev \
+RUN mkdir -p /app/api /app/dev \
     && chmod 775 /app/dev
 
 # Copy environment setup script (will be executed at runtime)
 COPY docker/app/setup-env.sh /usr/local/bin/setup-env.sh
 RUN chmod +x /usr/local/bin/setup-env.sh
 
-WORKDIR /app/agent
+WORKDIR /app/api
 
 # Copy package files first for better Docker layer caching
 COPY package*.json ./
@@ -87,7 +87,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy source code (overridden by bind mount during development)
-COPY . /app/agent
+COPY . /app/api
 
 # Install Codex
 RUN npm install -g @openai/codex

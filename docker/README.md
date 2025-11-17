@@ -33,7 +33,7 @@ The root `.env` file is used when running the application on your **host machine
 Create a `.env.docker` file (copy from `.env.docker.example`) for the **Docker container environment**. This file should have:
 
 - `MACHINE_CONTEXT=docker`
-- Container-internal paths and service names (e.g., `http://n8n:5678`, `/app/agent`)
+- Container-internal paths and service names (e.g., `http://n8n:5678`, `/app/api`)
 
 The entrypoint script automatically uses `.env.docker` if it exists, falling back to `.env` otherwise.
 

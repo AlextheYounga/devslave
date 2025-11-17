@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Environment variables to configure
 ENV_VARS=(
-    "AGENT_REPO"
+    "API_REPO"
     "DEV_WORKSPACE"
     "DATABASE_URL"
     "AGENT_FOLDER_NAME"

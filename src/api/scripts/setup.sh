@@ -10,7 +10,7 @@ if [[ -z "${codebase_id}" ]]; then
 fi
 
 # Paths
-scripts_dir="${AGENT_REPOsrc/api/scriptsts"
+scripts_dir="${API_REPO}/src/scripts"
 stubs_folder="${scripts_dir}/stubs"
 
 # shellcheck disable=SC1091
@@ -84,7 +84,7 @@ setup_project_directory() {
     touch "${codebase_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
     echo "$master_prompt" > "${codebase_path}/${AGENT_FOLDER_NAME}/PROJECT.md"
 
-    handoffs="${AGENT_REPO}/src/prompts/handoffs"
+    handoffs="${API_REPO}/src/prompts/handoffs"
     cp -R "${handoffs}/." "${codebase_path}/${AGENT_FOLDER_NAME}/" || true
 }
 

@@ -3,15 +3,15 @@
 # Args
 codebase_id=$1
 
-env_file="$AGENT_REPO/.env"
-if [[ -f "$AGENT_REPO/.env.docker" ]]; then
-    env_file="$AGENT_REPO/.env.docker"
+env_file="$API_REPO/.env"
+if [[ -f "$API_REPO/.env.docker" ]]; then
+    env_file="$API_REPO/.env.docker"
 fi
 
 # shellcheck disable=SC1090
 source "$env_file"
 
-scripts_dir="${AGENT_REPOsrc/api/scriptsts"
+scripts_dir="${API_REPO}/src/scripts"
 # shellcheck disable=SC1091
 source "${scripts_dir}/lib/db.sh"
 

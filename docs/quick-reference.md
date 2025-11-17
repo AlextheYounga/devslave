@@ -296,7 +296,7 @@ curl http://localhost:11434/api/tags
 ### In Container
 
 ```
-/app/agent              # Project source (bind mount)
+/app/api              # Project source (bind mount)
 /app/dev                # Agent workspace
 /app/dev/projects       # Cloned projects
 /tmp/agent_*.log        # Agent logs

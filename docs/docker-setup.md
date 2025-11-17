@@ -251,16 +251,16 @@ services:
         build:
             context: .
             args:
-                - AGENT_REPO=${AGENT_REPO}
+                - API_REPO=${API_REPO}
                 - DEV_WORKSPACE=${DEV_WORKSPACE}
         restart: unless-stopped
         volumes:
-            - .:/app/agent # Project source (bind mount)
-            - app_node_modules:/app/agent/node_modules # Dependencies (named volume)
+            - .:/app/api # Project source (bind mount)
+            - app_node_modules:/app/api/node_modules # Dependencies (named volume)
             - dev_data:/app/dev # Agent workspace (persistent)
             - codex_data:/root/.codex # Codex config (isolated)
             - ${HOME}/.codex:/seed/.codex:ro # Seed Codex config (read-only)
-        working_dir: /app/agent
+        working_dir: /app/api
         environment:
             - NODE_ENV=development
             - MACHINE_CONTEXT=docker
@@ -282,7 +282,7 @@ services:
 
 **Volume Strategy:**
 
-1. **Bind Mount (`.:/app/agent`)**
+1. **Bind Mount (`.:/app/api`)**
     - **Purpose:** Live editing from host
     - **Contains:** Source code
     - **Why:** Instant changes without rebuild
@@ -321,7 +321,7 @@ See `.env.example` for full list. Key variables:
 DATABASE_URL="postgresql://n8n:n8n@postgres:5432/devslave_app"
 
 # Paths
-AGENT_REPO=/app/agent
+API_REPO=/app/api
 DEV_WORKSPACE=/app/dev
 PROJECT_OUTPUT_DIR=/app/dev/projects
 
@@ -456,7 +456,7 @@ RUN uv pip install pre-commit
 ### Application Setup
 
 ```dockerfile
-WORKDIR /app/agent
+WORKDIR /app/api
 
 COPY package*.json ./
 RUN npm install
@@ -546,7 +546,7 @@ docker-compose down -v
 
 ### Bind Mounts
 
-**Project Source (`.:/app/agent`):**
+**Project Source (`.:/app/api`):**
 
 - Live editing
 - Git changes reflected immediately
@@ -642,7 +642,7 @@ TEST_POSTGRES_DB=devslave_test
 DATABASE_URL="postgresql://n8n:n8n@postgres:5432/devslave_app"
 
 # Docker Paths
-AGENT_REPO=/app/agent
+API_REPO=/app/api
 DEV_WORKSPACE=/app/dev
 PROJECT_OUTPUT_DIR=/app/dev/projects
 
@@ -677,7 +677,7 @@ ENCRYPTION_KEY=test123
 
 setup_environment_variables() {
     # Export all environment variables for SSH sessions
-    env | grep -E '^(NODE_ENV|DATABASE_URL|AGENT_REPO|DEV_WORKSPACE|GIT_|CODEX_)' \
+    env | grep -E '^(NODE_ENV|DATABASE_URL|API_REPO|DEV_WORKSPACE|GIT_|CODEX_)' \
         > /root/.ssh/environment
 
     # Source in shell profiles
