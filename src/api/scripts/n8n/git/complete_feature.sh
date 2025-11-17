@@ -10,7 +10,7 @@ fi
 # shellcheck disable=SC1090
 source "$env_file"
 
-scripts_dir="${API_REPO}/src/scripts"
+scripts_dir="${API_REPO}/src/api/scripts"
 # shellcheck disable=SC1091
 source "${scripts_dir}/lib/db.sh"
 

@@ -10,7 +10,7 @@ if [[ -z "${codebase_id}" ]]; then
 fi
 
 # Paths
-scripts_dir="${API_REPO}/src/scripts"
+scripts_dir="${API_REPO}/src/api/scripts"
 stubs_folder="${scripts_dir}/stubs"
 
 # shellcheck disable=SC1091

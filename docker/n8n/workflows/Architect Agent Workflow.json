@@ -23,7 +23,7 @@
         },
         {
             "parameters": {
-                "command": "=bash $API_REPO/src/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"Finished architect outline\""
+                "command": "=bash $API_REPO/src/api/scripts/n8n/git/git_commit.sh \"{{$('GlobalVars').all()[0].json.codebaseId}}\" \"Finished architect outline\""
             },
             "type": "n8n-nodes-base.ssh",
             "typeVersion": 1,

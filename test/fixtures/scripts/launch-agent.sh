@@ -10,7 +10,7 @@ if [[ -z "$codebase_id" || -z "$agent_id" ]]; then
     exit 1
 fi
 
-scripts_dir="${API_REPO}/src/scripts"
+scripts_dir="${API_REPO}/src/api/scripts"
 # shellcheck disable=SC1091
 source "${scripts_dir}/lib/db.sh"
 

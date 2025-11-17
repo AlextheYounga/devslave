@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Paths
-scripts_dir="${API_REPO}/src/scripts"
+scripts_dir="${API_REPO}/src/api/scripts"
 stubs_folder="${scripts_dir}/stubs"
 
 setup_directory_structure() {
