@@ -29,6 +29,9 @@ router.get("/api/codebases", async (req: Request, res: Response) => {
 });
 
 // Agent Endpoints
+router.get("/api/agents", async (req: Request, res: Response) => {
+    return new AgentController(req, res).list();
+});
 router.post("/api/agent/start", async (req: Request, res: Response) => {
     return new AgentController(req, res).start();
 });

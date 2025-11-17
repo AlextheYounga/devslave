@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { existsSync } from "fs";
 import routes from "./routes";
 import { prisma } from "./prisma";
 import { loadEnv } from "./constants";
@@ -15,6 +17,19 @@ app.use(express.json());
 
 // Routes
 app.use("/", routes);
+
+const frontendDistPath = path.resolve(__dirname, "../frontend/dist");
+const frontendIndex = path.join(frontendDistPath, "index.html");
+const hasFrontendBuild = existsSync(frontendIndex);
+
+if (hasFrontendBuild) {
+    app.use(express.static(frontendDistPath));
+    app.get(/^(?!\/api|\/health).*/, (req, res) => {
+        res.sendFile(frontendIndex);
+    });
+} else {
+    console.warn("Dashboard build not found. Run `npm run frontend:build` to generate assets.");
+}
 
 // Graceful shutdown
 process.on("SIGTERM", async () => {

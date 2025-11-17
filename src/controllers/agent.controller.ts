@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { AgentStatus } from "@prisma/client";
 import { validateRequiredFields } from "../utils/validation";
 import StartAgentHandler from "../handlers/startAgent.handler";
 import WatchAgentHandler from "../handlers/watchAgent.handler";
@@ -6,6 +7,15 @@ import StartAgentAndWaitHandler from "../handlers/startAgentAndWait.handler";
 import StartAgentAndNotifyHandler from "../handlers/startAgentAndNotify.handler";
 import GetAgentStatusHandler from "../handlers/getAgentStatus.handler";
 import KillAgentHandler from "../handlers/killAgent.handler";
+import ListAgentsHandler from "../handlers/listAgents.handler";
+
+const DEFAULT_AGENT_STATUSES: AgentStatus[] = [
+    AgentStatus.PREPARING,
+    AgentStatus.LAUNCHED,
+    AgentStatus.RUNNING,
+];
+const DEFAULT_AGENT_LIMIT = 25;
+const MAX_AGENT_LIMIT = 100;
 
 export default class AgentController {
     private req: Request;
@@ -16,6 +26,65 @@ export default class AgentController {
         this.req = req;
         this.res = res;
         this.data = this.req.body;
+    }
+
+    async list() {
+        try {
+            const statusParam = this.req.query.status as string | undefined;
+            const limitParam = this.req.query.limit as string | undefined;
+
+            const allowedStatuses = new Set(Object.values(AgentStatus));
+            let statuses: AgentStatus[] = DEFAULT_AGENT_STATUSES;
+
+            if (statusParam) {
+                const parsed = statusParam
+                    .split(",")
+                    .map((value) => value.trim().toUpperCase())
+                    .filter(Boolean)
+                    .filter((value): value is AgentStatus =>
+                        allowedStatuses.has(value as AgentStatus),
+                    );
+
+                if (!parsed.length) {
+                    return this.res.status(400).json({
+                        success: false,
+                        error: "Invalid status filter provided",
+                    });
+                }
+
+                statuses = parsed;
+            }
+
+            let limit = DEFAULT_AGENT_LIMIT;
+            if (limitParam !== undefined) {
+                const parsedLimit = parseInt(limitParam, 10);
+                if (Number.isNaN(parsedLimit) || parsedLimit <= 0) {
+                    return this.res.status(400).json({
+                        success: false,
+                        error: "Limit must be a positive integer",
+                    });
+                }
+                limit = Math.min(parsedLimit, MAX_AGENT_LIMIT);
+            }
+
+            const listHandler = new ListAgentsHandler({
+                statuses,
+                limit,
+            });
+            const agents = await listHandler.handle();
+
+            return this.res.status(200).json({
+                success: true,
+                message: "Agents retrieved successfully",
+                data: { agents },
+            });
+        } catch (error: any) {
+            console.error("Error in AgentController->list:", error);
+            return this.res.status(500).json({
+                success: false,
+                error: error?.message ?? String(error),
+            });
+        }
     }
 
     async ping() {

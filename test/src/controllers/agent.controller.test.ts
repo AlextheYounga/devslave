@@ -5,6 +5,8 @@ import GetAgentStatusHandler from "../../../src/handlers/getAgentStatus.handler"
 import StartAgentAndWaitHandler from "../../../src/handlers/startAgentAndWait.handler";
 import StartAgentAndNotifyHandler from "../../../src/handlers/startAgentAndNotify.handler";
 import KillAgentHandler from "../../../src/handlers/killAgent.handler";
+import ListAgentsHandler from "../../../src/handlers/listAgents.handler";
+import { AgentStatus } from "@prisma/client";
 
 jest.mock("../../../src/handlers/startAgent.handler");
 jest.mock("../../../src/handlers/watchAgent.handler");
@@ -12,6 +14,7 @@ jest.mock("../../../src/handlers/getAgentStatus.handler");
 jest.mock("../../../src/handlers/startAgentAndWait.handler");
 jest.mock("../../../src/handlers/startAgentAndNotify.handler");
 jest.mock("../../../src/handlers/killAgent.handler");
+jest.mock("../../../src/handlers/listAgents.handler");
 
 type MockResponse = {
     status: jest.Mock;
@@ -38,6 +41,7 @@ const StartAgentAndNotifyHandlerMock = StartAgentAndNotifyHandler as jest.Mocked
     typeof StartAgentAndNotifyHandler
 >;
 const KillAgentHandlerMock = KillAgentHandler as jest.MockedClass<typeof KillAgentHandler>;
+const ListAgentsHandlerMock = ListAgentsHandler as jest.MockedClass<typeof ListAgentsHandler>;
 
 describe("AgentController", () => {
     const startAgentHandle = jest.fn();
@@ -46,6 +50,7 @@ describe("AgentController", () => {
     const startAndWaitHandle = jest.fn();
     const startAndNotifyHandle = jest.fn();
     const killAgentHandle = jest.fn();
+    const listAgentsHandle = jest.fn();
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -91,6 +96,69 @@ describe("AgentController", () => {
                     handle: killAgentHandle,
                 }) as any,
         );
+        ListAgentsHandlerMock.mockImplementation(
+            () =>
+                ({
+                    handle: listAgentsHandle,
+                }) as any,
+        );
+    });
+
+    it("lists active agents with default filters", async () => {
+        listAgentsHandle.mockResolvedValue([{ id: "agent-1" }]);
+        const req: any = { body: {}, params: {}, query: {} };
+        const res = makeResponse();
+
+        const controller = new AgentController(req, res as any);
+        await controller.list();
+
+        expect(ListAgentsHandlerMock).toHaveBeenCalledWith({
+            statuses: [AgentStatus.PREPARING, AgentStatus.LAUNCHED, AgentStatus.RUNNING],
+            limit: 25,
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json.mock.calls[0][0].data.agents).toHaveLength(1);
+    });
+
+    it("allows overriding statuses and limit", async () => {
+        listAgentsHandle.mockResolvedValue([]);
+        const req: any = {
+            body: {},
+            params: {},
+            query: { status: "COMPLETED,failed", limit: "50" },
+        };
+        const res = makeResponse();
+
+        const controller = new AgentController(req, res as any);
+        await controller.list();
+
+        expect(ListAgentsHandlerMock).toHaveBeenCalledWith({
+            statuses: [AgentStatus.COMPLETED, AgentStatus.FAILED],
+            limit: 50,
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it("rejects invalid status filters", async () => {
+        const req: any = { body: {}, params: {}, query: { status: "unknown" } };
+        const res = makeResponse();
+
+        const controller = new AgentController(req, res as any);
+        await controller.list();
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(ListAgentsHandlerMock).not.toHaveBeenCalled();
+    });
+
+    it("rejects invalid limits", async () => {
+        const req: any = { body: {}, params: {}, query: { limit: "-1" } };
+        const res = makeResponse();
+
+        const controller = new AgentController(req, res as any);
+        await controller.list();
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(ListAgentsHandlerMock).not.toHaveBeenCalled();
     });
 
     it("validates required fields when starting an agent", async () => {

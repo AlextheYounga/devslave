@@ -41,19 +41,18 @@ ENV PATH="/root/.config/herd-lite/bin:${PATH}"
 # Install Laravel CLI
 RUN composer global require laravel/installer
 
-# Install Go 
-RUN curl -sSfL https://golang.org/dl/go1.21.5.linux-amd64.tar.gz -o /tmp/agent_cache/go.tar.gz && \
-    rm -rf /usr/local/go && \
-    tar -C /usr/local -xzf /tmp/agent_cache/go.tar.gz && \
-    rm /tmp/agent_cache/go.tar.gz
+# Install Go
+RUN curl -sSfL https://golang.org/dl/go1.21.5.linux-amd64.tar.gz -o /tmp/agent_cache/go.tar.gz \
+    && rm -rf /usr/local/go \
+    && tar -C /usr/local -xzf /tmp/agent_cache/go.tar.gz \
+    && rm /tmp/agent_cache/go.tar.gz
 ENV PATH=$PATH:/usr/local/go/bin
 
 # Install Gitleaks from source
-RUN git clone https://github.com/gitleaks/gitleaks.git /tmp/agent_cache/gitleaks && \
-    cd /tmp/agent_cache/gitleaks && \
-    go build -o /usr/local/bin/gitleaks && \
-    rm -rf /tmp/agent_cache/gitleaks
-
+RUN git clone https://github.com/gitleaks/gitleaks.git /tmp/agent_cache/gitleaks \
+    && cd /tmp/agent_cache/gitleaks \
+    && go build -o /usr/local/bin/gitleaks \
+    && rm -rf /tmp/agent_cache/gitleaks
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
