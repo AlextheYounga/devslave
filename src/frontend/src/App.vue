@@ -66,16 +66,16 @@
                     <p class="eyebrow">Agents</p>
                     <h2>
                         Active Sessions
-                        <small>({{ agents.length }} shown)</small>
+                        <small v-if="hasAgents">({{ agents.length }} shown)</small>
                     </h2>
                 </div>
                 <span v-if="error" class="error">{{ error }}</span>
             </div>
-            <div v-if="!agents.length && !loading" class="empty-state">
+            <div v-if="!hasAgents && !loading" class="empty-state">
                 <p>No agents match the selected filters right now.</p>
                 <p class="muted">Kick off a run or broaden the filters to see the backlog.</p>
             </div>
-            <div v-else class="table-wrapper">
+            <div v-if="hasAgents" class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -169,6 +169,7 @@ let intervalHandle: ReturnType<typeof setInterval> | null = null;
 
 const selectedStatusSet = computed(() => new Set(selectedStatuses.value));
 const statusSummary = computed(() => selectedStatuses.value.join(", "));
+const hasAgents = computed(() => agents.value.length > 0);
 
 const formatDate = (value: string) => new Date(value).toLocaleString();
 const formatTimestamp = (value: Date) => value.toLocaleTimeString();
