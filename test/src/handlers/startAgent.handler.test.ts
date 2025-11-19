@@ -66,7 +66,8 @@ describe("StartAgentHandler", () => {
         tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "agent-home-"));
         process.env.HOME = tempHome;
         await jest.isolateModulesAsync(async () => {
-            StartAgentHandler = (await import("../../../src/api/handlers/startAgent.handler")).default;
+            StartAgentHandler = (await import("../../../src/api/handlers/startAgent.handler"))
+                .default;
         });
     });
 

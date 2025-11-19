@@ -171,3 +171,58 @@ export class ScanningTicketsFailed extends BaseEvent {
         super({ data }, parentId);
     }
 }
+
+// Git-related events
+export class GitCommitStarted extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitCommitCompleted extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitCommitFailed extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitSwitchBranchStarted extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitSwitchBranchCompleted extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitSwitchBranchFailed extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitCompleteFeatureStarted extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitCompleteFeatureCompleted extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}
+
+export class GitCompleteFeatureFailed extends BaseEvent {
+    constructor(data?: Record<string, any>, parentId?: string) {
+        super({ data }, parentId);
+    }
+}

@@ -3,6 +3,7 @@ import HealthController from "../api/controllers/health.controller";
 import CodebaseController from "../api/controllers/codebase.controller";
 import AgentController from "../api/controllers/agent.controller";
 import TicketsController from "../api/controllers/tickets.controller";
+import GitController from "../api/controllers/git.controller";
 
 const router = Router();
 
@@ -26,6 +27,19 @@ router.put("/api/codebase/:id/phase", async (req: Request, res: Response) => {
 
 router.get("/api/codebases", async (req: Request, res: Response) => {
     return new CodebaseController(req, res).getAll();
+});
+
+// Git endpoints
+router.post("/api/git/commit", async (req: Request, res: Response) => {
+    return new GitController(req, res).commit();
+});
+
+router.post("/api/git/switch-branch", async (req: Request, res: Response) => {
+    return new GitController(req, res).switchBranch();
+});
+
+router.post("/api/git/complete-feature", async (req: Request, res: Response) => {
+    return new GitController(req, res).completeFeature();
 });
 
 // Agent Endpoints
