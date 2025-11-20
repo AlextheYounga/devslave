@@ -169,64 +169,137 @@
           </div>
         </header>
 
-        <!-- Activity list -->
+        <!-- Agent table -->
         <div class="border-t border-white/10 pt-11">
-          <h2 class="px-4 text-base/7 font-semibold text-white sm:px-6 lg:px-8">Latest activity</h2>
+          <div class="flex flex-wrap items-start justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <div>
+              <p class="text-sm/6 font-semibold text-gray-400">Agents</p>
+              <h2 class="text-base/7 font-semibold text-white">Active Sessions</h2>
+              <p class="mt-1 text-xs/6 text-gray-400">Monitor live tmux sessions and step in when a run stalls.</p>
+              <p v-if="lastUpdated" class="mt-2 text-xs/6 text-gray-500">Updated {{ formatTimestamp(lastUpdated) }}</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                class="inline-flex items-center rounded-full bg-white/5 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/10 transition hover:bg-white/10 disabled:opacity-50"
+                :disabled="loading"
+                @click="requestAgentsRefresh"
+              >
+                <span v-if="loading">Refreshing…</span>
+                <span v-else>Refresh now</span>
+              </button>
+              <label class="flex items-center gap-2 text-sm font-medium text-gray-300">
+                <input
+                  type="checkbox"
+                  class="size-4 rounded border-white/10 bg-gray-900 text-indigo-500 focus:ring-indigo-500"
+                  v-model="autoRefresh"
+                />
+                Auto refresh
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-wrap gap-6 px-4 text-sm text-white sm:px-6 lg:px-8">
+            <div class="min-w-[16rem] flex-1">
+              <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Status</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <button
+                  v-for="option in statusOptions"
+                  :key="option.value"
+                  type="button"
+                  class="rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset transition"
+                  :class="selectedStatusSet.has(option.value) ? 'bg-indigo-500/20 text-indigo-200 ring-indigo-400/50' : 'text-gray-300 ring-white/10 hover:bg-white/5'"
+                  @click="toggleStatus(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+              <p class="mt-2 text-xs/6 text-gray-400">Showing: {{ statusSummary }}</p>
+            </div>
+            <div class="flex items-end gap-3">
+              <label for="limit-input" class="text-xs font-semibold uppercase tracking-wide text-gray-400">Max rows</label>
+              <input
+                id="limit-input"
+                v-model.number="limit"
+                type="number"
+                min="1"
+                :max="maxLimit"
+                class="w-24 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white focus:border-indigo-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <p v-if="error" class="mt-4 px-4 text-sm text-rose-300 sm:px-6 lg:px-8">{{ error }}</p>
+
           <table class="mt-6 w-full whitespace-nowrap text-left">
             <colgroup>
-              <col class="w-full sm:w-4/12" />
-              <col class="lg:w-4/12" />
+              <col class="w-full lg:w-3/12" />
               <col class="lg:w-2/12" />
               <col class="lg:w-1/12" />
               <col class="lg:w-1/12" />
+              <col class="lg:w-1/12" />
+              <col class="lg:w-1/12" />
+              <col class="lg:w-1/12" />
             </colgroup>
-            <thead class="border-b border-white/10 text-sm/6 text-white">
+            <thead class="border-b border-white/10 text-xs font-semibold uppercase tracking-wide text-gray-400">
               <tr>
-                <th scope="col" class="py-2 pl-4 pr-8 font-semibold sm:pl-6 lg:pl-8">User</th>
-                <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell">Commit</th>
-                <th scope="col" class="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">Status</th>
-                <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20">Duration</th>
-                <th scope="col" class="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8">Deployed at</th>
+                <th scope="col" class="py-2 pl-4 pr-8 sm:pl-6 lg:pl-8">Agent</th>
+                <th scope="col" class="py-2 pl-0 pr-4 sm:pr-8">Codebase</th>
+                <th scope="col" class="hidden py-2 pl-0 pr-4 md:table-cell lg:pr-8">Role</th>
+                <th scope="col" class="py-2 pl-0 pr-4 sm:pr-8">Status</th>
+                <th scope="col" class="hidden py-2 pl-0 pr-4 md:table-cell lg:pr-8">Created</th>
+                <th scope="col" class="py-2 pl-0 pr-4 lg:pr-8">Updated</th>
+                <th scope="col" class="py-2 pl-0 pr-4 text-right sm:pr-6 lg:pr-8">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white/5">
-              <tr v-for="item in activityItems" :key="item.commit">
+            <tbody v-if="hasAgents" class="divide-y divide-white/5 text-sm/6 text-white">
+              <tr v-for="agent in agents" :key="agent.id">
                 <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-                  <div class="flex items-center gap-x-4">
-                    <img :src="item.user.imageUrl" alt="" class="size-8 rounded-full bg-gray-800 outline outline-1 -outline-offset-1 outline-white/10" />
-                    <div class="truncate text-sm/6 font-medium text-white">{{ item.user.name }}</div>
-                  </div>
+                  <div class="text-sm font-semibold text-white">{{ shorten(agent.id) }}</div>
+                  <div class="text-xs text-gray-400">exec {{ shorten(agent.executionId) }}</div>
                 </td>
-                <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                  <div class="flex gap-x-3">
-                    <div class="font-mono text-sm/6 text-gray-400">{{ item.commit }}</div>
-                    <span class="inline-flex items-center rounded-md bg-gray-400/10 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">{{ item.branch }}</span>
-                  </div>
+                <td class="py-4 pl-0 pr-4 sm:pr-8">
+                  <div>{{ agent.codebase?.name ?? '–' }}</div>
+                  <div class="text-xs text-gray-400">{{ agent.codebaseId ?? '' }}</div>
                 </td>
-                <td class="py-4 pl-0 pr-4 text-sm/6 sm:pr-8 lg:pr-20">
-                  <div class="flex items-center justify-end gap-x-2 sm:justify-start">
-                    <time class="text-gray-400 sm:hidden" :datetime="item.dateTime">{{ item.date }}</time>
-                    <div :class="[statuses[item.status], 'flex-none rounded-full p-1']">
-                      <div class="size-1.5 rounded-full bg-current"></div>
-                    </div>
-                    <div class="hidden text-white sm:block">{{ item.status }}</div>
-                  </div>
+                <td class="hidden py-4 pl-0 pr-4 text-gray-200 md:table-cell lg:pr-8">{{ agent.role ?? '–' }}</td>
+                <td class="py-4 pl-0 pr-4 sm:pr-8">
+                  <span
+                    class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset"
+                    :class="statusBadgeClasses[agent.status]"
+                  >
+                    {{ agent.status }}
+                  </span>
                 </td>
-                <td class="hidden py-4 pl-0 pr-8 text-sm/6 text-gray-400 md:table-cell lg:pr-20">{{ item.duration }}</td>
-                <td class="hidden py-4 pl-0 pr-4 text-right text-sm/6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                  <time :datetime="item.dateTime">{{ item.date }}</time>
+                <td class="hidden py-4 pl-0 pr-4 text-gray-300 md:table-cell lg:pr-8">{{ formatDate(agent.createdAt) }}</td>
+                <td class="py-4 pl-0 pr-4 text-gray-300 lg:pr-8">{{ formatDate(agent.updatedAt) }}</td>
+                <td class="py-4 pl-0 pr-4 text-right sm:pr-6 lg:pr-8">
+                  <button
+                    type="button"
+                    class="inline-flex items-center rounded-md bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-200 ring-1 ring-inset ring-rose-500/30 transition hover:bg-rose-500/20 disabled:opacity-50"
+                    :disabled="!canKill(agent.status) || pendingKill === agent.id"
+                    @click="killAgent(agent)"
+                  >
+                    <span v-if="pendingKill === agent.id">Terminating…</span>
+                    <span v-else>Stop</span>
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
+
+          <div v-if="!hasAgents && !loading" class="mt-6 rounded-2xl border border-dashed border-white/10 px-4 py-12 text-center text-sm text-gray-400 sm:px-6 lg:px-8">
+            <p class="font-semibold text-white">No agents match the selected filters.</p>
+            <p class="mt-2 text-sm/6 text-gray-400">Kick off a run or broaden the filters to see the backlog.</p>
+          </div>
         </div>
       </main>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
   ChartBarSquareIcon,
@@ -265,113 +338,186 @@ const stats = [
   { name: 'Number of servers', value: '3' },
   { name: 'Success rate', value: '98.5%' },
 ]
-const statuses = { Completed: 'text-green-400 bg-green-400/10', Error: 'text-rose-400 bg-rose-400/10' }
-const activityItems = [
-  {
-    user: {
-      name: 'Michael Foster',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '2d89f0c8',
-    branch: 'main',
-    status: 'Completed',
-    duration: '25s',
-    date: '45 minutes ago',
-    dateTime: '2023-01-23T11:00',
-  },
-  {
-    user: {
-      name: 'Lindsay Walton',
-      imageUrl:
-        'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '249df660',
-    branch: 'main',
-    status: 'Completed',
-    duration: '1m 32s',
-    date: '3 hours ago',
-    dateTime: '2023-01-23T09:00',
-  },
-  {
-    user: {
-      name: 'Courtney Henry',
-      imageUrl:
-        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '11464223',
-    branch: 'main',
-    status: 'Error',
-    duration: '1m 4s',
-    date: '12 hours ago',
-    dateTime: '2023-01-23T00:00',
-  },
-  {
-    user: {
-      name: 'Courtney Henry',
-      imageUrl:
-        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: 'dad28e95',
-    branch: 'main',
-    status: 'Completed',
-    duration: '2m 15s',
-    date: '2 days ago',
-    dateTime: '2023-01-21T13:00',
-  },
-  {
-    user: {
-      name: 'Michael Foster',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '624bc94c',
-    branch: 'main',
-    status: 'Completed',
-    duration: '1m 12s',
-    date: '5 days ago',
-    dateTime: '2023-01-18T12:34',
-  },
-  {
-    user: {
-      name: 'Courtney Henry',
-      imageUrl:
-        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: 'e111f80e',
-    branch: 'main',
-    status: 'Completed',
-    duration: '1m 56s',
-    date: '1 week ago',
-    dateTime: '2023-01-16T15:54',
-  },
-  {
-    user: {
-      name: 'Michael Foster',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '5e136005',
-    branch: 'main',
-    status: 'Completed',
-    duration: '3m 45s',
-    date: '1 week ago',
-    dateTime: '2023-01-16T11:31',
-  },
-  {
-    user: {
-      name: 'Whitney Francis',
-      imageUrl:
-        'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-    commit: '5c1fd07f',
-    branch: 'main',
-    status: 'Completed',
-    duration: '37s',
-    date: '2 weeks ago',
-    dateTime: '2023-01-09T08:45',
-  },
+type AgentStatus = 'PREPARING' | 'LAUNCHED' | 'RUNNING' | 'COMPLETED' | 'FAILED'
+
+type AgentRecord = {
+  id: string
+  executionId: string
+  status: AgentStatus
+  role?: string | null
+  codebaseId?: string | null
+  codebase?: {
+    id: string
+    name: string
+  } | null
+  createdAt: string
+  updatedAt: string
+}
+
+const statusOptions: { value: AgentStatus; label: string }[] = [
+  { value: 'PREPARING', label: 'Preparing' },
+  { value: 'LAUNCHED', label: 'Launched' },
+  { value: 'RUNNING', label: 'Running' },
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'FAILED', label: 'Failed' },
 ]
+
+const defaultStatuses: AgentStatus[] = ['PREPARING', 'LAUNCHED', 'RUNNING']
+const stoppableStatuses = new Set<AgentStatus>(defaultStatuses)
+const maxLimit = 100
+const pollIntervalMs = 6000
+
+const agents = ref<AgentRecord[]>([])
+const selectedStatuses = ref<AgentStatus[]>([...defaultStatuses])
+const limit = ref(25)
+const loading = ref(false)
+const error = ref<string | null>(null)
+const lastUpdated = ref<Date | null>(null)
+const autoRefresh = ref(true)
+const pendingKill = ref<string | null>(null)
+const ready = ref(false)
+const pendingRefresh = ref(false)
+let intervalHandle: ReturnType<typeof setInterval> | null = null
+
+const selectedStatusSet = computed(() => new Set(selectedStatuses.value))
+const statusSummary = computed(() => selectedStatuses.value.join(', '))
+const hasAgents = computed(() => agents.value.length > 0)
+
+const formatDate = (value: string) => new Date(value).toLocaleString()
+const formatTimestamp = (value: Date) => value.toLocaleTimeString()
+const shorten = (value: string) => value.slice(0, 6)
+const canKill = (status: AgentStatus) => stoppableStatuses.has(status)
+const statusBadgeClasses: Record<AgentStatus, string> = {
+  PREPARING: 'bg-amber-400/10 text-amber-300 ring-amber-400/30',
+  LAUNCHED: 'bg-sky-400/10 text-sky-300 ring-sky-400/30',
+  RUNNING: 'bg-indigo-400/10 text-indigo-300 ring-indigo-400/30',
+  COMPLETED: 'bg-emerald-400/10 text-emerald-300 ring-emerald-400/30',
+  FAILED: 'bg-rose-400/10 text-rose-300 ring-rose-400/30',
+}
+
+const clearTimer = () => {
+  if (intervalHandle) {
+    clearInterval(intervalHandle)
+    intervalHandle = null
+  }
+}
+
+const fetchAgents = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    const params = new URLSearchParams({
+      status: selectedStatuses.value.join(','),
+      limit: String(limit.value),
+    })
+    const response = await fetch(`/api/agents?${params.toString()}`)
+    const payload = await response.json()
+    if (!response.ok || payload.success !== true) {
+      throw new Error(payload.error ?? 'Failed to load agents')
+    }
+    agents.value = payload.data?.agents ?? []
+    lastUpdated.value = new Date()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : String(err)
+  } finally {
+    loading.value = false
+    flushPendingRefresh()
+  }
+}
+
+const flushPendingRefresh = () => {
+  if (!pendingRefresh.value || !ready.value || loading.value) return
+  pendingRefresh.value = false
+  fetchAgents()
+}
+
+const scheduleAutoRefresh = () => {
+  clearTimer()
+  if (!autoRefresh.value) return
+  intervalHandle = setInterval(() => {
+    requestAgentsRefresh()
+  }, pollIntervalMs)
+}
+
+const requestAgentsRefresh = () => {
+  if (!ready.value || loading.value) {
+    pendingRefresh.value = true
+    return
+  }
+  fetchAgents()
+}
+
+const toggleStatus = (value: AgentStatus) => {
+  const next = new Set(selectedStatuses.value)
+  if (next.has(value)) {
+    if (next.size === 1) return
+    next.delete(value)
+  } else {
+    next.add(value)
+  }
+  selectedStatuses.value = Array.from(next)
+}
+
+const killAgent = async (agent: AgentRecord) => {
+  if (!canKill(agent.status) || pendingKill.value === agent.id) {
+    return
+  }
+  const confirmed = window.confirm(`Stop agent ${agent.id}?`)
+  if (!confirmed) return
+
+  try {
+    pendingKill.value = agent.id
+    const response = await fetch(`/api/agent/${agent.id}/kill`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: 'Terminated via dashboard' }),
+    })
+    const payload = await response.json()
+    if (!response.ok || payload.success !== true) {
+      throw new Error(payload.error ?? 'Failed to stop agent')
+    }
+    await fetchAgents()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : String(err)
+  } finally {
+    pendingKill.value = null
+  }
+}
+
+watch(
+  () => selectedStatuses.value.slice().sort().join(','),
+  () => {
+    requestAgentsRefresh()
+  },
+)
+
+watch(
+  () => limit.value,
+  (value, previous) => {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      limit.value = typeof previous === 'number' ? previous : 25
+      return
+    }
+    if (value < 1) limit.value = 1
+    if (value > maxLimit) limit.value = maxLimit
+    requestAgentsRefresh()
+  },
+)
+
+watch(autoRefresh, () => {
+  scheduleAutoRefresh()
+})
+
+onMounted(async () => {
+  await fetchAgents()
+  ready.value = true
+  flushPendingRefresh()
+  scheduleAutoRefresh()
+})
+
+onBeforeUnmount(() => {
+  clearTimer()
+})
 
 const sidebarOpen = ref(false)
 </script>
