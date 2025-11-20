@@ -1,542 +1,377 @@
 <template>
-    <div class="dashboard">
-        <header class="dashboard__header">
+  <!--
+    This example requires updating your template:
+
+    ```
+    <html class="h-full bg-gray-900">
+    <body class="h-full">
+    ```
+  -->
+  <div>
+    <TransitionRoot as="template" :show="sidebarOpen">
+      <Dialog class="relative z-50 xl:hidden" @close="sidebarOpen = false">
+        <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0" enter-to="" leave="transition-opacity ease-linear duration-300" leave-from="" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-gray-900/80"></div>
+        </TransitionChild>
+
+        <div class="fixed inset-0 flex">
+          <TransitionChild as="template" enter="transition ease-in-out duration-300 transform" enter-from="-translate-x-full" enter-to="translate-x-0" leave="transition ease-in-out duration-300 transform" leave-from="translate-x-0" leave-to="-translate-x-full">
+            <DialogPanel class="relative mr-16 flex w-full max-w-xs flex-1">
+              <TransitionChild as="template" enter="ease-in-out duration-300" enter-from="opacity-0" enter-to="" leave="ease-in-out duration-300" leave-from="" leave-to="opacity-0">
+                <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
+                  <button type="button" class="-m-2.5 p-2.5" @click="sidebarOpen = false">
+                    <span class="sr-only">Close sidebar</span>
+                    <XMarkIcon class="size-6 text-white" aria-hidden="true" />
+                  </button>
+                </div>
+              </TransitionChild>
+
+              <!-- Sidebar component, swap this element with another sidebar if you like -->
+              <div class="relative flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 ring ring-white/10 before:pointer-events-none before:absolute before:inset-0 before:bg-black/10">
+                <div class="relative flex h-16 shrink-0 items-center">
+                  <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
+                </div>
+                <nav class="relative flex flex-1 flex-col">
+                  <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                    <li>
+                      <ul role="list" class="-mx-2 space-y-1">
+                        <li v-for="item in navigation" :key="item.name">
+                          <a :href="item.href" :class="[item.current ? 'bg-white/5 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                            <component :is="item.icon" :class="[item.current ? 'text-white' : 'text-gray-400 group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
+                            {{ item.name }}
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <div class="text-xs/6 font-semibold text-gray-400">Your teams</div>
+                      <ul role="list" class="-mx-2 mt-2 space-y-1">
+                        <li v-for="team in teams" :key="team.name">
+                          <a :href="team.href" :class="[team.current ? 'bg-white/5 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                            <span :class="[team.current ? 'border-white/20 text-white' : 'border-white/10 text-gray-400 group-hover:border-white/20 group-hover:text-white', 'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white/5 text-[0.625rem] font-medium']">{{ team.initial }}</span>
+                            <span class="truncate">{{ team.name }}</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="-mx-6 mt-auto">
+                      <a href="#" class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-white/5">
+                        <img class="size-8 rounded-full bg-gray-800 outline outline-1 -outline-offset-1 outline-white/10" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                        <span class="sr-only">Your profile</span>
+                        <span aria-hidden="true">Tom Cook</span>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </DialogPanel>
+          </TransitionChild>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Static sidebar for desktop -->
+    <div class="hidden bg-gray-900 xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
+      <!-- Sidebar component, swap this element with another sidebar if you like -->
+      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-6 ring-1 ring-white/5">
+        <div class="flex h-16 shrink-0 items-center">
+          <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
+        </div>
+        <nav class="flex flex-1 flex-col">
+          <ul role="list" class="flex flex-1 flex-col gap-y-7">
+            <li>
+              <ul role="list" class="-mx-2 space-y-1">
+                <li v-for="item in navigation" :key="item.name">
+                  <a :href="item.href" :class="[item.current ? 'bg-white/5 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                    <component :is="item.icon" :class="[item.current ? 'text-white' : 'text-gray-400 group-hover:text-white', 'size-6 shrink-0']" aria-hidden="true" />
+                    {{ item.name }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <div class="text-xs/6 font-semibold text-gray-400">Your teams</div>
+              <ul role="list" class="-mx-2 mt-2 space-y-1">
+                <li v-for="team in teams" :key="team.name">
+                  <a :href="team.href" :class="[team.current ? 'bg-white/5 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                    <span :class="[team.current ? 'border-white/20 text-white' : 'border-white/10 text-gray-400 group-hover:border-white/20 group-hover:text-white', 'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white/5 text-[0.625rem] font-medium']">{{ team.initial }}</span>
+                    <span class="truncate">{{ team.name }}</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="-mx-6 mt-auto">
+              <a href="#" class="flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-white/5">
+                <img class="size-8 rounded-full bg-gray-800 outline outline-1 -outline-offset-1 outline-white/10" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
+                <span class="sr-only">Your profile</span>
+                <span aria-hidden="true">Tom Cook</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="xl:pl-72">
+      <!-- Sticky search header -->
+      <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-white/5 bg-gray-900 px-4 sm:px-6 lg:px-8">
+        <button type="button" class="-m-2.5 p-2.5 text-white xl:hidden" @click="sidebarOpen = true">
+          <span class="sr-only">Open sidebar</span>
+          <Bars3Icon class="size-5" aria-hidden="true" />
+        </button>
+
+        <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
+          <form class="grid flex-1 grid-cols-1" action="#" method="GET">
+            <input name="search" aria-label="Search" class="col-start-1 row-start-1 block size-full bg-transparent pl-8 text-base text-white outline-none placeholder:text-gray-500 sm:text-sm/6" placeholder="Search" />
+            <MagnifyingGlassIcon class="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-500" aria-hidden="true" />
+          </form>
+        </div>
+      </div>
+
+      <main>
+        <header>
+          <!-- Secondary navigation -->
+          <nav class="flex overflow-x-auto border-b border-white/10 py-4">
+            <ul role="list" class="flex min-w-full flex-none gap-x-6 px-4 text-sm/6 font-semibold text-gray-400 sm:px-6 lg:px-8">
+              <li v-for="item in secondaryNavigation" :key="item.name">
+                <a :href="item.href" :class="item.current ? 'text-indigo-400' : ''">{{ item.name }}</a>
+              </li>
+            </ul>
+          </nav>
+
+          <!-- Heading -->
+          <div class="flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-gray-700/10 px-4 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
             <div>
-                <p class="eyebrow">Devslave</p>
-                <h1>Agent Control Room</h1>
-                <p class="subtitle">
-                    Monitor live tmux sessions and take action when a run stalls.
-                </p>
+              <div class="flex items-center gap-x-3">
+                <div class="flex-none rounded-full bg-green-400/10 p-1 text-green-400">
+                  <div class="size-2 rounded-full bg-current"></div>
+                </div>
+                <h1 class="flex gap-x-3 text-base/7">
+                  <span class="font-semibold text-white">Planetaria</span>
+                  <span class="text-gray-600">/</span>
+                  <span class="font-semibold text-white">mobile-api</span>
+                </h1>
+              </div>
+              <p class="mt-2 text-xs/6 text-gray-400">Deploys from GitHub via main branch</p>
             </div>
-            <div class="header-actions">
-                <button class="ghost" :disabled="loading" @click="fetchAgents">
-                    <span v-if="loading">Refreshing…</span>
-                    <span v-else>Refresh Now</span>
-                </button>
-                <label class="toggle">
-                    <input type="checkbox" v-model="autoRefresh" />
-                    <span>Auto refresh</span>
-                </label>
-                <p v-if="lastUpdated" class="timestamp">
-                    Updated {{ formatTimestamp(lastUpdated) }}
-                </p>
+            <div class="order-first flex-none rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-400/30 sm:order-none">Production</div>
+          </div>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2 lg:grid-cols-4">
+            <div v-for="(stat, statIdx) in stats" :key="stat.name" :class="[statIdx % 2 === 1 ? 'sm:border-l' : statIdx === 2 ? 'lg:border-l' : '', 'border-t border-white/5 px-4 py-6 sm:px-6 lg:px-8']">
+              <p class="text-sm/6 font-medium text-gray-400">{{ stat.name }}</p>
+              <p class="mt-2 flex items-baseline gap-x-2">
+                <span class="text-4xl font-semibold tracking-tight text-white">{{ stat.value }}</span>
+                <span v-if="stat.unit" class="text-sm text-gray-400">{{ stat.unit }}</span>
+              </p>
             </div>
+          </div>
         </header>
 
-        <section class="panel">
-            <div class="panel__header">
-                <div>
-                    <p class="eyebrow">Filters</p>
-                    <h2>Focus on the runs that matter</h2>
-                </div>
-                <p class="selected-statuses">{{ statusSummary }}</p>
-            </div>
-            <div class="filters">
-                <div class="filter-group">
-                    <p>Status</p>
-                    <div class="status-options">
-                        <button
-                            v-for="option in statusOptions"
-                            :key="option.value"
-                            type="button"
-                            class="status-chip"
-                            :class="{ active: selectedStatusSet.has(option.value) }"
-                            @click="toggleStatus(option.value)"
-                        >
-                            {{ option.label }}
-                        </button>
+        <!-- Activity list -->
+        <div class="border-t border-white/10 pt-11">
+          <h2 class="px-4 text-base/7 font-semibold text-white sm:px-6 lg:px-8">Latest activity</h2>
+          <table class="mt-6 w-full whitespace-nowrap text-left">
+            <colgroup>
+              <col class="w-full sm:w-4/12" />
+              <col class="lg:w-4/12" />
+              <col class="lg:w-2/12" />
+              <col class="lg:w-1/12" />
+              <col class="lg:w-1/12" />
+            </colgroup>
+            <thead class="border-b border-white/10 text-sm/6 text-white">
+              <tr>
+                <th scope="col" class="py-2 pl-4 pr-8 font-semibold sm:pl-6 lg:pl-8">User</th>
+                <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell">Commit</th>
+                <th scope="col" class="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">Status</th>
+                <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20">Duration</th>
+                <th scope="col" class="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8">Deployed at</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              <tr v-for="item in activityItems" :key="item.commit">
+                <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
+                  <div class="flex items-center gap-x-4">
+                    <img :src="item.user.imageUrl" alt="" class="size-8 rounded-full bg-gray-800 outline outline-1 -outline-offset-1 outline-white/10" />
+                    <div class="truncate text-sm/6 font-medium text-white">{{ item.user.name }}</div>
+                  </div>
+                </td>
+                <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                  <div class="flex gap-x-3">
+                    <div class="font-mono text-sm/6 text-gray-400">{{ item.commit }}</div>
+                    <span class="inline-flex items-center rounded-md bg-gray-400/10 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">{{ item.branch }}</span>
+                  </div>
+                </td>
+                <td class="py-4 pl-0 pr-4 text-sm/6 sm:pr-8 lg:pr-20">
+                  <div class="flex items-center justify-end gap-x-2 sm:justify-start">
+                    <time class="text-gray-400 sm:hidden" :datetime="item.dateTime">{{ item.date }}</time>
+                    <div :class="[statuses[item.status], 'flex-none rounded-full p-1']">
+                      <div class="size-1.5 rounded-full bg-current"></div>
                     </div>
-                </div>
-                <div class="filter-group">
-                    <label for="limit-input">Max rows</label>
-                    <input
-                        id="limit-input"
-                        v-model.number="limit"
-                        type="number"
-                        min="1"
-                        max="100"
-                    />
-                </div>
-            </div>
-        </section>
-
-        <section class="panel">
-            <div class="panel__header">
-                <div>
-                    <p class="eyebrow">Agents</p>
-                    <h2>
-                        Active Sessions
-                        <small v-if="hasAgents">({{ agents.length }} shown)</small>
-                    </h2>
-                </div>
-                <span v-if="error" class="error">{{ error }}</span>
-            </div>
-            <div v-if="!hasAgents && !loading" class="empty-state">
-                <p>No agents match the selected filters right now.</p>
-                <p class="muted">Kick off a run or broaden the filters to see the backlog.</p>
-            </div>
-            <div v-if="hasAgents" class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Agent</th>
-                            <th>Codebase</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Updated</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="agent in agents" :key="agent.id">
-                            <td>
-                                <div class="mono">{{ shorten(agent.id) }}</div>
-                                <small class="muted">exec {{ shorten(agent.executionId) }}</small>
-                            </td>
-                            <td>
-                                <div>{{ agent.codebase?.name ?? "–" }}</div>
-                                <small class="muted">{{ agent.codebaseId ?? "" }}</small>
-                            </td>
-                            <td>{{ agent.role ?? "–" }}</td>
-                            <td>
-                                <span class="status-pill" :class="agent.status.toLowerCase()">
-                                    {{ agent.status }}
-                                </span>
-                            </td>
-                            <td>{{ formatDate(agent.createdAt) }}</td>
-                            <td>{{ formatDate(agent.updatedAt) }}</td>
-                            <td>
-                                <button
-                                    class="danger"
-                                    :disabled="!canKill(agent.status) || pendingKill === agent.id"
-                                    @click="killAgent(agent)"
-                                >
-                                    <span v-if="pendingKill === agent.id">Terminating…</span>
-                                    <span v-else>Stop</span>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                    <div class="hidden text-white sm:block">{{ item.status }}</div>
+                  </div>
+                </td>
+                <td class="hidden py-4 pl-0 pr-8 text-sm/6 text-gray-400 md:table-cell lg:pr-20">{{ item.duration }}</td>
+                <td class="hidden py-4 pl-0 pr-4 text-right text-sm/6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                  <time :datetime="item.dateTime">{{ item.date }}</time>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
     </div>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+<script setup>
+import { ref } from 'vue'
+import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import {
+  ChartBarSquareIcon,
+  Cog6ToothIcon,
+  FolderIcon,
+  GlobeAltIcon,
+  ServerIcon,
+  SignalIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/outline'
+import { Bars3Icon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 
-type AgentStatus = "PREPARING" | "LAUNCHED" | "RUNNING" | "COMPLETED" | "FAILED";
-
-type AgentRecord = {
-    id: string;
-    executionId: string;
-    status: AgentStatus;
-    role?: string | null;
-    codebaseId?: string | null;
-    codebase?: {
-        id: string;
-        name: string;
-    } | null;
-    createdAt: string;
-    updatedAt: string;
-};
-
-const statusOptions: { value: AgentStatus; label: string }[] = [
-    { value: "PREPARING", label: "Preparing" },
-    { value: "LAUNCHED", label: "Launched" },
-    { value: "RUNNING", label: "Running" },
-    { value: "COMPLETED", label: "Completed" },
-    { value: "FAILED", label: "Failed" },
-];
-
-const defaultStatuses: AgentStatus[] = ["PREPARING", "LAUNCHED", "RUNNING"];
-const stoppableStatuses = new Set<AgentStatus>(defaultStatuses);
-const maxLimit = 100;
-const pollIntervalMs = 6000;
-
-const agents = ref<AgentRecord[]>([]);
-const selectedStatuses = ref<AgentStatus[]>([...defaultStatuses]);
-const limit = ref(25);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const lastUpdated = ref<Date | null>(null);
-const autoRefresh = ref(true);
-const pendingKill = ref<string | null>(null);
-const ready = ref(false);
-let intervalHandle: ReturnType<typeof setInterval> | null = null;
-
-const selectedStatusSet = computed(() => new Set(selectedStatuses.value));
-const statusSummary = computed(() => selectedStatuses.value.join(", "));
-const hasAgents = computed(() => agents.value.length > 0);
-
-const formatDate = (value: string) => new Date(value).toLocaleString();
-const formatTimestamp = (value: Date) => value.toLocaleTimeString();
-const shorten = (value: string) => value.slice(0, 6);
-const canKill = (status: AgentStatus) => stoppableStatuses.has(status);
-
-const clearTimer = () => {
-    if (intervalHandle) {
-        clearInterval(intervalHandle);
-        intervalHandle = null;
-    }
-};
-
-const scheduleAutoRefresh = () => {
-    clearTimer();
-    if (!autoRefresh.value) return;
-    intervalHandle = setInterval(() => {
-        fetchAgents();
-    }, pollIntervalMs);
-};
-
-const toggleStatus = (value: AgentStatus) => {
-    const next = new Set(selectedStatuses.value);
-    if (next.has(value)) {
-        if (next.size === 1) return;
-        next.delete(value);
-    } else {
-        next.add(value);
-    }
-    selectedStatuses.value = Array.from(next);
-};
-
-const fetchAgents = async () => {
-    try {
-        loading.value = true;
-        error.value = null;
-        const params = new URLSearchParams({
-            status: selectedStatuses.value.join(","),
-            limit: String(limit.value),
-        });
-        const response = await fetch(`/api/agents?${params.toString()}`);
-        const payload = await response.json();
-        if (!response.ok || payload.success !== true) {
-            throw new Error(payload.error ?? "Failed to load agents");
-        }
-        agents.value = payload.data?.agents ?? [];
-        lastUpdated.value = new Date();
-    } catch (err) {
-        error.value = err instanceof Error ? err.message : String(err);
-    } finally {
-        loading.value = false;
-    }
-};
-
-const killAgent = async (agent: AgentRecord) => {
-    if (!canKill(agent.status) || pendingKill.value === agent.id) {
-        return;
-    }
-    const confirmed = window.confirm(`Stop agent ${agent.id}?`);
-    if (!confirmed) return;
-
-    try {
-        pendingKill.value = agent.id;
-        const response = await fetch(`/api/agent/${agent.id}/kill`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ reason: "Terminated via dashboard" }),
-        });
-        const payload = await response.json();
-        if (!response.ok || payload.success !== true) {
-            throw new Error(payload.error ?? "Failed to stop agent");
-        }
-        await fetchAgents();
-    } catch (err) {
-        error.value = err instanceof Error ? err.message : String(err);
-    } finally {
-        pendingKill.value = null;
-    }
-};
-
-watch(
-    () => selectedStatuses.value.slice().sort().join(","),
-    () => {
-        if (!ready.value) return;
-        fetchAgents();
+const navigation = [
+  { name: 'Projects', href: '#', icon: FolderIcon, current: false },
+  { name: 'Deployments', href: '#', icon: ServerIcon, current: true },
+  { name: 'Activity', href: '#', icon: SignalIcon, current: false },
+  { name: 'Domains', href: '#', icon: GlobeAltIcon, current: false },
+  { name: 'Usage', href: '#', icon: ChartBarSquareIcon, current: false },
+  { name: 'Settings', href: '#', icon: Cog6ToothIcon, current: false },
+]
+const teams = [
+  { id: 1, name: 'Planetaria', href: '#', initial: 'P', current: false },
+  { id: 2, name: 'Protocol', href: '#', initial: 'P', current: false },
+  { id: 3, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
+]
+const secondaryNavigation = [
+  { name: 'Overview', href: '#', current: true },
+  { name: 'Activity', href: '#', current: false },
+  { name: 'Settings', href: '#', current: false },
+  { name: 'Collaborators', href: '#', current: false },
+  { name: 'Notifications', href: '#', current: false },
+]
+const stats = [
+  { name: 'Number of deploys', value: '405' },
+  { name: 'Average deploy time', value: '3.65', unit: 'mins' },
+  { name: 'Number of servers', value: '3' },
+  { name: 'Success rate', value: '98.5%' },
+]
+const statuses = { Completed: 'text-green-400 bg-green-400/10', Error: 'text-rose-400 bg-rose-400/10' }
+const activityItems = [
+  {
+    user: {
+      name: 'Michael Foster',
+      imageUrl:
+        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     },
-);
-
-watch(
-    () => limit.value,
-    (value, previous) => {
-        if (typeof value !== "number" || Number.isNaN(value)) {
-            limit.value = typeof previous === "number" ? previous : 25;
-            return;
-        }
-        if (value < 1) limit.value = 1;
-        if (value > maxLimit) limit.value = maxLimit;
-        if (ready.value) fetchAgents();
+    commit: '2d89f0c8',
+    branch: 'main',
+    status: 'Completed',
+    duration: '25s',
+    date: '45 minutes ago',
+    dateTime: '2023-01-23T11:00',
+  },
+  {
+    user: {
+      name: 'Lindsay Walton',
+      imageUrl:
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     },
-);
+    commit: '249df660',
+    branch: 'main',
+    status: 'Completed',
+    duration: '1m 32s',
+    date: '3 hours ago',
+    dateTime: '2023-01-23T09:00',
+  },
+  {
+    user: {
+      name: 'Courtney Henry',
+      imageUrl:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
+    commit: '11464223',
+    branch: 'main',
+    status: 'Error',
+    duration: '1m 4s',
+    date: '12 hours ago',
+    dateTime: '2023-01-23T00:00',
+  },
+  {
+    user: {
+      name: 'Courtney Henry',
+      imageUrl:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
+    commit: 'dad28e95',
+    branch: 'main',
+    status: 'Completed',
+    duration: '2m 15s',
+    date: '2 days ago',
+    dateTime: '2023-01-21T13:00',
+  },
+  {
+    user: {
+      name: 'Michael Foster',
+      imageUrl:
+        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
+    commit: '624bc94c',
+    branch: 'main',
+    status: 'Completed',
+    duration: '1m 12s',
+    date: '5 days ago',
+    dateTime: '2023-01-18T12:34',
+  },
+  {
+    user: {
+      name: 'Courtney Henry',
+      imageUrl:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
+    commit: 'e111f80e',
+    branch: 'main',
+    status: 'Completed',
+    duration: '1m 56s',
+    date: '1 week ago',
+    dateTime: '2023-01-16T15:54',
+  },
+  {
+    user: {
+      name: 'Michael Foster',
+      imageUrl:
+        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
+    commit: '5e136005',
+    branch: 'main',
+    status: 'Completed',
+    duration: '3m 45s',
+    date: '1 week ago',
+    dateTime: '2023-01-16T11:31',
+  },
+  {
+    user: {
+      name: 'Whitney Francis',
+      imageUrl:
+        'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    },
+    commit: '5c1fd07f',
+    branch: 'main',
+    status: 'Completed',
+    duration: '37s',
+    date: '2 weeks ago',
+    dateTime: '2023-01-09T08:45',
+  },
+]
 
-watch(autoRefresh, () => {
-    scheduleAutoRefresh();
-});
-
-onMounted(async () => {
-    await fetchAgents();
-    ready.value = true;
-    scheduleAutoRefresh();
-});
-
-onBeforeUnmount(() => {
-    clearTimer();
-});
+const sidebarOpen = ref(false)
 </script>
-
-<style scoped>
-.dashboard {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem 4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.dashboard__header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 1rem 2rem;
-}
-
-h1 {
-    margin: 0.25rem 0 0;
-    font-size: clamp(2.2rem, 4vw, 3rem);
-}
-
-h2 {
-    margin: 0;
-    font-size: 1.3rem;
-}
-
-.subtitle {
-    margin: 0.25rem 0 0;
-    color: #94a3b8;
-}
-
-.eyebrow {
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #94a3b8;
-    margin: 0;
-    font-size: 0.75rem;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-button {
-    border-radius: 999px;
-    border: 1px solid transparent;
-    padding: 0.45rem 1.5rem;
-    background: linear-gradient(135deg, #6d28d9, #0ea5e9);
-    color: #f8fafc;
-    font-weight: 600;
-    cursor: pointer;
-    transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-button.ghost {
-    background: transparent;
-    border-color: rgba(148, 163, 184, 0.4);
-}
-
-button.danger {
-    background: rgba(248, 113, 113, 0.15);
-    border-color: rgba(248, 113, 113, 0.4);
-    color: #fecaca;
-}
-
-.toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.9rem;
-    color: #cbd5f5;
-}
-
-.toggle input {
-    accent-color: #22d3ee;
-}
-
-.timestamp {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #94a3b8;
-}
-
-.panel {
-    background: rgba(15, 23, 42, 0.65);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 1.25rem;
-    padding: 1.5rem;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.45);
-}
-
-.panel__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-}
-
-.filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem 2rem;
-    align-items: flex-end;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    min-width: 200px;
-}
-
-.status-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.status-chip {
-    border-radius: 999px;
-    border: 1px solid rgba(148, 163, 184, 0.5);
-    background: transparent;
-    padding: 0.4rem 1rem;
-    font-size: 0.85rem;
-    color: #cbd5f5;
-}
-
-.status-chip.active {
-    border-color: transparent;
-    background: linear-gradient(135deg, rgba(236, 72, 153, 0.65), rgba(14, 165, 233, 0.75));
-    color: #fff;
-}
-
-input[type="number"] {
-    border-radius: 0.75rem;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-    background: rgba(15, 23, 42, 0.9);
-    color: #f1f5f9;
-    padding: 0.65rem 0.75rem;
-    width: 100px;
-}
-
-.table-wrapper {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    text-align: left;
-    padding: 0.85rem 0.5rem;
-}
-
-th {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-tr + tr {
-    border-top: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.status-pill {
-    border-radius: 999px;
-    padding: 0.25rem 0.65rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.status-pill.preparing {
-    background: rgba(14, 165, 233, 0.16);
-    color: #bae6fd;
-}
-
-.status-pill.launched {
-    background: rgba(52, 211, 153, 0.2);
-    color: #bbf7d0;
-}
-
-.status-pill.running {
-    background: rgba(234, 179, 8, 0.2);
-    color: #fde68a;
-}
-
-.status-pill.completed {
-    background: rgba(59, 130, 246, 0.2);
-    color: #bfdbfe;
-}
-
-.status-pill.failed {
-    background: rgba(239, 68, 68, 0.2);
-    color: #fecaca;
-}
-
-.mono {
-    font-family: "PT Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-.muted {
-    color: #94a3b8;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 2rem 0;
-    color: #cbd5f5;
-}
-
-.error {
-    color: #fecaca;
-    font-weight: 600;
-}
-
-.selected-statuses {
-    color: #cbd5f5;
-}
-
-@media (max-width: 720px) {
-    .header-actions {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .panel {
-        padding: 1rem;
-    }
-
-    table {
-        font-size: 0.9rem;
-    }
-
-    button {
-        width: 100%;
-        text-align: center;
-    }
-}
-</style>

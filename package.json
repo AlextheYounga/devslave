@@ -10,6 +10,7 @@
         "doc": "docs"
     },
     "scripts": {
+        "start": "npm run build && open http://127.0.0.1:3000/",
         "dev": "tsx src/cli.ts",
         "docker:start": "./start.sh",
         "build": "npm run frontend:build && tsc -p .",
