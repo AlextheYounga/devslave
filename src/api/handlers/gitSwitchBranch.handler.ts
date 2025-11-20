@@ -3,17 +3,18 @@ import {
     GitSwitchBranchFailed,
     GitSwitchBranchStarted,
 } from "../../events";
-import { runGitScript } from "../utils/runGitScript";
+import { GitHandler } from "./git.handler";
 
 export type GitSwitchBranchParams = {
     codebaseId: string;
     branchName: string;
 };
 
-export default class GitSwitchBranchHandler {
+export default class GitSwitchBranchHandler extends GitHandler {
     private params: GitSwitchBranchParams;
 
     constructor(params: GitSwitchBranchParams) {
+        super();
         this.params = params;
     }
 
@@ -21,7 +22,7 @@ export default class GitSwitchBranchHandler {
         new GitSwitchBranchStarted(this.params).publish();
 
         try {
-            const stdout = runGitScript("checkout_branch.sh", [
+            const stdout = this.runGitScript("checkout_branch.sh", [
                 this.params.codebaseId,
                 this.params.branchName,
             ]);

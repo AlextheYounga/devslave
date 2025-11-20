@@ -1,15 +1,16 @@
 import { GitCommitCompleted, GitCommitFailed, GitCommitStarted } from "../../events";
-import { runGitScript } from "../utils/runGitScript";
+import { GitHandler } from "./git.handler";
 
 export type GitCommitParams = {
     codebaseId: string;
     message: string;
 };
 
-export default class GitCommitHandler {
+export default class GitCommitHandler extends GitHandler {
     private params: GitCommitParams;
 
     constructor(params: GitCommitParams) {
+        super();
         this.params = params;
     }
 
@@ -17,7 +18,7 @@ export default class GitCommitHandler {
         new GitCommitStarted(this.params).publish();
 
         try {
-            const stdout = runGitScript("git_commit.sh", [
+            const stdout = this.runGitScript("git_commit.sh", [
                 this.params.codebaseId,
                 this.params.message,
             ]);

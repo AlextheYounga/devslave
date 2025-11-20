@@ -3,16 +3,17 @@ import {
     GitCompleteFeatureFailed,
     GitCompleteFeatureStarted,
 } from "../../events";
-import { runGitScript } from "../utils/runGitScript";
+import { GitHandler } from "./git.handler";
 
 export type GitCompleteFeatureParams = {
     codebaseId: string;
 };
 
-export default class GitCompleteFeatureHandler {
+export default class GitCompleteFeatureHandler extends GitHandler {
     private params: GitCompleteFeatureParams;
 
     constructor(params: GitCompleteFeatureParams) {
+        super();
         this.params = params;
     }
 
@@ -20,7 +21,7 @@ export default class GitCompleteFeatureHandler {
         new GitCompleteFeatureStarted(this.params).publish();
 
         try {
-            const stdout = runGitScript("complete_feature.sh", [this.params.codebaseId]);
+            const stdout = this.runGitScript("complete_feature.sh", [this.params.codebaseId]);
             const payload = {
                 ...this.params,
                 stdout,
