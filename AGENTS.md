@@ -21,6 +21,8 @@ This repository implements an AI agentic workflow system that combines:
 - **Docker (optional)** → `docker-compose.yml` for Postgres/Redis/n8n orchestration.
 - **Tests** → Jest only, under `test/**`. Tests use a dedicated Postgres database (`devslave_test`).
 - **Agent runtime (tmux-based)** → Codex agents are launched via `tmux` using `src/api/scripts/launch-agent.sh`. We create a named tmux session per run, capture the foreground PID and session log path, and track state in the DB. A watchdog handler reads the session log (JSONL) to determine progress/completion.
+- **Frontend dashboard (Vue 3 + Vite + Tailwind)** → `src/frontend` uses Vue single-file components, tailwindcss v4, and Vue Router for list/detail pages (Agents, Projects, Tickets). Keep UI changes consistent with existing templates in `src/frontend/src/_templates`.
+- **CLI** → `src/cli` provides operator commands (e.g., start/kill agents, clone projects) and should reuse shared handlers where possible.
 
 ## Engineering Philosophy
 
