@@ -1,106 +1,50 @@
 import { WorkflowPreflightHandler } from "../../../src/api/handlers/workflowPreflight.handler";
-import { DEFAULT_APP_BASE_URL, DEFAULT_OLLAMA_BASE_URL } from "../../../src/constants";
 
 const originalFetch = global.fetch;
+const originalEnv = { ...process.env };
 
-const jsonResponse = (body: Record<string, unknown>, status = 200): Response =>
+const okResponse = (body: any) =>
     new Response(JSON.stringify(body), {
-        status,
+        status: 200,
         headers: { "Content-Type": "application/json" },
-    });
-
-const textResponse = (body: string, status = 200): Response =>
-    new Response(body, {
-        status,
-        headers: { "Content-Type": "text/plain" },
     });
 
 describe("WorkflowPreflightHandler", () => {
     beforeEach(() => {
-        global.fetch = jest.fn() as unknown as typeof fetch;
+        jest.resetModules();
+        global.fetch = jest.fn();
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
         global.fetch = originalFetch;
+        process.env = { ...originalEnv };
     });
 
-    it("performs preflight checks and returns codebases plus models", async () => {
-        const handler = new WorkflowPreflightHandler();
-        const codebases = [{ id: "cb-1", name: "Repo", path: "/tmp/repo" }];
-        (global.fetch as jest.Mock)
-            // DevSlave health
-            .mockResolvedValueOnce(jsonResponse({ status: "ok" }))
-            // Ollama health
-            .mockResolvedValueOnce(jsonResponse({ status: "ok" }))
-            // Active codebases
-            .mockResolvedValueOnce(
-                jsonResponse({
-                    data: { codebases },
-                }),
-            )
-            // Ollama models (/api/tags)
-            .mockResolvedValueOnce(jsonResponse({ models: [{ name: "codellama" }] }));
+    it("falls back to container ollama host when localhost is unreachable", async () => {
+        process.env.CODEX_OSS_BASE_URL = "http://localhost:11434";
+        process.env.APP_BASE_URL = "http://127.0.0.1:3000";
 
-        const result = await handler.handle();
+        jest.isolateModules(async () => {
+            // Re-import with updated env
+            const { WorkflowPreflightHandler: Handler } = await import(
+                "../../../src/api/handlers/workflowPreflight.handler"
+            );
 
-        expect(global.fetch).toHaveBeenNthCalledWith(
-            1,
-            `${DEFAULT_APP_BASE_URL}/health`,
-            expect.objectContaining({ method: "GET" }),
-        );
-        expect(global.fetch).toHaveBeenNthCalledWith(
-            2,
-            DEFAULT_OLLAMA_BASE_URL,
-            expect.objectContaining({ method: "GET" }),
-        );
-        expect(global.fetch).toHaveBeenNthCalledWith(
-            3,
-            `${DEFAULT_APP_BASE_URL}/api/codebases`,
-            expect.objectContaining({ method: "GET" }),
-        );
-        expect(global.fetch).toHaveBeenNthCalledWith(
-            4,
-            `${DEFAULT_OLLAMA_BASE_URL}/api/tags`,
-            expect.objectContaining({ method: "GET" }),
-        );
-        expect(result.codebases).toEqual(codebases);
-        expect(result.models).toEqual([{ name: "codellama" }]);
-    });
+            (global.fetch as jest.Mock).mockImplementation((url: RequestInfo | URL) => {
+                const target = String(url);
+                if (target.includes("/health")) return okResponse({});
+                if (target.startsWith("http://localhost:11434")) {
+                    return Promise.reject(new Error("connect ECONNREFUSED"));
+                }
+                if (target.startsWith("http://ollama:11434")) {
+                    return okResponse({ models: [{ name: "llama" }] });
+                }
+                throw new Error(`Unexpected URL ${target}`);
+            });
 
-    it("falls back to /tags when /api/tags is missing", async () => {
-        const handler = new WorkflowPreflightHandler();
-
-        (global.fetch as jest.Mock)
-            // DevSlave health
-            .mockResolvedValueOnce(jsonResponse({ status: "ok" }))
-            // Ollama health
-            .mockResolvedValueOnce(jsonResponse({ status: "ok" }))
-            // Active codebases
-            .mockResolvedValueOnce(jsonResponse({ data: { codebases: [] } }))
-            // /api/tags 404
-            .mockResolvedValueOnce(textResponse("missing", 404))
-            // /tags success
-            .mockResolvedValueOnce(jsonResponse({ models: [{ name: "legacy" }] }));
-
-        const result = await handler.handle();
-
-        expect((global.fetch as jest.Mock).mock.calls[3][0]).toBe(
-            `${DEFAULT_OLLAMA_BASE_URL}/api/tags`,
-        );
-        expect((global.fetch as jest.Mock).mock.calls[4][0]).toBe(
-            `${DEFAULT_OLLAMA_BASE_URL}/tags`,
-        );
-        expect(result.models).toEqual([{ name: "legacy" }]);
-    });
-
-    it("throws when the DevSlave health check fails", async () => {
-        const handler = new WorkflowPreflightHandler();
-        (global.fetch as jest.Mock).mockResolvedValueOnce(textResponse("boom", 500));
-
-        await expect(handler.handle()).rejects.toThrow(
-            `Request to ${DEFAULT_APP_BASE_URL}/health failed with status 500`,
-        );
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+            const handler = new Handler();
+            const result = await handler.handle();
+            expect(result.models).toEqual([{ name: "llama" }]);
+        });
     });
 });

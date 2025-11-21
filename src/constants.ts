@@ -29,7 +29,7 @@ export const AGENT_FOLDER_NAME = process.env.AGENT_FOLDER_NAME || ".agent";
 export const N8N_URL = process.env.N8N_URL || "http://localhost:5678";
 export const APP_CONTAINER_NAME = process.env.APP_CONTAINER_NAME || "devslave-app-1";
 export const DEFAULT_APP_BASE_URL = process.env.APP_BASE_URL || "http://127.0.0.1:3000";
-export const DEFAULT_OLLAMA_BASE_URL = process.env.CODEX_OSS_BASE_URL || "http://127.0.0.1:11434";
+export const DEFAULT_OLLAMA_BASE_URL = process.env.CODEX_OSS_BASE_URL || "http://ollama:11434";
 export const WEBHOOK_URL =
     process.env.N8N_MASTER_WEBHOOK_URL || "http://localhost:5678/webhook/master";
 

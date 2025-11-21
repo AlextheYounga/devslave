@@ -7,6 +7,7 @@ import GitController from "../api/controllers/git.controller";
 import DashboardController from "./controllers/dashboard.controller";
 import UtilityController from "../api/controllers/utility.controller";
 import EventsController from "../api/controllers/events.controller";
+import WorkflowController from "./controllers/workflow.controller";
 
 const router = Router();
 
@@ -18,6 +19,14 @@ router.get("/health", async (req: Request, res: Response) => {
 // Events
 router.get("/api/events", async (req: Request, res: Response) => {
     return new EventsController(req, res).list();
+});
+
+// Workflow
+router.get("/api/workflows/preflight", async (req: Request, res: Response) => {
+    return new WorkflowController(req, res).preflight();
+});
+router.post("/api/workflows/start", async (req: Request, res: Response) => {
+    return new WorkflowController(req, res).start();
 });
 
 // Codebase endpoints

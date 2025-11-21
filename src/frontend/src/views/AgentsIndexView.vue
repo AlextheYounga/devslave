@@ -61,6 +61,15 @@
                 </div>
             </div>
 
+            <div class="mt-4 px-4 sm:px-6 lg:px-8">
+                <RouterLink
+                    to="/agents/start-workflow"
+                    class="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white ring-1 ring-inset ring-orange-400/60 transition hover:bg-orange-400"
+                >
+                    Start Workflow
+                </RouterLink>
+            </div>
+
             <div class="mt-6 flex flex-wrap gap-6 px-4 text-sm text-white sm:px-6 lg:px-8">
                 <div class="min-w-[16rem] flex-1">
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Status</p>

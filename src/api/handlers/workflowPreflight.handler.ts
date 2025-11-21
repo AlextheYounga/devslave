@@ -85,34 +85,52 @@ export class WorkflowPreflightHandler {
     private async fetchOllamaModels(): Promise<OllamaModel[]> {
         console.log("🔍 Fetching Ollama models...");
         const paths = ["/api/tags", "/tags"];
+        const candidateBases = this.getOllamaCandidates();
         let lastError: Error | null = null;
 
-        for (const path of paths) {
-            const url = `${DEFAULT_OLLAMA_BASE_URL}${path}`;
-            let response: Response;
-            try {
-                response = await makeRequest(url, { method: "GET" });
-            } catch (error) {
-                lastError = error instanceof Error ? error : new Error(String(error));
-                continue;
-            }
+        for (const base of candidateBases) {
+            for (const path of paths) {
+                const url = `${base}${path}`;
+                let response: Response;
+                try {
+                    response = await makeRequest(url, { method: "GET" });
+                } catch (error) {
+                    lastError = error instanceof Error ? error : new Error(String(error));
+                    continue;
+                }
 
-            if (response.ok) {
-                const data = (await response.json()) as { models?: OllamaModel[] };
-                return data.models ?? [];
-            }
+                if (response.ok) {
+                    const data = (await response.json()) as { models?: OllamaModel[] };
+                    return data.models ?? [];
+                }
 
-            if (response.status !== 404) {
-                const body = await readBody(response);
-                const suffix = body ? ` ${body}` : "";
-                throw new Error(
-                    `Request to ${url} failed with status ${response.status} ${response.statusText}.${suffix}`,
-                );
-            }
+                if (response.status !== 404) {
+                    const body = await readBody(response);
+                    const suffix = body ? ` ${body}` : "";
+                    throw new Error(
+                        `Request to ${url} failed with status ${response.status} ${response.statusText}.${suffix}`,
+                    );
+                }
 
-            lastError = new Error(`Request to ${url} failed with status 404 Not Found.`);
+                lastError = new Error(`Request to ${url} failed with status 404 Not Found.`);
+            }
         }
 
         throw lastError ?? new Error("Failed to fetch Ollama models.");
+    }
+
+    private getOllamaCandidates(): string[] {
+        const candidates = new Set<string>();
+        candidates.add(DEFAULT_OLLAMA_BASE_URL);
+
+        const normalized = DEFAULT_OLLAMA_BASE_URL.toLowerCase();
+        if (normalized.includes("localhost") || normalized.includes("127.0.0.1")) {
+            candidates.add("http://ollama:11434");
+        } else if (normalized.includes("ollama")) {
+            candidates.add("http://127.0.0.1:11434");
+            candidates.add("http://localhost:11434");
+        }
+
+        return Array.from(candidates);
     }
 }

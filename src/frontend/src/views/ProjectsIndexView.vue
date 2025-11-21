@@ -18,15 +18,23 @@
                             Updated {{ formatTimestamp(lastUpdated) }}
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/10 transition hover:bg-white/10 disabled:opacity-50"
-                        :disabled="loading"
-                        @click="fetchProjects"
-                    >
-                        <ArrowPathIcon class="size-4" :class="loading ? 'animate-spin' : ''" aria-hidden="true" />
-                        <span>{{ loading ? "Refreshing…" : "Refresh" }}</span>
-                    </button>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <RouterLink
+                            to="/projects/new"
+                            class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-inset ring-emerald-500/40 transition hover:bg-emerald-500"
+                        >
+                            Create New
+                        </RouterLink>
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/10 transition hover:bg-white/10 disabled:opacity-50"
+                            :disabled="loading"
+                            @click="fetchProjects"
+                        >
+                            <ArrowPathIcon class="size-4" :class="loading ? 'animate-spin' : ''" aria-hidden="true" />
+                            <span>{{ loading ? "Refreshing…" : "Refresh" }}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
