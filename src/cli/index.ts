@@ -9,6 +9,9 @@ import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
 import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "./logs";
 import { DEFAULT_APP_BASE_URL, paths } from "../constants";
+import OpenAppShellHandler from "../api/handlers/utilities/openAppShell.handler";
+import OpenVsCodeHandler from "../api/handlers/utilities/openVsCode.handler";
+import CodexLoginHandler from "../api/handlers/utilities/codexLogin.handler";
 
 async function runCommand(command: string, args: string[] = [], options = {}): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -347,12 +350,12 @@ async function handleUtilityChoice(choice: string): Promise<void> {
     switch (choice) {
         case "codex-login":
             console.log("\n🔐 Logging into Codex...\n");
-            await runCommand(join(rootDir, "docker/codex-login.sh"));
+            await new CodexLoginHandler().handle();
             break;
 
         case "app-shell":
             console.log("\n🐚 Launching App Shell...\n");
-            await runCommand(join(rootDir, "docker/dev-container.sh"));
+            await new OpenAppShellHandler().handle();
             break;
 
         case "start-docker":
@@ -367,7 +370,7 @@ async function handleUtilityChoice(choice: string): Promise<void> {
 
         case "open-vscode":
             console.log("\n💻 Opening Agent Container in VS Code...\n");
-            await runCommand(join(rootDir, "docker/vscode-remote.sh"));
+            await new OpenVsCodeHandler().handle();
             break;
 
         case "clone-project":

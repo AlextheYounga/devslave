@@ -1,5 +1,15 @@
 {
     "tabWidth": 4,
     "printWidth": 100,
-    "plugins": ["prettier-plugin-sh", "prettier-plugin-vue"]
+    "plugins": ["prettier-plugin-sh"],
+    "overrides": [
+        {
+            "files": "*.vue",
+            "options": {
+                "vueIndentScriptAndStyle": false,
+                "singleAttributePerLine": false,
+                "printWidth": 120
+            }
+        }
+    ]
 }

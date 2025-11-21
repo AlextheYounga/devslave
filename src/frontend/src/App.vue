@@ -34,11 +34,7 @@
                                 leave-to="opacity-0"
                             >
                                 <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
-                                    <button
-                                        type="button"
-                                        class="-m-2.5 p-2.5"
-                                        @click="sidebarOpen = false"
-                                    >
+                                    <button type="button" class="-m-2.5 p-2.5" @click="sidebarOpen = false">
                                         <span class="sr-only">Close sidebar</span>
                                         <XMarkIcon class="size-6 text-white" aria-hidden="true" />
                                     </button>
@@ -88,36 +84,87 @@
                                         </li>
 
                                         <li>
-                                            <div class="text-xs/6 font-semibold text-gray-400">
-                                                Your teams
+                                            <div class="text-xs/6 font-semibold text-gray-400">Utilities</div>
+
+                                            <div class="-mx-2 mt-2 space-y-1">
+                                                <a
+                                                    :href="n8nUrl"
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white"
+                                                >
+                                                    <span
+                                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
+                                                    >
+                                                        n8n
+                                                    </span>
+                                                    <span class="truncate">Open n8n</span>
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    class="group flex w-full gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                                                    :disabled="utilityLoading !== null"
+                                                    @click="runUtilityAction('app-shell')"
+                                                >
+                                                    <span
+                                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
+                                                    >
+                                                        sh
+                                                    </span>
+                                                    <span class="truncate">
+                                                        <span v-if="utilityLoading === 'app-shell'">
+                                                            Opening shell…
+                                                        </span>
+                                                        <span v-else>Open App Shell</span>
+                                                    </span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="group flex w-full gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                                                    :disabled="utilityLoading !== null"
+                                                    @click="runUtilityAction('open-vscode')"
+                                                >
+                                                    <span
+                                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
+                                                    >
+                                                        VS
+                                                    </span>
+                                                    <span class="truncate">
+                                                        <span v-if="utilityLoading === 'open-vscode'">
+                                                            Opening VS Code…
+                                                        </span>
+                                                        <span v-else>Open VS Code</span>
+                                                    </span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="group flex w-full gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                                                    :disabled="utilityLoading !== null"
+                                                    @click="runUtilityAction('codex-login')"
+                                                >
+                                                    <span
+                                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
+                                                    >
+                                                        CX
+                                                    </span>
+                                                    <span class="truncate">
+                                                        <span v-if="utilityLoading === 'codex-login'">Logging in…</span>
+                                                        <span v-else>Login to Codex</span>
+                                                    </span>
+                                                </button>
                                             </div>
 
-                                            <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                                <li v-for="team in teams" :key="team.name">
-                                                    <a
-                                                        :href="team.href"
-                                                        :class="[
-                                                            team.current
-                                                                ? 'bg-white/5 text-white'
-                                                                : 'text-gray-400 hover:bg-white/5 hover:text-white',
-                                                            'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                                                        ]"
-                                                    >
-                                                        <span
-                                                            :class="[
-                                                                team.current
-                                                                    ? 'border-white/20 text-white'
-                                                                    : 'border-white/10 text-gray-400 group-hover:border-white/20 group-hover:text-white',
-                                                                'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white/5 text-[0.625rem] font-medium',
-                                                            ]"
-                                                            >{{ team.initial }}</span
-                                                        >
-                                                        <span class="truncate">{{
-                                                            team.name
-                                                        }}</span>
-                                                    </a>
-                                                </li>
-                                            </ul>
+                                            <p
+                                                v-if="utilityNotice"
+                                                class="mt-3 text-xs/6"
+                                                :class="
+                                                    utilityNotice.type === 'error'
+                                                        ? 'text-rose-300'
+                                                        : 'text-emerald-300'
+                                                "
+                                            >
+                                                {{ utilityNotice.message }}
+                                            </p>
                                         </li>
 
                                         <li class="-mx-6 mt-auto">
@@ -145,9 +192,7 @@
         <!-- Static sidebar for desktop -->
         <div class="hidden bg-gray-900 xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
             <!-- Sidebar component, swap this element with another sidebar if you like -->
-            <div
-                class="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-6 ring-1 ring-white/5"
-            >
+            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-6 ring-1 ring-white/5">
                 <div class="flex h-16 shrink-0 items-center">
                     <img
                         class="h-8 w-auto"
@@ -173,9 +218,7 @@
                                         <component
                                             :is="item.icon"
                                             :class="[
-                                                item.current
-                                                    ? 'text-white'
-                                                    : 'text-gray-400 group-hover:text-white',
+                                                item.current ? 'text-white' : 'text-gray-400 group-hover:text-white',
                                                 'size-6 shrink-0',
                                             ]"
                                             aria-hidden="true"
@@ -187,32 +230,78 @@
                         </li>
 
                         <li>
-                            <div class="text-xs/6 font-semibold text-gray-400">Your teams</div>
-
-                            <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                <li v-for="team in teams" :key="team.name">
-                                    <a
-                                        :href="team.href"
-                                        :class="[
-                                            team.current
-                                                ? 'bg-white/5 text-white'
-                                                : 'text-gray-400 hover:bg-white/5 hover:text-white',
-                                            'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                                        ]"
+                            <div class="text-xs/6 font-semibold text-gray-400">Utilities</div>
+                            <div class="-mx-2 mt-2 space-y-1">
+                                <a
+                                    :href="n8nUrl"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white"
+                                >
+                                    <span
+                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
                                     >
-                                        <span
-                                            :class="[
-                                                team.current
-                                                    ? 'border-white/20 text-white'
-                                                    : 'border-white/10 text-gray-400 group-hover:border-white/20 group-hover:text-white',
-                                                'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white/5 text-[0.625rem] font-medium',
-                                            ]"
-                                            >{{ team.initial }}</span
-                                        >
-                                        <span class="truncate">{{ team.name }}</span>
-                                    </a>
-                                </li>
-                            </ul>
+                                        n8n
+                                    </span>
+                                    <span class="truncate">Open n8n</span>
+                                </a>
+                                <button
+                                    type="button"
+                                    class="group flex w-full gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                                    :disabled="utilityLoading !== null"
+                                    @click="runUtilityAction('app-shell')"
+                                >
+                                    <span
+                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
+                                    >
+                                        sh
+                                    </span>
+                                    <span class="truncate">
+                                        <span v-if="utilityLoading === 'app-shell'">Opening shell…</span>
+                                        <span v-else>Open App Shell</span>
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="group flex w-full gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                                    :disabled="utilityLoading !== null"
+                                    @click="runUtilityAction('open-vscode')"
+                                >
+                                    <span
+                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
+                                    >
+                                        VS
+                                    </span>
+                                    <span class="truncate">
+                                        <span v-if="utilityLoading === 'open-vscode'">Opening VS Code…</span>
+                                        <span v-else>Open VS Code</span>
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="group flex w-full gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-400 hover:bg-white/5 hover:text-white disabled:opacity-50"
+                                    :disabled="utilityLoading !== null"
+                                    @click="runUtilityAction('codex-login')"
+                                >
+                                    <span
+                                        class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[0.625rem] font-medium text-gray-300"
+                                    >
+                                        CX
+                                    </span>
+                                    <span class="truncate">
+                                        <span v-if="utilityLoading === 'codex-login'">Logging in…</span>
+                                        <span v-else>Login to Codex</span>
+                                    </span>
+                                </button>
+                            </div>
+
+                            <p
+                                v-if="utilityNotice"
+                                class="mt-3 text-xs/6"
+                                :class="utilityNotice.type === 'error' ? 'text-rose-300' : 'text-emerald-300'"
+                            >
+                                {{ utilityNotice.message }}
+                            </p>
                         </li>
 
                         <li class="-mx-6 mt-auto">
@@ -238,11 +327,7 @@
             <main>
                 <header>
                     <div class="flex items-center justify-between px-4 py-3 sm:hidden">
-                        <button
-                            type="button"
-                            class="-m-2.5 p-2.5 text-white"
-                            @click="sidebarOpen = true"
-                        >
+                        <button type="button" class="-m-2.5 p-2.5 text-white" @click="sidebarOpen = true">
                             <span class="sr-only">Open sidebar</span>
                             <Bars3Icon class="size-5" aria-hidden="true" />
                         </button>
@@ -254,11 +339,7 @@
                             class="flex min-w-full flex-none gap-x-6 px-4 text-sm/6 font-semibold text-gray-400 sm:px-6 lg:px-8"
                         >
                             <li v-for="item in secondaryNavigation" :key="item.name">
-                                <a
-                                    :href="item.href"
-                                    :class="item.current ? 'text-indigo-400' : ''"
-                                    >{{ item.name }}</a
-                                >
+                                <a :href="item.href" :class="item.current ? 'text-indigo-400' : ''">{{ item.name }}</a>
                             </li>
                         </ul>
                     </nav>
@@ -268,39 +349,30 @@
                             v-for="(stat, statIdx) in statCards"
                             :key="stat.name"
                             :class="[
-                                statIdx % 2 === 1
-                                    ? 'sm:border-l'
-                                    : statIdx === 2
-                                      ? 'lg:border-l'
-                                      : '',
+                                statIdx % 2 === 1 ? 'sm:border-l' : statIdx === 2 ? 'lg:border-l' : '',
                                 'border-t border-white/5 px-4 py-6 sm:px-6 lg:px-8',
                             ]"
                         >
                             <p class="text-sm/6 font-medium text-gray-400">{{ stat.name }}</p>
 
                             <p class="mt-2 flex items-baseline gap-x-2">
-                                <span class="text-4xl font-semibold tracking-tight text-white">{{
-                                    formatNumber(stat.value)
-                                }}</span>
+                                <span class="text-4xl font-semibold tracking-tight text-white">
+                                    {{ formatNumber(stat.value) }}
+                                </span>
                             </p>
                         </div>
                     </div>
                 </header>
                 <!-- Agent table -->
                 <div class="border-t border-white/10 pt-11">
-                    <div
-                        class="flex flex-wrap items-start justify-between gap-4 px-4 sm:px-6 lg:px-8"
-                    >
+                    <div class="flex flex-wrap items-start justify-between gap-4 px-4 sm:px-6 lg:px-8">
                         <div>
                             <p class="text-sm/6 font-semibold text-gray-400">Agents</p>
-
                             <h2 class="text-base/7 font-semibold text-white">Active Sessions</h2>
-
                             <p class="mt-1 text-xs/6 text-gray-400">
                                 Monitor live tmux sessions and step in when a run stalls.
                             </p>
-
-                            <p v-if="lastUpdated" class="mt-2 text-xs/6 text-gray-500">
+                            <p v-if="lastUpdated" class="text-xs/6 text-gray-500">
                                 Updated {{ formatTimestamp(lastUpdated) }}
                             </p>
                         </div>
@@ -315,9 +387,7 @@
                                 <span v-if="loading">Refreshing…</span>
                                 <span v-else>Refresh now</span>
                             </button>
-                            <label
-                                class="flex items-center gap-2 text-sm font-medium text-gray-300"
-                            >
+                            <label class="flex items-center gap-2 text-sm font-medium text-gray-300">
                                 <input
                                     type="checkbox"
                                     class="size-4 rounded border-white/10 bg-gray-900 text-indigo-500 focus:ring-indigo-500"
@@ -330,10 +400,7 @@
 
                     <div class="mt-6 flex flex-wrap gap-6 px-4 text-sm text-white sm:px-6 lg:px-8">
                         <div class="min-w-[16rem] flex-1">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                Status
-                            </p>
-
+                            <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Status</p>
                             <div class="mt-3 flex flex-wrap gap-2">
                                 <button
                                     v-for="option in statusOptions"
@@ -350,16 +417,15 @@
                                     {{ option.label }}
                                 </button>
                             </div>
-
-                            <p class="mt-2 text-xs/6 text-gray-400">Showing: {{ statusSummary }}</p>
                         </div>
 
                         <div class="flex items-end gap-3">
                             <label
                                 for="limit-input"
                                 class="text-xs font-semibold uppercase tracking-wide text-gray-400"
-                                >Max rows</label
                             >
+                                Max rows
+                            </label>
                             <input
                                 id="limit-input"
                                 v-model.number="limit"
@@ -378,17 +444,11 @@
                     <table class="mt-6 w-full whitespace-nowrap text-left">
                         <colgroup>
                             <col class="w-full lg:w-3/12" />
-
                             <col class="lg:w-2/12" />
-
                             <col class="lg:w-1/12" />
-
                             <col class="lg:w-1/12" />
-
                             <col class="lg:w-1/12" />
-
                             <col class="lg:w-1/12" />
-
                             <col class="lg:w-1/12" />
                         </colgroup>
 
@@ -397,42 +457,24 @@
                         >
                             <tr>
                                 <th scope="col" class="py-2 pl-4 pr-8 sm:pl-6 lg:pl-8">Agent</th>
-
                                 <th scope="col" class="py-2 pl-0 pr-4 sm:pr-8">Codebase</th>
-
-                                <th scope="col" class="hidden py-2 pl-0 pr-4 md:table-cell lg:pr-8">
-                                    Role
-                                </th>
-
+                                <th scope="col" class="hidden py-2 pl-0 pr-4 md:table-cell lg:pr-8">Role</th>
                                 <th scope="col" class="py-2 pl-0 pr-4 sm:pr-8">Status</th>
-
-                                <th scope="col" class="hidden py-2 pl-0 pr-4 md:table-cell lg:pr-8">
-                                    Created
-                                </th>
-
+                                <th scope="col" class="hidden py-2 pl-0 pr-4 md:table-cell lg:pr-8">Created</th>
                                 <th scope="col" class="py-2 pl-0 pr-4 lg:pr-8">Updated</th>
-
-                                <th scope="col" class="py-2 pl-0 pr-4 text-right sm:pr-6 lg:pr-8">
-                                    Actions
-                                </th>
+                                <th scope="col" class="py-2 pl-0 pr-4 text-right sm:pr-6 lg:pr-8">Actions</th>
                             </tr>
                         </thead>
 
-                        <tbody
-                            v-if="hasAgents"
-                            class="divide-y divide-white/5 text-sm/6 text-white"
-                        >
+                        <tbody v-if="hasAgents" class="divide-y divide-white/5 text-sm/6 text-white">
                             <tr v-for="agent in agents" :key="agent.id">
                                 <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
                                     <div class="text-sm font-semibold text-white">
                                         {{ shorten(agent.id) }}
                                     </div>
 
-                                    <div class="text-xs text-gray-400">
-                                        exec {{ shorten(agent.executionId) }}
-                                    </div>
+                                    <div class="text-xs text-gray-400">exec {{ shorten(agent.executionId) }}</div>
                                 </td>
-
                                 <td class="py-4 pl-0 pr-4 sm:pr-8">
                                     <div>{{ agent.codebase?.name ?? "–" }}</div>
 
@@ -440,13 +482,9 @@
                                         {{ agent.codebaseId ?? "" }}
                                     </div>
                                 </td>
-
-                                <td
-                                    class="hidden py-4 pl-0 pr-4 text-gray-200 md:table-cell lg:pr-8"
-                                >
+                                <td class="hidden py-4 pl-0 pr-4 text-gray-200 md:table-cell lg:pr-8">
                                     {{ agent.role ?? "–" }}
                                 </td>
-
                                 <td class="py-4 pl-0 pr-4 sm:pr-8">
                                     <span
                                         class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset"
@@ -455,24 +493,17 @@
                                         {{ agent.status }}
                                     </span>
                                 </td>
-
-                                <td
-                                    class="hidden py-4 pl-0 pr-4 text-gray-300 md:table-cell lg:pr-8"
-                                >
+                                <td class="hidden py-4 pl-0 pr-4 text-gray-300 md:table-cell lg:pr-8">
                                     {{ formatDate(agent.createdAt) }}
                                 </td>
-
                                 <td class="py-4 pl-0 pr-4 text-gray-300 lg:pr-8">
                                     {{ formatDate(agent.updatedAt) }}
                                 </td>
-
                                 <td class="py-4 pl-0 pr-4 text-right sm:pr-6 lg:pr-8">
                                     <button
                                         type="button"
                                         class="inline-flex items-center rounded-md bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-200 ring-1 ring-inset ring-rose-500/30 transition hover:bg-rose-500/20 disabled:opacity-50"
-                                        :disabled="
-                                            !canKill(agent.status) || pendingKill === agent.id
-                                        "
+                                        :disabled="!canKill(agent.status) || pendingKill === agent.id"
                                         @click="killAgent(agent)"
                                     >
                                         <span v-if="pendingKill === agent.id">Terminating…</span>
@@ -487,10 +518,7 @@
                         v-if="!hasAgents && !loading"
                         class="mt-6 rounded-2xl border border-dashed border-white/10 px-4 py-12 text-center text-sm text-gray-400 sm:px-6 lg:px-8"
                     >
-                        <p class="font-semibold text-white">
-                            No agents match the selected filters.
-                        </p>
-
+                        <p class="font-semibold text-white">No agents match the selected filters.</p>
                         <p class="mt-2 text-sm/6 text-gray-400">
                             Kick off a run or broaden the filters to see the backlog.
                         </p>
@@ -523,11 +551,6 @@ const navigation = [
     { name: "Usage", href: "#", icon: ChartBarSquareIcon, current: false },
     { name: "Settings", href: "#", icon: Cog6ToothIcon, current: false },
 ];
-const teams = [
-    { id: 1, name: "Planetaria", href: "#", initial: "P", current: false },
-    { id: 2, name: "Protocol", href: "#", initial: "P", current: false },
-    { id: 3, name: "Tailwind Labs", href: "#", initial: "T", current: false },
-];
 const secondaryNavigation = [
     { name: "Overview", href: "#", current: true },
     { name: "Activity", href: "#", current: false },
@@ -556,6 +579,12 @@ type DashboardStats = {
     totalAgents: number;
     completedTickets: number;
     openTickets: number;
+};
+
+type UtilityAction = "app-shell" | "open-vscode" | "codex-login";
+type UtilityNotice = {
+    type: "success" | "error";
+    message: string;
 };
 
 const statusOptions: { value: AgentStatus; label: string }[] = [
@@ -587,6 +616,9 @@ const dashboardStats = ref<DashboardStats>({
     completedTickets: 0,
     openTickets: 0,
 });
+const n8nUrl = "https://localhost:5678";
+const utilityLoading = ref<UtilityAction | null>(null);
+const utilityNotice = ref<UtilityNotice | null>(null);
 let intervalHandle: ReturnType<typeof setInterval> | null = null;
 
 const selectedStatusSet = computed(() => new Set(selectedStatuses.value));
@@ -671,6 +703,36 @@ const requestAgentsRefresh = () => {
         return;
     }
     fetchAgents();
+};
+
+const utilityEndpoints: Record<UtilityAction, string> = {
+    "app-shell": "/api/utilities/app-shell",
+    "open-vscode": "/api/utilities/open-vscode",
+    "codex-login": "/api/utilities/codex-login",
+};
+
+const runUtilityAction = async (action: UtilityAction) => {
+    if (utilityLoading.value) return;
+    utilityLoading.value = action;
+    utilityNotice.value = null;
+    try {
+        const response = await fetch(utilityEndpoints[action], { method: "POST" });
+        const payload = await response.json();
+        if (!response.ok || payload.success !== true) {
+            throw new Error(payload.error ?? "Utility action failed");
+        }
+        utilityNotice.value = {
+            type: "success",
+            message: payload.message ?? "Utility action completed.",
+        };
+    } catch (err) {
+        utilityNotice.value = {
+            type: "error",
+            message: err instanceof Error ? err.message : String(err),
+        };
+    } finally {
+        utilityLoading.value = null;
+    }
 };
 
 const toggleStatus = (value: AgentStatus) => {

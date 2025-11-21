@@ -5,6 +5,7 @@ import AgentController from "../api/controllers/agent.controller";
 import TicketsController from "../api/controllers/tickets.controller";
 import GitController from "../api/controllers/git.controller";
 import DashboardController from "./controllers/dashboard.controller";
+import UtilityController from "../api/controllers/utility.controller";
 
 const router = Router();
 
@@ -46,6 +47,19 @@ router.post("/api/git/complete-feature", async (req: Request, res: Response) => 
 // Dashboard stats
 router.get("/api/dashboard/stats", async (req: Request, res: Response) => {
     return new DashboardController(req, res).getDashboardStats();
+});
+
+// Utility endpoints
+router.post("/api/utilities/app-shell", async (req: Request, res: Response) => {
+    return new UtilityController(req, res).openAppShell();
+});
+
+router.post("/api/utilities/open-vscode", async (req: Request, res: Response) => {
+    return new UtilityController(req, res).openVsCode();
+});
+
+router.post("/api/utilities/codex-login", async (req: Request, res: Response) => {
+    return new UtilityController(req, res).loginCodex();
 });
 
 // Agent Endpoints
