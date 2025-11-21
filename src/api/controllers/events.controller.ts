@@ -18,13 +18,6 @@ export default class EventsController {
             const { agentId, ticketId, codebaseId } = this.req.query;
             const limitParam = this.req.query.limit as string | undefined;
 
-            if (!agentId && !ticketId && !codebaseId) {
-                return this.res.status(400).json({
-                    success: false,
-                    error: "At least one filter (agentId, ticketId, codebaseId) is required",
-                });
-            }
-
             let limit = DEFAULT_EVENT_LIMIT;
             if (limitParam !== undefined) {
                 const parsed = parseInt(limitParam, 10);

@@ -22,21 +22,27 @@ export default class ListEventsHandler {
 
         if (this.filters.agentId) {
             conditions.push(
+                { data: { path: ["data", "agentId"], equals: this.filters.agentId } },
                 { data: { path: ["agentId"], equals: this.filters.agentId } },
+                { data: { path: ["data", "agent", "id"], equals: this.filters.agentId } },
                 { data: { path: ["agent", "id"], equals: this.filters.agentId } },
             );
         }
 
         if (this.filters.ticketId) {
             conditions.push(
+                { data: { path: ["data", "ticketId"], equals: this.filters.ticketId } },
                 { data: { path: ["ticketId"], equals: this.filters.ticketId } },
+                { data: { path: ["data", "ticket", "id"], equals: this.filters.ticketId } },
                 { data: { path: ["ticket", "id"], equals: this.filters.ticketId } },
             );
         }
 
         if (this.filters.codebaseId) {
             conditions.push(
+                { data: { path: ["data", "codebaseId"], equals: this.filters.codebaseId } },
                 { data: { path: ["codebaseId"], equals: this.filters.codebaseId } },
+                { data: { path: ["data", "codebase", "id"], equals: this.filters.codebaseId } },
                 { data: { path: ["codebase", "id"], equals: this.filters.codebaseId } },
             );
         }

@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from "vue-router";
-import AgentsView from "./views/AgentsView.vue";
-import ProjectsView from "./views/ProjectsView.vue";
-import TicketsView from "./views/TicketsView.vue";
+import AgentsIndexView from "./views/AgentsIndexView.vue";
+import ProjectsIndexView from "./views/ProjectsIndexView.vue";
+import TicketsIndexView from "./views/TicketsIndexView.vue";
 import AgentView from "./views/AgentView.vue";
 import ProjectView from "./views/ProjectView.vue";
 import TicketView from "./views/TicketView.vue";
 
 const routes = [
     { path: "/", redirect: "/agents" },
-    { path: "/agents", name: "agents", component: AgentsView },
+    { path: "/agents", name: "agents", component: AgentsIndexView },
     { path: "/agents/:id", name: "agent-detail", component: AgentView, props: true },
-    { path: "/projects", name: "projects", component: ProjectsView },
+    { path: "/projects", name: "projects", component: ProjectsIndexView },
     { path: "/projects/:id", name: "project-detail", component: ProjectView, props: true },
-    { path: "/tickets", name: "tickets", component: TicketsView },
+    { path: "/tickets", name: "tickets", component: TicketsIndexView },
     { path: "/tickets/:id", name: "ticket-detail", component: TicketView, props: true },
 ];
 
