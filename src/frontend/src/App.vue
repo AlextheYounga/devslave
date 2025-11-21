@@ -42,7 +42,7 @@
                                 </div>
                             </TransitionChild>
 
-                            <SideNavigation :active="activeView" @navigate="handleNavigate" />
+                            <SideNavigation @navigate="handleNavigate" />
                         </DialogPanel>
                     </TransitionChild>
                 </div>
@@ -52,67 +52,31 @@
         <!-- Static sidebar for desktop -->
         <div class="hidden bg-gray-900 xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
             <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 ring-1 ring-white/5">
-                <SideNavigation :active="activeView" @navigate="handleNavigate" />
+                <SideNavigation @navigate="handleNavigate" />
             </div>
         </div>
 
         <div class="xl:pl-72">
-            <component
-                :is="CurrentView"
-                :key="componentKey"
-                @open-sidebar="sidebarOpen = true"
-                @view-tickets="handleViewTickets"
-            />
+            <RouterView v-slot="{ Component }">
+                <component :is="Component" @open-sidebar="sidebarOpen = true" />
+            </RouterView>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import SideNavigation from "./components/SideNavigation.vue";
-import AgentsView from "./views/AgentsView.vue";
-import ProjectsView from "./views/ProjectsView.vue";
-import TicketsView from "./views/TicketsView.vue";
 
 const sidebarOpen = ref(false);
-const activeView = ref<"projects" | "agents" | "tickets">("agents");
-const ticketsReloadKey = ref(0);
-
-const viewMap = {
-    projects: ProjectsView,
-    agents: AgentsView,
-    tickets: TicketsView,
-};
-
-const CurrentView = computed(() => viewMap[activeView.value] ?? AgentsView);
-const componentKey = computed(() =>
-    activeView.value === "tickets" ? `${activeView.value}-${ticketsReloadKey.value}` : activeView.value,
-);
+const router = useRouter();
 
 const handleNavigate = (target: "projects" | "agents" | "tickets" | "activity" | "settings") => {
     if (target === "activity" || target === "settings") return;
-    activeView.value = target;
-    sidebarOpen.value = false;
-};
-
-const updateTicketQueryParam = (codebaseId?: string | null) => {
-    const params = new URLSearchParams(window.location.search);
-    if (codebaseId) {
-        params.set("codebaseId", codebaseId);
-    } else {
-        params.delete("codebaseId");
-    }
-    const query = params.toString();
-    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
-    window.history.replaceState({}, "", nextUrl);
-};
-
-const handleViewTickets = (codebaseId?: string | null) => {
-    updateTicketQueryParam(codebaseId ?? null);
-    activeView.value = "tickets";
-    ticketsReloadKey.value += 1;
+    router.push(`/${target}`);
     sidebarOpen.value = false;
 };
 </script>

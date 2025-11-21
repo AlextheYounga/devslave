@@ -123,7 +123,13 @@ export default class CodebaseController {
         try {
             const codebaseId = this.req.params.id!;
             const targetPath = this.data?.targetPath as string | undefined;
-            const cloneHandler = new CloneCodebaseHandler({ codebaseId, targetPath });
+
+            const params: { codebaseId: string; targetPath?: string } = { codebaseId };
+            if (targetPath) {
+                params.targetPath = targetPath;
+            }
+
+            const cloneHandler = new CloneCodebaseHandler(params);
             const result = await cloneHandler.handle();
 
             return this.res.status(200).json({

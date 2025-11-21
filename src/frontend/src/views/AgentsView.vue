@@ -139,7 +139,12 @@
                 <tbody v-if="hasAgents" class="divide-y divide-white/5 text-sm/6 text-white">
                     <tr v-for="agent in agents" :key="agent.id">
                         <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-                            <div class="text-sm font-semibold text-white">{{ shorten(agent.id) }}</div>
+                            <RouterLink
+                                :to="`/agents/${agent.id}`"
+                                class="text-sm font-semibold text-white hover:text-indigo-200"
+                            >
+                                {{ shorten(agent.id) }}
+                            </RouterLink>
                             <div class="text-xs text-gray-400">exec {{ shorten(agent.executionId) }}</div>
                         </td>
                         <td class="py-4 pl-0 pr-4 sm:pr-8">
@@ -191,6 +196,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { RouterLink } from "vue-router";
 import { Bars3Icon } from "@heroicons/vue/20/solid";
 
 type AgentStatus = "PREPARING" | "LAUNCHED" | "RUNNING" | "COMPLETED" | "FAILED";

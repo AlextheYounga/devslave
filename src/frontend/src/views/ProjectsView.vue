@@ -60,7 +60,12 @@
                                 <div class="flex items-center gap-3">
                                     <FolderIcon class="size-5 text-indigo-300" aria-hidden="true" />
                                     <div>
-                                        <div class="font-semibold text-white">{{ project.name }}</div>
+                                        <RouterLink
+                                            :to="`/projects/${project.id}`"
+                                            class="font-semibold text-white hover:text-indigo-200"
+                                        >
+                                            {{ project.name }}
+                                        </RouterLink>
                                         <div class="text-xs text-gray-400">{{ project.id }}</div>
                                     </div>
                                 </div>
@@ -96,6 +101,17 @@
                                         <MenuItems
                                             class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-gray-800 py-2 shadow-lg outline outline-1 -outline-offset-1 outline-white/10"
                                         >
+                                            <MenuItem v-slot="{ active }">
+                                                <RouterLink
+                                                    :to="`/projects/${project.id}`"
+                                                    :class="[
+                                                        active ? 'bg-white/5 text-white' : 'text-gray-200',
+                                                        'block px-3 py-1.5 text-sm font-semibold',
+                                                    ]"
+                                                >
+                                                    View Details
+                                                </RouterLink>
+                                            </MenuItem>
                                             <MenuItem v-slot="{ active }">
                                                 <button
                                                     type="button"
@@ -138,6 +154,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { useRouter, RouterLink } from "vue-router";
 import { Bars3Icon } from "@heroicons/vue/20/solid";
 import { ArrowPathIcon, EllipsisVerticalIcon, FolderIcon } from "@heroicons/vue/24/outline";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
@@ -155,8 +172,8 @@ export type ProjectRecord = {
 
 const emit = defineEmits<{
     (e: "open-sidebar"): void;
-    (e: "view-tickets", codebaseId: string): void;
 }>();
+const router = useRouter();
 
 const projects = ref<ProjectRecord[]>([]);
 const loading = ref(false);
@@ -174,10 +191,8 @@ const phaseBadgeClasses: Record<ProjectPhase, string> = {
 const defaultBadgeClass = "bg-white/5 text-gray-200 ring-white/20";
 
 const hasProjects = computed(() => projects.value.length > 0);
-
-const formatDate = (value: string) => new Date(value).toLocaleString();
 const formatTimestamp = (value: Date) => value.toLocaleTimeString();
-
+const formatDate = (value: string) => new Date(value).toLocaleString();
 const fetchProjects = async () => {
     try {
         loading.value = true;
@@ -197,7 +212,7 @@ const fetchProjects = async () => {
 };
 
 const viewTickets = (project: ProjectRecord) => {
-    emit("view-tickets", project.id);
+    router.push({ path: "/tickets", query: { codebaseId: project.id } });
 };
 
 const cloneProject = async (project: ProjectRecord) => {

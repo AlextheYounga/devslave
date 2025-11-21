@@ -9,6 +9,7 @@ import GetAgentStatusHandler from "../handlers/getAgentStatus.handler";
 import KillAgentHandler from "../handlers/killAgent.handler";
 import ListAgentsHandler from "../handlers/listAgents.handler";
 import GetDashboardStatsHandler from "../handlers/getDashboardStats.handler";
+import GetAgentHandler from "../handlers/getAgent.handler";
 
 const DEFAULT_AGENT_STATUSES: AgentStatus[] = [
     AgentStatus.PREPARING,
@@ -242,6 +243,27 @@ export default class AgentController {
             });
         } catch (error: any) {
             console.error("Error in AgentController->kill:", error);
+            const status = error?.message?.includes("not found") ? 404 : 500;
+            return this.res.status(status).json({
+                success: false,
+                error: error?.message ?? String(error),
+            });
+        }
+    }
+
+    async getById() {
+        try {
+            const agentId = this.req.params.id!;
+            const handler = new GetAgentHandler(agentId);
+            const agent = await handler.handle();
+
+            return this.res.status(200).json({
+                success: true,
+                message: "Agent retrieved successfully",
+                data: { agent },
+            });
+        } catch (error: any) {
+            console.error("Error in AgentController->getById:", error);
             const status = error?.message?.includes("not found") ? 404 : 500;
             return this.res.status(status).json({
                 success: false,

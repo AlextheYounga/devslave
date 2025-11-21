@@ -137,6 +137,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRoute } from "vue-router";
 import { Cog6ToothIcon, FolderIcon, ServerIcon, SignalIcon, TicketIcon } from "@heroicons/vue/24/outline";
 
 type UtilityAction = "app-shell" | "open-vscode" | "codex-login";
@@ -153,10 +154,6 @@ type NavigationItem = {
     clickable: boolean;
 };
 
-const props = defineProps<{
-    active: NavigationKey;
-}>();
-
 const emit = defineEmits<{
     (e: "navigate", key: NavigationKey): void;
 }>();
@@ -172,8 +169,12 @@ const navigation: NavigationItem[] = [
 const n8nUrl = "https://localhost:5678";
 const utilityLoading = ref<UtilityAction | null>(null);
 const utilityNotice = ref<UtilityNotice | null>(null);
+const route = useRoute();
 
-const isActive = (key: NavigationKey) => key === props.active;
+const isActive = (key: NavigationKey) => {
+    const path = route.path || "";
+    return path.startsWith(`/${key}`);
+};
 
 const utilityEndpoints: Record<UtilityAction, string> = {
     "app-shell": "/api/utilities/app-shell",

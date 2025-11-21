@@ -4,6 +4,7 @@ import { validateRequiredFields } from "../utils/validation";
 import ScanAllTicketsHandler from "../handlers/scanAllTickets.handler";
 import ScanTicketHandler from "../handlers/scanTicket.handler";
 import ListTicketsHandler, { ListTicketsFilters } from "../handlers/listTickets.handler";
+import GetTicketHandler from "../handlers/getTicket.handler";
 
 const DEFAULT_TICKET_LIMIT = 50;
 const MAX_TICKET_LIMIT = 100;
@@ -36,6 +37,27 @@ export default class TicketsController {
         } catch (error: any) {
             console.error("Error in TicketsController->scan:", error);
             return this.res.status(500).json({
+                success: false,
+                error: error?.message ?? String(error),
+            });
+        }
+    }
+
+    async getById() {
+        try {
+            const ticketId = this.req.params.id!;
+            const handler = new GetTicketHandler(ticketId);
+            const ticket = await handler.handle();
+
+            return this.res.status(200).json({
+                success: true,
+                message: "Ticket retrieved successfully",
+                data: { ticket },
+            });
+        } catch (error: any) {
+            console.error("Error in TicketsController->getById:", error);
+            const status = error?.message?.includes("not found") ? 404 : 500;
+            return this.res.status(status).json({
                 success: false,
                 error: error?.message ?? String(error),
             });

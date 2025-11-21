@@ -138,9 +138,12 @@
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2">
                                         <TicketIcon class="size-5 text-indigo-300" aria-hidden="true" />
-                                        <p class="text-sm font-semibold text-white truncate">
+                                        <RouterLink
+                                            :to="`/tickets/${ticket.id}`"
+                                            class="text-sm font-semibold text-white hover:text-indigo-200 truncate"
+                                        >
                                             {{ ticket.title || ticket.ticketId }}
-                                        </p>
+                                        </RouterLink>
                                     </div>
                                     <div class="mt-1 flex flex-wrap gap-3 text-xs text-gray-400">
                                         <span class="inline-flex items-center gap-1">
@@ -177,7 +180,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 import { Bars3Icon } from "@heroicons/vue/20/solid";
 import { ArrowPathIcon, TicketIcon } from "@heroicons/vue/24/outline";
 
@@ -204,6 +208,8 @@ type ProjectRecord = {
 const emit = defineEmits<{
     (e: "open-sidebar"): void;
 }>();
+const route = useRoute();
+const router = useRouter();
 
 const tickets = ref<TicketRecord[]>([]);
 const loading = ref(false);
@@ -212,7 +218,6 @@ const lastUpdated = ref<Date | null>(null);
 const projects = ref<ProjectRecord[]>([]);
 const projectsLoading = ref(false);
 const selectedCodebaseId = ref<string | null>(null);
-const initialized = ref(false);
 
 const statusBadgeClasses: Record<TicketStatus, string> = {
     OPEN: "bg-sky-400/10 text-sky-200 ring-sky-400/30",
@@ -233,25 +238,19 @@ const selectedProjectLabel = computed(() => {
 const formatTimestamp = (value: Date) => value.toLocaleTimeString();
 const formatDate = (value: string) => new Date(value).toLocaleString();
 
-const syncSelectedFromUrl = () => {
-    const params = new URLSearchParams(window.location.search);
-    selectedCodebaseId.value = params.get("codebaseId");
-};
-
-const updateUrl = () => {
-    const params = new URLSearchParams(window.location.search);
-    if (selectedCodebaseId.value) {
-        params.set("codebaseId", selectedCodebaseId.value);
-    } else {
-        params.delete("codebaseId");
-    }
-    const query = params.toString();
-    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
-    window.history.replaceState({}, "", nextUrl);
+const syncSelectedFromRoute = () => {
+    const param = route.query.codebaseId;
+    selectedCodebaseId.value = typeof param === "string" ? param : null;
 };
 
 const selectCodebase = (codebaseId: string | null) => {
-    selectedCodebaseId.value = codebaseId;
+    const query = { ...route.query };
+    if (codebaseId) {
+        query.codebaseId = codebaseId;
+    } else {
+        delete query.codebaseId;
+    }
+    router.replace({ path: route.path, query });
 };
 
 const fetchTickets = async () => {
@@ -296,28 +295,16 @@ const fetchProjects = async () => {
     }
 };
 
-const handlePopState = () => {
-    syncSelectedFromUrl();
-    fetchTickets();
-};
-
 watch(
-    () => selectedCodebaseId.value,
+    () => route.query.codebaseId,
     () => {
-        if (!initialized.value) return;
-        updateUrl();
+        syncSelectedFromRoute();
         fetchTickets();
     },
 );
 
 onMounted(async () => {
-    syncSelectedFromUrl();
+    syncSelectedFromRoute();
     await Promise.all([fetchProjects(), fetchTickets()]);
-    initialized.value = true;
-    window.addEventListener("popstate", handlePopState);
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener("popstate", handlePopState);
 });
 </script>

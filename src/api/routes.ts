@@ -6,12 +6,18 @@ import TicketsController from "../api/controllers/tickets.controller";
 import GitController from "../api/controllers/git.controller";
 import DashboardController from "./controllers/dashboard.controller";
 import UtilityController from "../api/controllers/utility.controller";
+import EventsController from "../api/controllers/events.controller";
 
 const router = Router();
 
 // Health check
 router.get("/health", async (req: Request, res: Response) => {
     return new HealthController(req, res).check();
+});
+
+// Events
+router.get("/api/events", async (req: Request, res: Response) => {
+    return new EventsController(req, res).list();
 });
 
 // Codebase endpoints
@@ -81,6 +87,9 @@ router.post("/api/agent/:id/watch", async (req: Request, res: Response) => {
 router.get("/api/agent/:id/status", async (req: Request, res: Response) => {
     return new AgentController(req, res).ping();
 });
+router.get("/api/agent/:id/detail", async (req: Request, res: Response) => {
+    return new AgentController(req, res).getById();
+});
 
 router.post("/api/agent/execute", async (req: Request, res: Response) => {
     return new AgentController(req, res).startAndWait();
@@ -100,6 +109,9 @@ router.get("/api/tickets", async (req: Request, res: Response) => {
 });
 router.get("/api/tickets/:id", async (req: Request, res: Response) => {
     return new TicketsController(req, res).scanTicket();
+});
+router.get("/api/tickets/:id/detail", async (req: Request, res: Response) => {
+    return new TicketsController(req, res).getById();
 });
 router.post("/api/tickets/scan", async (req: Request, res: Response) => {
     return new TicketsController(req, res).scan();
