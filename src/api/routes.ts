@@ -4,6 +4,7 @@ import CodebaseController from "../api/controllers/codebase.controller";
 import AgentController from "../api/controllers/agent.controller";
 import TicketsController from "../api/controllers/tickets.controller";
 import GitController from "../api/controllers/git.controller";
+import DashboardController from "./controllers/dashboard.controller";
 
 const router = Router();
 
@@ -40,6 +41,11 @@ router.post("/api/git/switch-branch", async (req: Request, res: Response) => {
 
 router.post("/api/git/complete-feature", async (req: Request, res: Response) => {
     return new GitController(req, res).completeFeature();
+});
+
+// Dashboard stats
+router.get("/api/dashboard/stats", async (req: Request, res: Response) => {
+    return new DashboardController(req, res).getDashboardStats();
 });
 
 // Agent Endpoints

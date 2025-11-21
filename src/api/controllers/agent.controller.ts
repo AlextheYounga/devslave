@@ -8,6 +8,7 @@ import StartAgentAndNotifyHandler from "../handlers/startAgentAndNotify.handler"
 import GetAgentStatusHandler from "../handlers/getAgentStatus.handler";
 import KillAgentHandler from "../handlers/killAgent.handler";
 import ListAgentsHandler from "../handlers/listAgents.handler";
+import GetDashboardStatsHandler from "../handlers/getDashboardStats.handler";
 
 const DEFAULT_AGENT_STATUSES: AgentStatus[] = [
     AgentStatus.PREPARING,
@@ -71,12 +72,17 @@ export default class AgentController {
                 statuses,
                 limit,
             });
-            const agents = await listHandler.handle();
+            const statsHandler = new GetDashboardStatsHandler();
+
+            const [agents, stats] = await Promise.all([
+                listHandler.handle(),
+                statsHandler.handle(),
+            ]);
 
             return this.res.status(200).json({
                 success: true,
                 message: "Agents retrieved successfully",
-                data: { agents },
+                data: { agents, stats },
             });
         } catch (error: any) {
             console.error("Error in AgentController->list:", error);
