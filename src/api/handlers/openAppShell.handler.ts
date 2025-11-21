@@ -1,5 +1,5 @@
 import * as path from "path";
-import { paths } from "../../../constants";
+import { paths } from "../../constants";
 import { runUtilityCommand } from "./runUtilityCommand";
 
 export default class OpenAppShellHandler {

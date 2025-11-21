@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import OpenAppShellHandler from "../handlers/utilities/openAppShell.handler";
-import OpenVsCodeHandler from "../handlers/utilities/openVsCode.handler";
-import CodexLoginHandler from "../handlers/utilities/codexLogin.handler";
+import OpenAppShellHandler from "../handlers/openAppShell.handler";
+import OpenVsCodeHandler from "../handlers/openVsCode.handler";
+import CodexLoginHandler from "../handlers/codexLogin.handler";
 
 export default class UtilityController {
     private req: Request;

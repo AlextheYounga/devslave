@@ -9,9 +9,9 @@ import { promptMainMenu, promptUtilitiesMenu } from "./menus";
 import { handleAgentWorkflow, handleCreateProjectFlow } from "./workflows";
 import { eventMatchesAgentIdentifiers, formatEventsForLogFile } from "./logs";
 import { DEFAULT_APP_BASE_URL, paths } from "../constants";
-import OpenAppShellHandler from "../api/handlers/utilities/openAppShell.handler";
-import OpenVsCodeHandler from "../api/handlers/utilities/openVsCode.handler";
-import CodexLoginHandler from "../api/handlers/utilities/codexLogin.handler";
+import OpenAppShellHandler from "../api/handlers/openAppShell.handler";
+import OpenVsCodeHandler from "../api/handlers/openVsCode.handler";
+import CodexLoginHandler from "../api/handlers/codexLogin.handler";
 import CloneCodebaseHandler from "../api/handlers/cloneCodebase.handler";
 
 async function runCommand(command: string, args: string[] = [], options = {}): Promise<void> {
