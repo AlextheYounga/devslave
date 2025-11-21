@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
+import { TicketStatus } from "@prisma/client";
 import { validateRequiredFields } from "../utils/validation";
 import ScanAllTicketsHandler from "../handlers/scanAllTickets.handler";
 import ScanTicketHandler from "../handlers/scanTicket.handler";
+import ListTicketsHandler, { ListTicketsFilters } from "../handlers/listTickets.handler";
+
+const DEFAULT_TICKET_LIMIT = 50;
+const MAX_TICKET_LIMIT = 100;
 
 export default class TicketsController {
     private req: Request;
@@ -30,6 +35,68 @@ export default class TicketsController {
             });
         } catch (error: any) {
             console.error("Error in TicketsController->scan:", error);
+            return this.res.status(500).json({
+                success: false,
+                error: error?.message ?? String(error),
+            });
+        }
+    }
+
+    async list() {
+        try {
+            const statusParam = this.req.query.status as string | undefined;
+            const limitParam = this.req.query.limit as string | undefined;
+            const codebaseId = this.req.query.codebaseId as string | undefined;
+
+            const allowedStatuses = new Set(Object.values(TicketStatus));
+            let statuses: TicketStatus[] | undefined;
+
+            if (statusParam) {
+                const parsed = statusParam
+                    .split(",")
+                    .map((value) => value.trim().toUpperCase())
+                    .filter(Boolean)
+                    .filter((value): value is TicketStatus =>
+                        allowedStatuses.has(value as TicketStatus),
+                    );
+
+                if (!parsed.length) {
+                    return this.res.status(400).json({
+                        success: false,
+                        error: "Invalid status filter provided",
+                    });
+                }
+
+                statuses = parsed;
+            }
+
+            let limit = DEFAULT_TICKET_LIMIT;
+            if (limitParam !== undefined) {
+                const parsedLimit = parseInt(limitParam, 10);
+                if (Number.isNaN(parsedLimit) || parsedLimit <= 0) {
+                    return this.res.status(400).json({
+                        success: false,
+                        error: "Limit must be a positive integer",
+                    });
+                }
+                limit = Math.min(parsedLimit, MAX_TICKET_LIMIT);
+            }
+
+            const params: ListTicketsFilters = { limit };
+            if (statuses) params.statuses = statuses;
+            if (codebaseId) params.codebaseId = codebaseId;
+
+            const listHandler = new ListTicketsHandler(params);
+
+            const tickets = await listHandler.handle();
+
+            return this.res.status(200).json({
+                success: true,
+                message: "Tickets retrieved successfully",
+                data: { tickets },
+            });
+        } catch (error: any) {
+            console.error("Error in TicketsController->list:", error);
             return this.res.status(500).json({
                 success: false,
                 error: error?.message ?? String(error),

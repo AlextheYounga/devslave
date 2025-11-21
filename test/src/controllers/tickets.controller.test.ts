@@ -1,7 +1,9 @@
 import TicketsController from "../../../src/api/controllers/tickets.controller";
 import ScanAllTicketsHandler from "../../../src/api/handlers/scanAllTickets.handler";
+import ListTicketsHandler from "../../../src/api/handlers/listTickets.handler";
 
 jest.mock("../../../src/api/handlers/scanAllTickets.handler");
+jest.mock("../../../src/api/handlers/listTickets.handler");
 
 type MockResponse = {
     status: jest.Mock;
@@ -16,14 +18,18 @@ const makeResponse = (): MockResponse => ({
 const ScanAllTicketsHandlerMock = ScanAllTicketsHandler as jest.MockedClass<
     typeof ScanAllTicketsHandler
 >;
+const ListTicketsHandlerMock = ListTicketsHandler as jest.MockedClass<typeof ListTicketsHandler>;
 
 describe("TicketsController", () => {
     const scanHandle = jest.fn();
+    const listHandle = jest.fn();
 
     beforeEach(() => {
         jest.clearAllMocks();
         scanHandle.mockReset();
+        listHandle.mockReset();
         ScanAllTicketsHandlerMock.mockImplementation(() => ({ handle: scanHandle }) as any);
+        ListTicketsHandlerMock.mockImplementation(() => ({ handle: listHandle }) as any);
     });
 
     it("validates payload before scanning", async () => {
@@ -59,5 +65,57 @@ describe("TicketsController", () => {
 
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json.mock.calls[0][0].success).toBe(false);
+    });
+
+    it("lists tickets with defaults", async () => {
+        listHandle.mockResolvedValue([]);
+        const req: any = { query: {}, body: {}, params: {} };
+        const res = makeResponse();
+
+        await new TicketsController(req, res as any).list();
+
+        expect(ListTicketsHandlerMock).toHaveBeenCalledWith({
+            limit: 50,
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it("filters by status and codebaseId", async () => {
+        listHandle.mockResolvedValue([]);
+        const req: any = {
+            query: { status: "open,closed", codebaseId: "code-1", limit: "10" },
+            body: {},
+            params: {},
+        };
+        const res = makeResponse();
+
+        await new TicketsController(req, res as any).list();
+
+        expect(ListTicketsHandlerMock).toHaveBeenCalledWith({
+            statuses: ["OPEN", "CLOSED"],
+            codebaseId: "code-1",
+            limit: 10,
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it("rejects invalid status filters", async () => {
+        const req: any = { query: { status: "unknown" }, body: {}, params: {} };
+        const res = makeResponse();
+
+        await new TicketsController(req, res as any).list();
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(ListTicketsHandlerMock).not.toHaveBeenCalled();
+    });
+
+    it("rejects invalid limits", async () => {
+        const req: any = { query: { limit: "-1" }, body: {}, params: {} };
+        const res = makeResponse();
+
+        await new TicketsController(req, res as any).list();
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(ListTicketsHandlerMock).not.toHaveBeenCalled();
     });
 });

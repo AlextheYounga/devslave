@@ -4,6 +4,7 @@ import GetCodebaseHandler from "../handlers/getCodebase.handler";
 import GetAllCodebasesHandler from "../handlers/getAllCodebases.handler";
 import SetupCodebaseHandler from "../handlers/setupCodebase.handler";
 import UpdatePhaseHandler from "../handlers/updatePhase.handler";
+import CloneCodebaseHandler from "../handlers/cloneCodebase.handler";
 
 export default class CodebaseController {
     private req: Request;
@@ -112,6 +113,28 @@ export default class CodebaseController {
         } catch (error: any) {
             console.error("Error in CodebaseController->setup:", error);
             return this.res.status(500).json({
+                success: false,
+                error: error?.message ?? String(error),
+            });
+        }
+    }
+
+    async clone() {
+        try {
+            const codebaseId = this.req.params.id!;
+            const targetPath = this.data?.targetPath as string | undefined;
+            const cloneHandler = new CloneCodebaseHandler({ codebaseId, targetPath });
+            const result = await cloneHandler.handle();
+
+            return this.res.status(200).json({
+                success: true,
+                message: "Codebase cloned successfully",
+                data: result,
+            });
+        } catch (error: any) {
+            console.error("Error in CodebaseController->clone:", error);
+            const status = error?.message?.includes("not found") ? 404 : 500;
+            return this.res.status(status).json({
                 success: false,
                 error: error?.message ?? String(error),
             });

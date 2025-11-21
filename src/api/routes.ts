@@ -31,6 +31,10 @@ router.get("/api/codebases", async (req: Request, res: Response) => {
     return new CodebaseController(req, res).getAll();
 });
 
+router.post("/api/codebase/:id/clone", async (req: Request, res: Response) => {
+    return new CodebaseController(req, res).clone();
+});
+
 // Git endpoints
 router.post("/api/git/commit", async (req: Request, res: Response) => {
     return new GitController(req, res).commit();
@@ -91,6 +95,9 @@ router.post("/api/agent/:id/kill", async (req: Request, res: Response) => {
 });
 
 // Ticket endpoints
+router.get("/api/tickets", async (req: Request, res: Response) => {
+    return new TicketsController(req, res).list();
+});
 router.get("/api/tickets/:id", async (req: Request, res: Response) => {
     return new TicketsController(req, res).scanTicket();
 });

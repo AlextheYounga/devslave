@@ -2,12 +2,9 @@
     <div
         class="relative flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 ring ring-white/10 before:pointer-events-none before:absolute before:inset-0 before:bg-black/10"
     >
-        <div class="relative flex h-16 shrink-0 items-center">
-            <img
-                class="h-8 w-auto"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                alt="Devslave"
-            />
+        <div class="relative flex h-20 mt-4 shrink-0 items-center">
+            <img class="h-20 w-auto" src="../images/logo.png" alt="Devslave" />
+            <h1>DEVSLAVE</h1>
         </div>
 
         <nav class="relative flex flex-1 flex-col">
@@ -15,25 +12,35 @@
                 <li>
                     <ul role="list" class="-mx-2 space-y-1">
                         <li v-for="item in navigation" :key="item.name">
-                            <a
-                                :href="item.href"
+                            <button
+                                v-if="item.clickable"
+                                type="button"
                                 :class="[
-                                    item.current
+                                    isActive(item.key)
                                         ? 'bg-white/5 text-white'
                                         : 'text-gray-400 hover:bg-white/5 hover:text-white',
-                                    'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
+                                    'group flex w-full gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold',
                                 ]"
+                                @click="emit('navigate', item.key)"
                             >
                                 <component
                                     :is="item.icon"
                                     :class="[
-                                        item.current ? 'text-white' : 'text-gray-400 group-hover:text-white',
+                                        isActive(item.key) ? 'text-white' : 'text-gray-400 group-hover:text-white',
                                         'size-6 shrink-0',
                                     ]"
                                     aria-hidden="true"
                                 />
                                 {{ item.name }}
-                            </a>
+                            </button>
+                            <div
+                                v-else
+                                class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-600"
+                                aria-disabled="true"
+                            >
+                                <component :is="item.icon" class="size-6 shrink-0 text-gray-600" aria-hidden="true" />
+                                {{ item.name }}
+                            </div>
                         </li>
                     </ul>
                 </li>
@@ -130,14 +137,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import {
-    ChartBarSquareIcon,
-    Cog6ToothIcon,
-    FolderIcon,
-    GlobeAltIcon,
-    ServerIcon,
-    SignalIcon,
-} from "@heroicons/vue/24/outline";
+import { Cog6ToothIcon, FolderIcon, ServerIcon, SignalIcon, TicketIcon } from "@heroicons/vue/24/outline";
 
 type UtilityAction = "app-shell" | "open-vscode" | "codex-login";
 type UtilityNotice = {
@@ -145,18 +145,35 @@ type UtilityNotice = {
     message: string;
 };
 
-const navigation = [
-    { name: "Projects", href: "#", icon: FolderIcon, current: false },
-    { name: "Deployments", href: "#", icon: ServerIcon, current: true },
-    { name: "Activity", href: "#", icon: SignalIcon, current: false },
-    { name: "Domains", href: "#", icon: GlobeAltIcon, current: false },
-    { name: "Usage", href: "#", icon: ChartBarSquareIcon, current: false },
-    { name: "Settings", href: "#", icon: Cog6ToothIcon, current: false },
+type NavigationKey = "projects" | "agents" | "tickets" | "activity" | "settings";
+type NavigationItem = {
+    name: string;
+    key: NavigationKey;
+    icon: any;
+    clickable: boolean;
+};
+
+const props = defineProps<{
+    active: NavigationKey;
+}>();
+
+const emit = defineEmits<{
+    (e: "navigate", key: NavigationKey): void;
+}>();
+
+const navigation: NavigationItem[] = [
+    { name: "Projects", key: "projects", icon: FolderIcon, clickable: true },
+    { name: "Agents", key: "agents", icon: ServerIcon, clickable: true },
+    { name: "Tickets", key: "tickets", icon: TicketIcon, clickable: true },
+    { name: "Activity", key: "activity", icon: SignalIcon, clickable: false },
+    { name: "Settings", key: "settings", icon: Cog6ToothIcon, clickable: false },
 ];
 
 const n8nUrl = "https://localhost:5678";
 const utilityLoading = ref<UtilityAction | null>(null);
 const utilityNotice = ref<UtilityNotice | null>(null);
+
+const isActive = (key: NavigationKey) => key === props.active;
 
 const utilityEndpoints: Record<UtilityAction, string> = {
     "app-shell": "/api/utilities/app-shell",

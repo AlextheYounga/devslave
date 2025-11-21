@@ -1,5 +1,5 @@
 import inquirer from "inquirer";
-import { execSync, spawn } from "child_process";
+import { spawn } from "child_process";
 import { basename, join } from "path";
 import { homedir, tmpdir } from "os";
 import { promises as fs } from "fs";
@@ -12,6 +12,7 @@ import { DEFAULT_APP_BASE_URL, paths } from "../constants";
 import OpenAppShellHandler from "../api/handlers/utilities/openAppShell.handler";
 import OpenVsCodeHandler from "../api/handlers/utilities/openVsCode.handler";
 import CodexLoginHandler from "../api/handlers/utilities/codexLogin.handler";
+import CloneCodebaseHandler from "../api/handlers/cloneCodebase.handler";
 
 async function runCommand(command: string, args: string[] = [], options = {}): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -62,9 +63,11 @@ async function handleCloneProject(): Promise<void> {
         const targetPath = join(paths.projectOutputDir, projectFolder);
 
         console.log(`\n📥 Cloning to ${targetPath}...`);
-        await execSync(`./docker/clone.sh ${selectedCodebase.path} ${targetPath}`, {
-            stdio: "inherit",
+        const cloneHandler = new CloneCodebaseHandler({
+            codebaseId: selectedCodebase.id,
+            targetPath,
         });
+        await cloneHandler.handle();
         console.log(`\n✅ Project downloaded successfully to: ${targetPath}\n`);
     } catch (error) {
         console.error("\n❌ Download failed:", (error as Error).message);
