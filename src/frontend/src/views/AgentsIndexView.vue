@@ -7,20 +7,6 @@
                     <Bars3Icon class="size-5" aria-hidden="true" />
                 </button>
             </div>
-            <!-- Secondary navigation -->
-            <nav class="flex overflow-x-auto border-b border-white/10 py-4">
-                <ul
-                    role="list"
-                    class="flex min-w-full flex-none gap-x-6 px-4 text-sm/6 font-semibold text-gray-400 sm:px-6 lg:px-8"
-                >
-                    <li v-for="item in secondaryNavigation" :key="item.name">
-                        <a :href="item.href" :class="item.current ? 'text-indigo-400' : ''">
-                            {{ item.name }}
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
             <!-- Stats -->
             <div class="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2 lg:grid-cols-4">
                 <div

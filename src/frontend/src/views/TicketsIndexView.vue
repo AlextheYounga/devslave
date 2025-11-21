@@ -91,7 +91,7 @@
                         <p class="mt-2 text-sm text-gray-400">Run a scan to sync tickets from your codebases.</p>
                     </div>
 
-                    <div v-else class="rounded-2xl border border-white/10 bg-gray-900/60 shadow-lg max-h-[75vh] overflow-y-auto">
+                    <div v-else class="rounded-2xl border border-white/10 bg-gray-900/60 shadow-lg max-h-[75vh] overflow-y-nav">
                         <ul role="list" class="divide-y divide-white/5">
                             <li
                                 v-for="ticket in tickets"

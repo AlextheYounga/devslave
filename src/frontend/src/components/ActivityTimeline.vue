@@ -1,5 +1,5 @@
 <template>
-    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-6 shadow-lg max-h-96 overflow-y-scroll">
+    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-6 shadow-lg max-h-[45vh] overflow-y-auto">
         <div class="flex items-center justify-between">
             <h2 class="text-sm/6 font-semibold text-white">Activity</h2>
             <button
