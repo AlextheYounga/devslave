@@ -19,7 +19,7 @@ describe("ListEventsHandler", () => {
         await createEvent("evt-2", { ticket: { id: "tk-456" } });
         await createEvent("evt-3", { agentId: "ag-789" });
 
-        const result = await new ListEventsHandler({ id: "tk-456" }).handle() as any[];
+        const result = (await new ListEventsHandler({ id: "tk-456" }).handle()) as any[];
 
         expect(result).toHaveLength(1);
         expect(result[0]?.id).toBe("evt-2");
@@ -29,7 +29,7 @@ describe("ListEventsHandler", () => {
         await createEvent("evt-nested-1", { agent: { id: "agent-999" } });
         await createEvent("evt-nested-2", { agentId: "agent-888" });
 
-        const result = await new ListEventsHandler({ id: "agent-999" }).handle() as any[];
+        const result = (await new ListEventsHandler({ id: "agent-999" }).handle()) as any[];
 
         expect(result).toHaveLength(1);
         expect(result[0]?.id).toBe("evt-nested-1");
@@ -39,7 +39,7 @@ describe("ListEventsHandler", () => {
         await createEvent("evt-all-1", { some: "data" });
         await createEvent("evt-all-2", { other: "data" });
 
-        const result = await new ListEventsHandler({}).handle() as any[];
+        const result = (await new ListEventsHandler({}).handle()) as any[];
 
         expect(result.length).toBeGreaterThanOrEqual(2);
     });
@@ -49,7 +49,7 @@ describe("ListEventsHandler", () => {
         await createEvent("evt-limit-2", { test: "b" });
         await createEvent("evt-limit-3", { test: "c" });
 
-        const result = await new ListEventsHandler({ limit: 2 }).handle() as any[];
+        const result = (await new ListEventsHandler({ limit: 2 }).handle()) as any[];
 
         expect(result).toHaveLength(2);
     });

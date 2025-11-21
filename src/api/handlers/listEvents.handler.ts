@@ -21,7 +21,7 @@ export default class ListEventsHandler {
         if (this.filters.id) {
             return this.db.$queryRaw`
                 SELECT * FROM events 
-                WHERE data::text LIKE ${'%' + this.filters.id + '%'}
+                WHERE data::text LIKE ${"%" + this.filters.id + "%"}
                 ORDER BY timestamp DESC
                 LIMIT ${limit}
             `;
