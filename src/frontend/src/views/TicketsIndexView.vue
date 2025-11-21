@@ -35,7 +35,9 @@
             <p v-if="error" class="mt-4 text-sm text-rose-300">{{ error }}</p>
 
             <div class="mt-6 grid gap-6 lg:grid-cols-4">
-                <aside class="rounded-2xl border border-white/10 bg-gray-900/60 p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
+                <aside
+                    class="rounded-2xl border border-white/10 bg-gray-900/60 p-4 sm:p-6 max-h-[75vh] overflow-y-auto"
+                >
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Projects</p>
@@ -91,7 +93,10 @@
                         <p class="mt-2 text-sm text-gray-400">Run a scan to sync tickets from your codebases.</p>
                     </div>
 
-                    <div v-else class="rounded-2xl border border-white/10 bg-gray-900/60 shadow-lg max-h-[75vh] overflow-y-nav">
+                    <div
+                        v-else
+                        class="rounded-2xl border border-white/10 bg-gray-900/60 shadow-lg max-h-[75vh] overflow-y-nav"
+                    >
                         <ul role="list" class="divide-y divide-white/5">
                             <li
                                 v-for="ticket in tickets"

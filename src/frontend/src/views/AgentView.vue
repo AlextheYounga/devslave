@@ -74,7 +74,7 @@
 
                     <div v-if="agent?.prompt" class="border-t border-white/10 pt-4">
                         <h3 class="text-sm font-semibold text-white">Prompt</h3>
-                        <vue-markdown  class="markdown-content mt-2" :source="agent.prompt" />
+                        <vue-markdown class="markdown-content mt-2" :source="agent.prompt" />
                     </div>
 
                     <div v-if="agent?.data" class="border-t border-white/10 pt-4">
@@ -122,7 +122,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, RouterLink } from "vue-router";
 import ActivityTimeline from "../components/ActivityTimeline.vue";
-import VueMarkdown from 'vue-markdown-render'
+import VueMarkdown from "vue-markdown-render";
 
 type AgentStatus = "PREPARING" | "LAUNCHED" | "RUNNING" | "COMPLETED" | "FAILED";
 
@@ -216,7 +216,7 @@ const fetchEvents = async () => {
     if (!agentId.value) return;
     try {
         eventsLoading.value = true;
-        const response = await fetch(`/api/events?agentId=${agentId.value}&limit=50`);
+        const response = await fetch(`/api/events?query=${encodeURIComponent(agentId.value)}&limit=50`);
         const payload = await response.json();
         if (!response.ok || payload.success !== true) {
             throw new Error(payload.error ?? "Failed to load events");

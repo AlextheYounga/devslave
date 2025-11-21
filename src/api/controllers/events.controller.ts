@@ -17,6 +17,7 @@ export default class EventsController {
         try {
             const { id } = this.req.query;
             const limitParam = this.req.query.limit as string | undefined;
+            const query = this.req.query.query as string | undefined;
 
             let limit = DEFAULT_EVENT_LIMIT;
             if (limitParam !== undefined) {
@@ -31,7 +32,12 @@ export default class EventsController {
             }
 
             const filters: Record<string, any> = { limit };
-            if (id) filters.id = id;
+            if (query) {
+                filters.query = query;
+            } else if (id) {
+                // Backward compatibility for legacy clients still using ?id=
+                filters.query = id as string;
+            }
 
             const handler = new ListEventsHandler(filters);
             const events = await handler.handle();

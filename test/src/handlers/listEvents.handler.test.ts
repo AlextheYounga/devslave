@@ -14,12 +14,12 @@ describe("ListEventsHandler", () => {
         });
     };
 
-    it("filters by any id found in event data", async () => {
+    it("filters by any string found in event data", async () => {
         await createEvent("evt-1", { codebaseId: "cb-123" });
         await createEvent("evt-2", { ticket: { id: "tk-456" } });
         await createEvent("evt-3", { agentId: "ag-789" });
 
-        const result = (await new ListEventsHandler({ id: "tk-456" }).handle()) as any[];
+        const result = (await new ListEventsHandler({ query: "tk-456" }).handle()) as any[];
 
         expect(result).toHaveLength(1);
         expect(result[0]?.id).toBe("evt-2");
@@ -29,13 +29,13 @@ describe("ListEventsHandler", () => {
         await createEvent("evt-nested-1", { agent: { id: "agent-999" } });
         await createEvent("evt-nested-2", { agentId: "agent-888" });
 
-        const result = (await new ListEventsHandler({ id: "agent-999" }).handle()) as any[];
+        const result = (await new ListEventsHandler({ query: "agent-999" }).handle()) as any[];
 
         expect(result).toHaveLength(1);
         expect(result[0]?.id).toBe("evt-nested-1");
     });
 
-    it("returns all events when no id filter provided", async () => {
+    it("returns all events when no query filter provided", async () => {
         await createEvent("evt-all-1", { some: "data" });
         await createEvent("evt-all-2", { other: "data" });
 

@@ -33,15 +33,15 @@ describe("EventsController", () => {
         expect(res.json.mock.calls[0][0].data.events).toHaveLength(2);
     });
 
-    it("returns events filtered by id", async () => {
+    it("returns events filtered by query", async () => {
         listHandle.mockResolvedValue([{ id: "evt" }]);
-        const req: any = { query: { id: "agent-123" } };
+        const req: any = { query: { query: "agent-123" } };
         const res = makeResponse();
 
         await new EventsController(req, res as any).list();
 
         expect(ListEventsHandlerMock).toHaveBeenCalledWith({
-            id: "agent-123",
+            query: "agent-123",
             limit: 50,
         });
         expect(res.status).toHaveBeenCalledWith(200);
@@ -51,7 +51,7 @@ describe("EventsController", () => {
     it("caps limit and rejects invalid values", async () => {
         const res = makeResponse();
         await new EventsController(
-            { query: { id: "test-id", limit: "-1" } } as any,
+            { query: { query: "test-id", limit: "-1" } } as any,
             res as any,
         ).list();
         expect(res.status).toHaveBeenCalledWith(400);
@@ -59,23 +59,36 @@ describe("EventsController", () => {
         listHandle.mockResolvedValue([]);
         const res2 = makeResponse();
         await new EventsController(
-            { query: { id: "test-id", limit: "500" } } as any,
+            { query: { query: "test-id", limit: "500" } } as any,
             res2 as any,
         ).list();
         expect(ListEventsHandlerMock).toHaveBeenCalledWith({
-            id: "test-id",
+            query: "test-id",
             limit: 100,
         });
     });
 
     it("handles handler errors", async () => {
         listHandle.mockRejectedValue(new Error("fail"));
-        const req: any = { query: { id: "some-id" } };
+        const req: any = { query: { query: "some-id" } };
         const res = makeResponse();
 
         await new EventsController(req, res as any).list();
 
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json.mock.calls[0][0].success).toBe(false);
+    });
+
+    it("supports legacy id query param", async () => {
+        listHandle.mockResolvedValue([{ id: "evt" }]);
+        const req: any = { query: { id: "legacy-123" } };
+        const res = makeResponse();
+
+        await new EventsController(req, res as any).list();
+
+        expect(ListEventsHandlerMock).toHaveBeenCalledWith({
+            query: "legacy-123",
+            limit: 50,
+        });
     });
 });

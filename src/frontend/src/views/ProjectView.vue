@@ -186,7 +186,7 @@ const fetchEvents = async () => {
     if (!projectId.value) return;
     try {
         eventsLoading.value = true;
-        const response = await fetch(`/api/events?codebaseId=${projectId.value}&limit=50`);
+        const response = await fetch(`/api/events?query=${encodeURIComponent(projectId.value)}&limit=50`);
         const payload = await response.json();
         if (!response.ok || payload.success !== true) {
             throw new Error(payload.error ?? "Failed to load events");

@@ -74,7 +74,7 @@
 
                     <div v-if="ticket?.description" class="border-t border-white/10 pt-4">
                         <h3 class="text-sm font-semibold text-white">Description</h3>
-                            <vue-markdown  class="markdown-content mt-2" :source="ticket.description" />
+                        <vue-markdown class="markdown-content mt-2" :source="ticket.description" />
                     </div>
                 </div>
 
@@ -183,7 +183,7 @@ const fetchEvents = async () => {
     if (!ticketId.value) return;
     try {
         eventsLoading.value = true;
-        const response = await fetch(`/api/events?ticketId=${ticketId.value}&limit=50`);
+        const response = await fetch(`/api/events?query=${encodeURIComponent(ticketId.value)}&limit=50`);
         const payload = await response.json();
         if (!response.ok || payload.success !== true) {
             throw new Error(payload.error ?? "Failed to load events");

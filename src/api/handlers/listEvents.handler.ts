@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { prisma } from "../../prisma";
 
 export type ListEventsFilters = {
-    id?: string;
+    query?: string;
     limit?: number;
 };
 
@@ -18,10 +18,10 @@ export default class ListEventsHandler {
     async handle() {
         const limit = this.filters.limit ?? 50;
 
-        if (this.filters.id) {
+        if (this.filters.query) {
             return this.db.$queryRaw`
                 SELECT * FROM events 
-                WHERE data::text LIKE ${"%" + this.filters.id + "%"}
+                WHERE data::text LIKE ${"%" + this.filters.query + "%"}
                 ORDER BY timestamp DESC
                 LIMIT ${limit}
             `;

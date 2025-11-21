@@ -147,7 +147,7 @@ const navigation: NavigationItem[] = [
     { name: "Projects", key: "projects", icon: FolderIcon, clickable: true },
     { name: "Agents", key: "agents", icon: ServerIcon, clickable: true },
     { name: "Tickets", key: "tickets", icon: TicketIcon, clickable: true },
-    { name: "Activity", key: "activity", icon: SignalIcon, clickable: false },
+    { name: "Activity", key: "activity", icon: SignalIcon, clickable: true },
     { name: "Settings", key: "settings", icon: Cog6ToothIcon, clickable: false },
 ];
 

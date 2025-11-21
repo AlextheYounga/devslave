@@ -75,7 +75,7 @@ const sidebarOpen = ref(false);
 const router = useRouter();
 
 const handleNavigate = (target: "projects" | "agents" | "tickets" | "activity" | "settings") => {
-    if (target === "activity" || target === "settings") return;
+    if (target === "settings") return;
     router.push(`/${target}`);
     sidebarOpen.value = false;
 };
