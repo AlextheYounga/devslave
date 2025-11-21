@@ -35,7 +35,7 @@
             <p v-if="error" class="mt-4 text-sm text-rose-300">{{ error }}</p>
 
             <div class="mt-6 grid gap-6 lg:grid-cols-4">
-                <aside class="rounded-2xl border border-white/10 bg-gray-900/60 p-4 sm:p-6">
+                <aside class="rounded-2xl border border-white/10 bg-gray-900/60 p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Projects</p>
@@ -81,43 +81,6 @@
                 </aside>
 
                 <div class="lg:col-span-3">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-200">
-                                Tickets
-                                <span v-if="selectedProjectLabel" class="text-gray-400"
-                                    >— {{ selectedProjectLabel }}</span
-                                >
-                            </p>
-                            <p class="text-xs text-gray-400" v-if="selectedCodebaseId">
-                                Filtering by {{ selectedCodebaseId }}
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button
-                                type="button"
-                                class="rounded-md px-3 py-1.5 text-sm font-semibold text-gray-300 ring-1 ring-inset ring-white/10 transition hover:bg-white/5"
-                                v-if="selectedCodebaseId"
-                                @click="selectCodebase(null)"
-                            >
-                                Clear filter
-                            </button>
-                            <button
-                                type="button"
-                                class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/10 transition hover:bg-white/10 disabled:opacity-50"
-                                :disabled="loading"
-                                @click="fetchTickets"
-                            >
-                                <ArrowPathIcon
-                                    class="size-4"
-                                    :class="loading ? 'animate-spin' : ''"
-                                    aria-hidden="true"
-                                />
-                                <span>{{ loading ? "Refreshing…" : "Refresh" }}</span>
-                            </button>
-                        </div>
-                    </div>
-
                     <p v-if="loading && !tickets.length" class="mt-4 text-sm text-gray-300">Loading tickets…</p>
 
                     <div
@@ -128,7 +91,7 @@
                         <p class="mt-2 text-sm text-gray-400">Run a scan to sync tickets from your codebases.</p>
                     </div>
 
-                    <div v-else class="mt-4 rounded-2xl border border-white/10 bg-gray-900/60 shadow-lg">
+                    <div v-else class="rounded-2xl border border-white/10 bg-gray-900/60 shadow-lg max-h-[75vh] overflow-y-auto">
                         <ul role="list" class="divide-y divide-white/5">
                             <li
                                 v-for="ticket in tickets"
