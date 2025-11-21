@@ -58,9 +58,7 @@
 
                     <div v-if="hasMasterPrompt" class="border-t border-white/10 pt-4">
                         <h3 class="text-sm font-semibold text-white">Master Prompt</h3>
-                        <div class="mt-2 whitespace-pre-wrap text-sm text-gray-200">
-                            <vue-markdown :source="masterPrompt" />
-                        </div>
+                        <vue-markdown class="markdown-content mt-2" :source="masterPrompt" />
                     </div>
 
                     <div v-if="project?.data" class="border-t border-white/10 pt-4">
@@ -101,7 +99,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ActivityTimeline from "../components/ActivityTimeline.vue";
-import VueMarkdown from 'vue-markdown-render'
+import VueMarkdown from "vue-markdown-render";
 
 type ProjectPhase = "DESIGN" | "PLANNING" | "DEVELOPMENT" | "COMPLETED";
 

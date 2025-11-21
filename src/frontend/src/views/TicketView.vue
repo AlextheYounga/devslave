@@ -72,11 +72,9 @@
                         </div>
                     </dl>
 
-                    <div class="border-t border-white/10 pt-4">
+                    <div v-if="ticket?.description" class="border-t border-white/10 pt-4">
                         <h3 class="text-sm font-semibold text-white">Description</h3>
-                        <p class="mt-2 whitespace-pre-wrap text-sm text-gray-200">
-                            {{ ticket?.description || "No description available." }}
-                        </p>
+                            <vue-markdown  class="markdown-content mt-2" :source="ticket.description" />
                     </div>
                 </div>
 
@@ -106,6 +104,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, RouterLink } from "vue-router";
 import ActivityTimeline from "../components/ActivityTimeline.vue";
+import VueMarkdown from "vue-markdown-render";
 
 type TicketStatus = "OPEN" | "IN_PROGRESS" | "QA_REVIEW" | "QA_CHANGES_REQUESTED" | "CLOSED";
 

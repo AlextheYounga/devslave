@@ -1,7 +1,7 @@
 <template>
     <main class="min-h-screen bg-black text-white">
         <section
-            class="relative isolate overflow-hidden border-b border-white/10 bg-gradient-to-br from-indigo-900/40 to-gray-900/40 px-4 pb-10 pt-16 sm:px-6 lg:px-8"
+            class="relative isolate overflow-hidden border-b border-white/10 bg-linear-to-br from-indigo-900/40 to-gray-900/40 px-4 pb-10 pt-16 sm:px-6 lg:px-8"
         >
             <div class="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-4">
                 <div class="space-y-2">
@@ -72,11 +72,9 @@
                         </div>
                     </dl>
 
-                    <div class="border-t border-white/10 pt-4">
+                    <div v-if="agent?.prompt" class="border-t border-white/10 pt-4">
                         <h3 class="text-sm font-semibold text-white">Prompt</h3>
-                        <p class="mt-2 whitespace-pre-wrap text-sm text-gray-200">
-                            {{ agent?.prompt || "No prompt available." }}
-                        </p>
+                        <vue-markdown  class="markdown-content mt-2" :source="agent.prompt" />
                     </div>
 
                     <div v-if="agent?.data" class="border-t border-white/10 pt-4">
@@ -124,6 +122,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, RouterLink } from "vue-router";
 import ActivityTimeline from "../components/ActivityTimeline.vue";
+import VueMarkdown from 'vue-markdown-render'
 
 type AgentStatus = "PREPARING" | "LAUNCHED" | "RUNNING" | "COMPLETED" | "FAILED";
 
