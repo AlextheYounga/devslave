@@ -212,14 +212,6 @@ const emit = defineEmits<{
     (e: "open-sidebar"): void;
 }>();
 
-const secondaryNavigation = [
-    { name: "Overview", href: "#", current: true },
-    { name: "Activity", href: "#", current: false },
-    { name: "Settings", href: "#", current: false },
-    { name: "Collaborators", href: "#", current: false },
-    { name: "Notifications", href: "#", current: false },
-];
-
 const statusOptions: { value: AgentStatus; label: string }[] = [
     { value: "PREPARING", label: "Preparing" },
     { value: "LAUNCHED", label: "Launched" },

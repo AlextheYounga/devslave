@@ -131,7 +131,7 @@ type UtilityNotice = {
     message: string;
 };
 
-type NavigationKey = "projects" | "agents" | "tickets" | "activity" | "settings";
+type NavigationKey = "projects" | "agents" | "tickets" | "activity";
 type NavigationItem = {
     name: string;
     key: NavigationKey;
@@ -148,7 +148,6 @@ const navigation: NavigationItem[] = [
     { name: "Agents", key: "agents", icon: ServerIcon, clickable: true },
     { name: "Tickets", key: "tickets", icon: TicketIcon, clickable: true },
     { name: "Activity", key: "activity", icon: SignalIcon, clickable: true },
-    { name: "Settings", key: "settings", icon: Cog6ToothIcon, clickable: false },
 ];
 
 const n8nUrl = "http://localhost:5678";

@@ -74,8 +74,7 @@ import SideNavigation from "./components/SideNavigation.vue";
 const sidebarOpen = ref(false);
 const router = useRouter();
 
-const handleNavigate = (target: "projects" | "agents" | "tickets" | "activity" | "settings") => {
-    if (target === "settings") return;
+const handleNavigate = (target: "projects" | "agents" | "tickets" | "activity") => {
     router.push(`/${target}`);
     sidebarOpen.value = false;
 };
