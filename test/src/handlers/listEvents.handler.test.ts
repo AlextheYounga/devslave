@@ -14,33 +14,43 @@ describe("ListEventsHandler", () => {
         });
     };
 
-    it("filters by codebaseId inside event data", async () => {
-        await createEvent("evt-code-1", { codebaseId: "cb-1" });
-        await createEvent("evt-code-2", { codebaseId: "cb-2" });
+    it("filters by any id found in event data", async () => {
+        await createEvent("evt-1", { codebaseId: "cb-123" });
+        await createEvent("evt-2", { ticket: { id: "tk-456" } });
+        await createEvent("evt-3", { agentId: "ag-789" });
 
-        const result = await new ListEventsHandler({ codebaseId: "cb-1" }).handle();
+        const result = await new ListEventsHandler({ id: "tk-456" }).handle() as any[];
 
         expect(result).toHaveLength(1);
-        expect(result[0]?.id).toBe("evt-code-1");
+        expect(result[0]?.id).toBe("evt-2");
     });
 
-    it("filters by ticketId when nested under ticket", async () => {
-        await createEvent("evt-ticket-1", { ticket: { id: "t-1" } });
-        await createEvent("evt-ticket-2", { ticket: { id: "t-2" } });
+    it("finds id regardless of nesting level", async () => {
+        await createEvent("evt-nested-1", { agent: { id: "agent-999" } });
+        await createEvent("evt-nested-2", { agentId: "agent-888" });
 
-        const result = await new ListEventsHandler({ ticketId: "t-2" }).handle();
+        const result = await new ListEventsHandler({ id: "agent-999" }).handle() as any[];
 
         expect(result).toHaveLength(1);
-        expect(result[0]?.id).toBe("evt-ticket-2");
+        expect(result[0]?.id).toBe("evt-nested-1");
     });
 
-    it("filters by agentId whether top-level or nested", async () => {
-        await createEvent("evt-agent-1", { agentId: "a-1" });
-        await createEvent("evt-agent-2", { agent: { id: "a-2" } });
+    it("returns all events when no id filter provided", async () => {
+        await createEvent("evt-all-1", { some: "data" });
+        await createEvent("evt-all-2", { other: "data" });
 
-        const result = await new ListEventsHandler({ agentId: "a-2" }).handle();
+        const result = await new ListEventsHandler({}).handle() as any[];
 
-        expect(result).toHaveLength(1);
-        expect(result[0]?.id).toBe("evt-agent-2");
+        expect(result.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("respects limit parameter", async () => {
+        await createEvent("evt-limit-1", { test: "a" });
+        await createEvent("evt-limit-2", { test: "b" });
+        await createEvent("evt-limit-3", { test: "c" });
+
+        const result = await new ListEventsHandler({ limit: 2 }).handle() as any[];
+
+        expect(result).toHaveLength(2);
     });
 });

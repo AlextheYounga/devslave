@@ -15,7 +15,7 @@ export default class EventsController {
 
     async list() {
         try {
-            const { agentId, ticketId, codebaseId } = this.req.query;
+            const { id } = this.req.query;
             const limitParam = this.req.query.limit as string | undefined;
 
             let limit = DEFAULT_EVENT_LIMIT;
@@ -31,9 +31,7 @@ export default class EventsController {
             }
 
             const filters: Record<string, any> = { limit };
-            if (agentId) filters.agentId = agentId;
-            if (ticketId) filters.ticketId = ticketId;
-            if (codebaseId) filters.codebaseId = codebaseId;
+            if (id) filters.id = id;
 
             const handler = new ListEventsHandler(filters);
             const events = await handler.handle();

@@ -1,10 +1,8 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { prisma } from "../../prisma";
 
 export type ListEventsFilters = {
-    agentId?: string;
-    ticketId?: string;
-    codebaseId?: string;
+    id?: string;
     limit?: number;
 };
 
@@ -18,44 +16,21 @@ export default class ListEventsHandler {
     }
 
     async handle() {
-        const conditions: Prisma.EventsWhereInput[] = [];
+        const limit = this.filters.limit ?? 50;
 
-        if (this.filters.agentId) {
-            conditions.push(
-                { data: { path: ["data", "agentId"], equals: this.filters.agentId } },
-                { data: { path: ["agentId"], equals: this.filters.agentId } },
-                { data: { path: ["data", "agent", "id"], equals: this.filters.agentId } },
-                { data: { path: ["agent", "id"], equals: this.filters.agentId } },
-            );
+        if (this.filters.id) {
+            return this.db.$queryRaw`
+                SELECT * FROM events 
+                WHERE data::text LIKE ${'%' + this.filters.id + '%'}
+                ORDER BY timestamp DESC
+                LIMIT ${limit}
+            `;
         }
 
-        if (this.filters.ticketId) {
-            conditions.push(
-                { data: { path: ["data", "ticketId"], equals: this.filters.ticketId } },
-                { data: { path: ["ticketId"], equals: this.filters.ticketId } },
-                { data: { path: ["data", "ticket", "id"], equals: this.filters.ticketId } },
-                { data: { path: ["ticket", "id"], equals: this.filters.ticketId } },
-            );
-        }
-
-        if (this.filters.codebaseId) {
-            conditions.push(
-                { data: { path: ["data", "codebaseId"], equals: this.filters.codebaseId } },
-                { data: { path: ["codebaseId"], equals: this.filters.codebaseId } },
-                { data: { path: ["data", "codebase", "id"], equals: this.filters.codebaseId } },
-                { data: { path: ["codebase", "id"], equals: this.filters.codebaseId } },
-            );
-        }
-
-        const query: Prisma.EventsFindManyArgs = {
-            orderBy: { timestamp: Prisma.SortOrder.desc },
-            take: this.filters.limit ?? 50,
-        };
-
-        if (conditions.length > 0) {
-            query.where = { OR: conditions };
-        }
-
-        return this.db.events.findMany(query);
+        return this.db.$queryRaw`
+            SELECT * FROM events 
+            ORDER BY timestamp DESC
+            LIMIT ${limit}
+        `;
     }
 }

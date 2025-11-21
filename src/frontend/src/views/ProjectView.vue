@@ -92,19 +92,29 @@
                             </button>
                         </div>
                         <div v-if="eventsLoading" class="mt-3 text-xs text-gray-400">Loading events…</div>
-                        <ul v-else class="mt-4 space-y-4">
+                        <ul v-else class="mt-6 space-y-6">
                             <li
-                                v-for="event in events"
+                                v-for="(event, idx) in events"
                                 :key="event.id"
-                                class="rounded-lg border border-white/5 bg-black/30 p-3"
+                                class="relative flex gap-x-4"
                             >
-                                <div class="flex items-center justify-between text-xs text-gray-400">
-                                    <span class="font-semibold text-white">{{ event.type }}</span>
-                                    <span>{{ formatDate(event.timestamp) }}</span>
+                                <div
+                                    :class="[
+                                        idx === events.length - 1 ? 'h-6' : '-bottom-6',
+                                        'absolute left-0 top-0 flex w-6 justify-center',
+                                    ]"
+                                >
+                                    <div class="w-px bg-white/10"></div>
                                 </div>
-                                <p class="mt-1 text-xs text-gray-300 wrap-break-words">
-                                    {{ summarizeEvent(event.data) }}
-                                </p>
+                                <div class="relative flex size-6 flex-none items-center justify-center bg-gray-900">
+                                    <div class="size-1.5 rounded-full bg-white/10 ring-1 ring-white/20"></div>
+                                </div>
+                                <div class="flex-auto py-0.5 text-xs/5 text-gray-400">
+                                    <div class="flex items-center justify-between gap-x-4">
+                                        <span class="font-semibold text-white">{{ event.type }}</span>
+                                        <span>{{ formatDate(event.timestamp) }}</span>
+                                    </div>
+                                </div>
                             </li>
                             <li v-if="!events.length" class="text-sm text-gray-400">No recent events.</li>
                         </ul>
@@ -205,15 +215,6 @@ const fetchEvents = async () => {
         error.value = err instanceof Error ? err.message : String(err);
     } finally {
         eventsLoading.value = false;
-    }
-};
-
-const summarizeEvent = (data: any) => {
-    try {
-        const json = JSON.stringify(data);
-        return json.length > 140 ? `${json.slice(0, 140)}…` : json;
-    } catch (err) {
-        return String(data ?? "");
     }
 };
 
