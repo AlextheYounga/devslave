@@ -1,7 +1,7 @@
 <template>
     <main class="min-h-screen bg-black text-white">
         <section
-            class="relative isolate overflow-hidden border-b border-white/10 bg-gradient-to-br from-indigo-900/40 to-gray-900/40 px-4 pb-10 pt-16 sm:px-6 lg:px-8"
+            class="relative isolate overflow-hidden border-b border-white/10 bg-linear-to-br from-indigo-900/40 to-gray-900/40 px-4 pb-10 pt-16 sm:px-6 lg:px-8"
         >
             <div class="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-4">
                 <div class="space-y-2">

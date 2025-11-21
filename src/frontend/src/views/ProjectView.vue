@@ -56,6 +56,13 @@
                         </div>
                     </dl>
 
+                    <div v-if="hasMasterPrompt" class="border-t border-white/10 pt-4">
+                        <h3 class="text-sm font-semibold text-white">Master Prompt</h3>
+                        <div class="mt-2 whitespace-pre-wrap text-sm text-gray-200">
+                            <vue-markdown :source="masterPrompt" />
+                        </div>
+                    </div>
+
                     <div v-if="project?.data" class="border-t border-white/10 pt-4">
                         <h3 class="text-sm font-semibold text-white">Data</h3>
                         <pre class="mt-2 max-h-64 overflow-auto rounded-lg bg-black/40 p-3 text-xs text-gray-200">{{
@@ -76,6 +83,10 @@
                                 <dt class="text-gray-400">Updated</dt>
                                 <dd>{{ formatDate(project?.updatedAt) }}</dd>
                             </div>
+                            <div class="flex justify-between">
+                                <dt class="text-gray-400">Setup Type</dt>
+                                <dd>{{ setupType }}</dd>
+                            </div>
                         </dl>
                     </div>
 
@@ -90,6 +101,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ActivityTimeline from "../components/ActivityTimeline.vue";
+import VueMarkdown from 'vue-markdown-render'
 
 type ProjectPhase = "DESIGN" | "PLANNING" | "DEVELOPMENT" | "COMPLETED";
 
@@ -119,6 +131,15 @@ const copied = ref(false);
 
 const formatDate = (value?: string | null) => (value ? new Date(value).toLocaleString() : "–");
 const formattedData = computed(() => (project.value?.data ? JSON.stringify(project.value.data, null, 2) : "None"));
+const setupType = computed(() => {
+    const data = project.value?.data as any;
+    return data?.setupType ?? "–";
+});
+const masterPrompt = computed(() => {
+    const data = project.value?.data as any;
+    return typeof data?.masterPrompt === "string" ? data.masterPrompt : "";
+});
+const hasMasterPrompt = computed(() => masterPrompt.value.trim().length > 0);
 
 const phaseBadge = computed(() => {
     switch (project.value?.phase) {

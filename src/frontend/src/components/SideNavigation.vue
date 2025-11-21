@@ -151,7 +151,7 @@ const navigation: NavigationItem[] = [
     { name: "Settings", key: "settings", icon: Cog6ToothIcon, clickable: false },
 ];
 
-const n8nUrl = "https://localhost:5678";
+const n8nUrl = "http://localhost:5678";
 const utilityLoading = ref<UtilityAction | null>(null);
 const utilityNotice = ref<UtilityNotice | null>(null);
 const route = useRoute();

@@ -99,7 +99,7 @@
                                         leave-to-class="transform opacity-0 scale-95"
                                     >
                                         <MenuItems
-                                            class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-gray-800 py-2 shadow-lg outline outline-1 -outline-offset-1 outline-white/10"
+                                            class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-gray-800 py-2 shadow-lg outline-1 -outline-offset-1 outline-white/10"
                                         >
                                             <MenuItem v-slot="{ active }">
                                                 <RouterLink
