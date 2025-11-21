@@ -20,31 +20,35 @@ describe("WorkflowPreflightHandler", () => {
         process.env = { ...originalEnv };
     });
 
-    it("falls back to container ollama host when localhost is unreachable", async () => {
-        process.env.CODEX_OSS_BASE_URL = "http://localhost:11434";
-        process.env.APP_BASE_URL = "http://127.0.0.1:3000";
-
-        jest.isolateModules(async () => {
-            // Re-import with updated env
-            const { WorkflowPreflightHandler: Handler } = await import(
-                "../../../src/api/handlers/workflowPreflight.handler"
-            );
-
-            (global.fetch as jest.Mock).mockImplementation((url: RequestInfo | URL) => {
-                const target = String(url);
-                if (target.includes("/health")) return okResponse({});
-                if (target.startsWith("http://localhost:11434")) {
-                    return Promise.reject(new Error("connect ECONNREFUSED"));
-                }
-                if (target.startsWith("http://ollama:11434")) {
-                    return okResponse({ models: [{ name: "llama" }] });
-                }
-                throw new Error(`Unexpected URL ${target}`);
-            });
-
-            const handler = new Handler();
-            const result = await handler.handle();
-            expect(result.models).toEqual([{ name: "llama" }]);
+    it("falls back to localhost when container host is unreachable", async () => {
+        (global.fetch as jest.Mock).mockImplementation((url: RequestInfo | URL) => {
+            const target = String(url);
+            if (target.includes("/health")) return okResponse({});
+            if (target.includes("/api/codebases")) return okResponse({ data: { codebases: [] } });
+            if (target.startsWith("http://ollama:11434")) {
+                return Promise.reject(new Error("connect ECONNREFUSED"));
+            }
+            if (target.startsWith("http://localhost:11434")) {
+                return okResponse({ models: [{ name: "llama" }] });
+            }
+            throw new Error(`Unexpected URL ${target}`);
         });
+
+        const handler = new WorkflowPreflightHandler();
+        const result = await handler.handle();
+        expect(result.models).toEqual([{ name: "llama" }]);
+    });
+
+    it("returns empty list when all candidates fail", async () => {
+        (global.fetch as jest.Mock).mockImplementation((url: RequestInfo | URL) => {
+            const target = String(url);
+            if (target.includes("/health")) return okResponse({});
+            if (target.includes("/api/codebases")) return okResponse({ data: { codebases: [] } });
+            return Promise.reject(new Error("connect ECONNREFUSED"));
+        });
+
+        const handler = new WorkflowPreflightHandler();
+        const result = await handler.handle();
+        expect(result.models).toEqual([]);
     });
 });

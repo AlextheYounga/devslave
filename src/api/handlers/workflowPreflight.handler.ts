@@ -45,7 +45,6 @@ export class WorkflowPreflightHandler {
 
     async handle(): Promise<{ codebases: CodebaseSummary[]; models: OllamaModel[] }> {
         await this.checkDevslaveHealth();
-        await this.checkOllamaHealth();
         const codebases = await this.fetchActiveCodebases();
         const models = await this.fetchOllamaModels();
 
@@ -64,13 +63,6 @@ export class WorkflowPreflightHandler {
         const response = await makeRequest(url, { method: "GET" });
         await ensureOk(response, url);
         console.log("✅ DevSlave API is reachable.");
-    }
-
-    private async checkOllamaHealth(): Promise<void> {
-        console.log("🔍 Checking Ollama health...");
-        const response = await makeRequest(DEFAULT_OLLAMA_BASE_URL, { method: "GET" });
-        await ensureOk(response, DEFAULT_OLLAMA_BASE_URL);
-        console.log("✅ Ollama is reachable.");
     }
 
     private async fetchActiveCodebases(): Promise<CodebaseSummary[]> {
@@ -107,30 +99,37 @@ export class WorkflowPreflightHandler {
                 if (response.status !== 404) {
                     const body = await readBody(response);
                     const suffix = body ? ` ${body}` : "";
-                    throw new Error(
+                    lastError = new Error(
                         `Request to ${url} failed with status ${response.status} ${response.statusText}.${suffix}`,
                     );
+                    continue;
                 }
 
                 lastError = new Error(`Request to ${url} failed with status 404 Not Found.`);
             }
         }
 
-        throw lastError ?? new Error("Failed to fetch Ollama models.");
+        if (lastError) {
+            console.warn(
+                `[preflight] Ollama models fetch failed on all candidates: ${lastError.message}`,
+            );
+        }
+        return [];
     }
 
     private getOllamaCandidates(): string[] {
-        const candidates = new Set<string>();
-        candidates.add(DEFAULT_OLLAMA_BASE_URL);
+        const defaults = ["http://ollama:11434", "http://localhost:11434"];
+        const candidates: string[] = [];
 
-        const normalized = DEFAULT_OLLAMA_BASE_URL.toLowerCase();
-        if (normalized.includes("localhost") || normalized.includes("127.0.0.1")) {
-            candidates.add("http://ollama:11434");
-        } else if (normalized.includes("ollama")) {
-            candidates.add("http://127.0.0.1:11434");
-            candidates.add("http://localhost:11434");
+        // Always prefer container host first, then localhost
+        defaults.forEach((entry) => {
+            if (!candidates.includes(entry)) candidates.push(entry);
+        });
+
+        if (!candidates.includes(DEFAULT_OLLAMA_BASE_URL)) {
+            candidates.push(DEFAULT_OLLAMA_BASE_URL);
         }
 
-        return Array.from(candidates);
+        return candidates;
     }
 }
